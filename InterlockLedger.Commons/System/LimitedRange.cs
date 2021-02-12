@@ -57,6 +57,7 @@ namespace System
             }
         }
 
+        public ushort Count => (ushort)(End - Start + 1);
         public string TextualRepresentation => ToString();
 
         public static bool operator !=(LimitedRange left, LimitedRange right) => !(left == right);
@@ -87,11 +88,7 @@ namespace System
 
         public bool OverlapsWith(LimitedRange other) => Contains(other.Start) || Contains(other.End) || other.Contains(Start);
 
-        //public LimitedRange ResolveFrom(string textualRepresentation) => Resolve(textualRepresentation);
-
         public override string ToString() => $"[{Start}{(End != Start ? "-" + End : "")}]";
-
-        internal ushort Count => (ushort)(End - Start + 1);
 
         private LimitedRange(ulong start, ulong end) {
             if (end < start)
