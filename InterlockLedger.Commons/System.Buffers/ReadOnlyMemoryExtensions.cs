@@ -30,20 +30,57 @@
 //
 // ******************************************************************************************************************************
 
-using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace System.Buffers
 {
+
     public static class ReadOnlyMemoryExtensions
     {
-        public static ReadOnlySequenceStream AsStream(this ReadOnlySequence<byte> memory)
-            => new(memory);
 
-        public static T AsStreamDo<T>(this ReadOnlySequence<byte> memory, Func<Stream, T> func) {
-            if (func is null)
-                throw new ArgumentNullException(nameof(func));
-            using Stream s = memory.AsStream();
-            return func(s);
+        public static string ToUrlSafeBase64(this byte[] bytes)
+            => Convert.ToBase64String(bytes ?? throw new ArgumentNullException(nameof(bytes)))
+               .Trim('=')
+               .Replace('+', '-')
+               .Replace('/', '_');
+
+        public static ArraySegment<byte> ToArraySegment(this ReadOnlyMemory<byte> memory)
+            => !MemoryMarshal.TryGetArray(memory, out var result)
+                ? throw new InvalidOperationException("Buffer backed by array was expected")
+                : result;
+
+        public static ReadOnlySequence<byte> ToSequence(this IEnumerable<ReadOnlyMemory<byte>> segments)
+            => (segments?.Count() ?? 0) switch
+            {
+                0 => ReadOnlySequence<byte>.Empty,
+                1 => new ReadOnlySequence<byte>(segments.First()),
+                _ => LinkedSegment.Link(segments)
+            };
+
+        private class LinkedSegment : ReadOnlySequenceSegment<byte>
+        {
+            public int Length => Memory.Length;
+
+            public long NextRunningIndex => RunningIndex + Length;
+
+            public static ReadOnlySequence<byte> Link(IEnumerable<ReadOnlyMemory<byte>> segments) {
+                var first = new LinkedSegment(segments.First(), 0);
+                var current = first;
+                foreach (var segment in segments.Skip(1)) {
+                    var next = new LinkedSegment(segment, current.NextRunningIndex);
+                    current.Next = next;
+                    current = next;
+                }
+                return new ReadOnlySequence<byte>(first, 0, current, current.Length);
+            }
+
+            private LinkedSegment(ReadOnlyMemory<byte> memory, long runningIndex) {
+                Memory = memory;
+                RunningIndex = runningIndex;
+            }
         }
+
     }
 }

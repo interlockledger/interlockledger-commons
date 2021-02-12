@@ -13,9 +13,9 @@
       <Product>InterlockLedger</Product>
       <RepositoryType>git</RepositoryType>
       <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-      <Version>1.0.0</Version>
+      <Version>1.1.0</Version>
       <PackageId>InterlockLedger.Commons</PackageId>
-      <PackageReleaseNotes>Reunite lifesavers from many InterlockLedger projects here to have it available accross all ecosystem</PackageReleaseNotes>
+      <PackageReleaseNotes>Bring AbstractDisposable from InterlockLedger.Peer2Peer here</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

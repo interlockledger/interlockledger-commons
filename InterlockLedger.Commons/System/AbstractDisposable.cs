@@ -30,19 +30,52 @@
 //
 // ******************************************************************************************************************************
 
-using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace System
 {
-    public static class IntegerExtensions
+    public abstract class AbstractDisposable : IDisposable
     {
-        public static bool In(this int value, params int[] list) => list.Safe().Any(n => n == value);
+        public const string DisposedJustification = "Disposed by overriding AbstractDisposable.DisposeManagedResources";
 
-        public static byte[] ToBytes(this int value) {
-            var bytes = BitConverter.GetBytes(value);
-            if (BitConverter.IsLittleEndian)
-                Array.Reverse(bytes);
-            return bytes;
+        public bool Disposed => _disposed != 0;
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected abstract void DisposeManagedResources();
+
+        protected virtual void DisposeUnmanagedResources() { }
+
+        protected T Do<T>(Func<T> function, T @default = default) => !Disposed ? function() : @default;
+
+        protected void Do(Action action) {
+            if (!Disposed) action();
+        }
+
+        protected async Task<T> DoAsync<T>(Func<Task<T>> function, T @default = default) => !Disposed ? await function() : @default;
+
+        protected async Task DoAsync(Func<Task> function) {
+            if (!Disposed)
+                await function();
+        }
+
+        private int _disposed = 0;
+
+        ~AbstractDisposable() {
+            Dispose(false);
+        }
+
+        private void Dispose(bool disposing) {
+            if (Interlocked.CompareExchange(ref _disposed, 1, 0) == 0) {
+                if (disposing) {
+                    DisposeManagedResources();
+                }
+                DisposeUnmanagedResources();
+            }
         }
     }
 }
