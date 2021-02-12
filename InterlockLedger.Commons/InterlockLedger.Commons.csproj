@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+      <LangVersion>preview</LangVersion>
+      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+      <Authors>Rafael Teixeira</Authors>
+      <Company>InterlockLedger Network</Company>
+      <Copyright>Copyright (c) 2018-2020 InterlockLedger Network</Copyright>
+      <Description>This library implements the basic TLV/JSON encoding/decoding for core types.</Description>
+      <PackageLicenseFile>LICENSE</PackageLicenseFile>
+      <PackageProjectUrl>https://interlockledger.network/</PackageProjectUrl>
+      <Product>InterlockLedger</Product>
+      <RepositoryType>git</RepositoryType>
+      <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
+      <Version>1.0.0</Version>
+      <PackageId>InterlockLedger.Commons</PackageId>
+      <PackageReleaseNotes>Reunite lifesavers from many InterlockLedger projects here to have it available accross all ecosystem</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+      <None Include="..\LICENSE">
+          <Pack>True</Pack>
+          <PackagePath></PackagePath>
+      </None>
+  </ItemGroup>
+  <Target Name="PublishLocally" AfterTargets="Pack" Condition="Exists('$(INTERLOCK_LOCAL_NUGETS_FOLDER)')">
+      <ItemGroup>
+          <NugetPackages Include="$(PackageOutputAbsolutePath)\$(PackageId).$(Version).nupkg" />
+      </ItemGroup>
+      <Message Importance="high" Text="Publish to Local Nugets Folder '$(INTERLOCK_LOCAL_NUGETS_FOLDER)'" />
+      <Copy DestinationFolder="$(INTERLOCK_LOCAL_NUGETS_FOLDER)" SourceFiles="@(NugetPackages)" ContinueOnError="true" SkipUnchangedFiles="false" />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.Memory" Version="4.5.4" />
+    <PackageReference Include="System.Text.Json" Version="5.0.0" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
+	<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+  </ItemGroup>
+
+</Project>
