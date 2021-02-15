@@ -32,15 +32,15 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.ComponentModel.Design.Serialization;
 using System.Globalization;
 using System.Linq;
+using System.Text.Json.Serialization;
 
 namespace System
 {
-    [TypeConverter(typeof(LimitedRangeConverter))]
-    //[JsonConverter(typeof(JsonCustomConverter<LimitedRange>))]
-    public struct LimitedRange : IEquatable<LimitedRange>//, IJsonCustom<LimitedRange>
+    [TypeConverter(typeof(TypeCustomConverter<LimitedRange>))]
+    [JsonConverter(typeof(JsonCustomConverter<LimitedRange>))]
+    public struct LimitedRange : IEquatable<LimitedRange>, ITextual<LimitedRange>
     {
         public readonly ulong End;
         public readonly ulong Start;
@@ -58,7 +58,7 @@ namespace System
         }
 
         public ushort Count => (ushort)(End - Start + 1);
-        public string TextualRepresentation => ToString();
+        public string TextualRepresentation => $"[{Start}{(End != Start ? "-" + End : "")}]";
 
         public static bool operator !=(LimitedRange left, LimitedRange right) => !(left == right);
 
@@ -88,7 +88,9 @@ namespace System
 
         public bool OverlapsWith(LimitedRange other) => Contains(other.Start) || Contains(other.End) || other.Contains(Start);
 
-        public override string ToString() => $"[{Start}{(End != Start ? "-" + End : "")}]";
+        public LimitedRange ResolveFrom(string textualRepresentation) => Resolve(textualRepresentation);
+
+        public override string ToString() => TextualRepresentation;
 
         private LimitedRange(ulong start, ulong end) {
             if (end < start)
@@ -98,30 +100,12 @@ namespace System
         }
     }
 
-    public static class LimitedRangeExtensions
+    public static class IEnumerableOfLimitedRangeExtensions
     {
         public static bool AnyOverlapsWith(this IEnumerable<LimitedRange> first, IEnumerable<LimitedRange> second) => first.Any(f => second.Any(s => s.OverlapsWith(f)));
 
         public static bool Includes(this IEnumerable<LimitedRange> ranges, ulong value) => ranges.Any(r => r.Contains(value));
 
         public static bool IsSupersetOf(this IEnumerable<LimitedRange> first, IEnumerable<LimitedRange> second) => second.All(r => first.Any(Value => Value.Contains(r)));
-    }
-
-    public class LimitedRangeConverter : TypeConverter
-    {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) => sourceType == typeof(string);
-
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-            => destinationType == typeof(InstanceDescriptor) || destinationType == typeof(string);
-
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-            => value is string text
-                ? LimitedRange.Resolve(text.Trim())
-                : base.ConvertFrom(context, culture, value);
-
-        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
-            => destinationType == typeof(string) && value is LimitedRange
-                ? value.ToString()
-                : throw new InvalidOperationException("Can only convert Range to string!!!");
     }
 }
