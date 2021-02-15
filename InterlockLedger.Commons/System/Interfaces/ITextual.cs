@@ -32,10 +32,13 @@
 
 namespace System
 {
-    public interface ITextual<T> where T : new()
+    public interface ITextual
     {
         string TextualRepresentation { get; }
+    }
 
+    public interface ITextual<T> : ITextual where T : new()
+    {
         T ResolveFrom(string textualRepresentation);
     }
 }
