@@ -52,7 +52,8 @@ namespace System.Buffers
                 : result;
 
         public static ReadOnlySequence<byte> ToSequence(this IEnumerable<ReadOnlyMemory<byte>> segments)
-            => (segments?.Count() ?? 0) switch {
+            => (segments?.Count() ?? 0) switch
+            {
                 0 => ReadOnlySequence<byte>.Empty,
                 1 => new ReadOnlySequence<byte>(segments.First()),
                 _ => LinkedSegment.Link(segments)

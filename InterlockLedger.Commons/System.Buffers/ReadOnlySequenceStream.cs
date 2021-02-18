@@ -86,7 +86,8 @@ namespace System.Buffers
             return count;
         }
 
-        public override long Seek(long offset, SeekOrigin origin) => origin switch {
+        public override long Seek(long offset, SeekOrigin origin) => origin switch
+        {
             SeekOrigin.Begin => SetPosition(offset),
             SeekOrigin.Current => SetPosition(_position + offset),
             SeekOrigin.End => SetPosition(_length + offset),
