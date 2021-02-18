@@ -129,7 +129,7 @@ namespace System
 
         public static string WithoutWhiteSpace(this string s) => string.IsNullOrWhiteSpace(s) ? string.Empty : Regex.Replace(s, @"[\r\n\s]+", " ").Trim();
 
-        private static readonly Regex _nameFilter = new Regex(@"[\.\s\r\n<>\:""/\\|\?\*]+");
+        private static readonly Regex _nameFilter = new(@"[\.\s\r\n<>\:""/\\|\?\*]+");
 
         private static string ToUpperInvariant(Match match) => match.Value.ToUpperInvariant();
     }

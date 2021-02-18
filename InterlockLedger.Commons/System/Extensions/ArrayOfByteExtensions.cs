@@ -148,7 +148,7 @@ namespace System
         }
 
         public static X509Certificate2 OpenCertificate(this byte[] certificateBytes, string password)
-            => new X509Certificate2(certificateBytes, password, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
+            => new(certificateBytes, password, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
 
         public static byte[] PartOf(this byte[] bytes, int length, int offset = 0) {
             var part = new byte[length];

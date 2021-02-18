@@ -34,7 +34,7 @@ namespace System
 {
     public static class DateTimeOffsetExtensions
     {
-        public static readonly DateTimeOffset TimeZero = new DateTimeOffset(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        public static readonly DateTimeOffset TimeZero = new(1970, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         public static ulong AsMilliseconds(this DateTimeOffset value) => (ulong)Validated((value - TimeZero).TotalMilliseconds, value);
 

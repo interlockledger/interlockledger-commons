@@ -38,7 +38,7 @@ namespace System
     public static class StringSuffixExtensions
     {
         public static FileInfo TempFileInfo(this string suffix)
-            => new FileInfo(Path.GetTempFileName().WithSuffixReplaced(suffix));
+            => new(Path.GetTempFileName().WithSuffixReplaced(suffix));
 
         public static string WithSuffix(this string s, string suffix, char separator = '.')
             => SuffixAdder(s, suffix, separator, AddMissingSuffix);

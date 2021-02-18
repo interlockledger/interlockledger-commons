@@ -119,8 +119,7 @@ namespace System.IO
         private readonly Stream _s;
 
         private long AdjustOffset(long offset, SeekOrigin origin)
-            => origin switch
-            {
+            => origin switch {
                 SeekOrigin.Begin => ValidateWithinBounds(offset),
                 SeekOrigin.Current => ValidateWithinBounds(offset + (Position - _begin)),
                 SeekOrigin.End => ValidateWithinBounds(_length + offset),

@@ -45,6 +45,6 @@ namespace System.Collections.Generic
         }
 
         public static Dictionary<string, T> CaseIgnoring<T>(this Dictionary<string, T> dictionary)
-            => new Dictionary<string, T>(dictionary, CaseIgnoringComparer);
+            => new(dictionary, CaseIgnoringComparer);
     }
 }
