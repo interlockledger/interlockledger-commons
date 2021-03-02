@@ -16,7 +16,7 @@ jobs:
         dotnet-version: 5.0.103
 
     - name: Setup nuget config
-      run: sed 's/GITHUB_TOKEN/${{ secrets.RegistryToken }}/g' .nuget.config > nuget.config
+      run: sed 's/GITHUB_TOKEN/${{ secrets.REGISTRY_TOKEN }}/g' .nuget.config > nuget.config
 
     - name: Restore dependencies
       run: dotnet restore
