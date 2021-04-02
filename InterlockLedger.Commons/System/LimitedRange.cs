@@ -35,6 +35,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace System
 {
@@ -55,26 +56,35 @@ namespace System
             checked {
                 End = start + count - 1;
             }
+            TextualRepresentation = $"[{Start}{(End != Start ? "-" + End : "")}]";
         }
 
+        public LimitedRange(string textualRepresentation) {
+            var parts = textualRepresentation.Required(nameof(textualRepresentation)).Trim('[', ']').Split('-');
+            string startText = parts[0].Trim();
+            Start = ulong.Parse(startText, CultureInfo.InvariantCulture);
+            if (parts.Length == 1) {
+                End = Start;
+            } else {
+                string endText = parts[1].Trim();
+                End = ulong.Parse(endText, CultureInfo.InvariantCulture);
+                if (End < Start)
+                    throw new ArgumentException($"End of range ['{endText}' => {End}] must be greater than the start ['{startText}' => {Start}]", nameof(textualRepresentation));
+                if (End > (Start + ushort.MaxValue))
+                    throw new ArgumentException($"Range is too wide (Count > {ushort.MaxValue}");
+            }
+            TextualRepresentation = $"[{Start}{(End != Start ? "-" + End : "")}]";
+        }
+
+        public static ITextualService<LimitedRange> TextualService { get; } = new LimitedRangeTextualService();
         public ushort Count => (ushort)(End - Start + 1);
-        public string TextualRepresentation => $"[{Start}{(End != Start ? "-" + End : "")}]";
+        public bool IsEmpty => Start == End && End == default;
+        public bool IsInvalid => Start > End;
+        public string TextualRepresentation { get; }
 
         public static bool operator !=(LimitedRange left, LimitedRange right) => !(left == right);
 
         public static bool operator ==(LimitedRange left, LimitedRange right) => left.Equals(right);
-
-        public static LimitedRange Resolve(string text) {
-            if (string.IsNullOrWhiteSpace(text))
-                throw new ArgumentException("Must come one or two numbers separated by '-'", nameof(text));
-            var parts = text.Trim('[', ']').Split('-');
-            var start = ulong.Parse(parts[0].Trim(), CultureInfo.InvariantCulture);
-            if (parts.Length == 1)
-                return new LimitedRange(start);
-            var end = ulong.Parse(parts[1].Trim(), CultureInfo.InvariantCulture);
-            var range = new LimitedRange(start, end);
-            return range;
-        }
 
         public bool Contains(ulong value) => Start <= value && value <= End;
 
@@ -88,15 +98,32 @@ namespace System
 
         public bool OverlapsWith(LimitedRange other) => Contains(other.Start) || Contains(other.End) || other.Contains(Start);
 
-        public LimitedRange ResolveFrom(string textualRepresentation) => Resolve(textualRepresentation);
-
         public override string ToString() => TextualRepresentation;
 
-        private LimitedRange(ulong start, ulong end) {
-            if (end < start)
-                throw new ArgumentOutOfRangeException(nameof(end));
+        private LimitedRange(ulong start, ulong end, string textualRepresentation) {
             Start = start;
             End = end;
+            TextualRepresentation = textualRepresentation;
+        }
+
+        private class LimitedRangeTextualService : ITextualService<LimitedRange>
+        {
+            public LimitedRange Empty { get; } = new LimitedRange(default(ulong), default(ulong), "[]");
+            public LimitedRange Invalid { get; } = new LimitedRange(ulong.MaxValue, ulong.MaxValue - 1, "[?]");
+            public Regex Mask { get; } = new Regex(@"^\[\d+(-\d+)?\]$");
+            public string MessageForMissing => "No LimitedRange supplied";
+
+            public LimitedRange Build(string textualRepresentation) {
+                if (textualRepresentation.IsBlank() || textualRepresentation.SafeEqualsTo(Empty.TextualRepresentation))
+                    return Empty;
+                try {
+                    return new LimitedRange(textualRepresentation);
+                } catch {
+                    return Invalid;
+                }
+            }
+
+            public string MessageForInvalid(string textualRepresentation) => $"Not a valid LimitedRange '{textualRepresentation}'";
         }
     }
 

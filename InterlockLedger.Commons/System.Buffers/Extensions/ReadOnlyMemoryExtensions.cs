@@ -36,16 +36,8 @@ using System.Runtime.InteropServices;
 
 namespace System.Buffers
 {
-
     public static class ReadOnlyMemoryExtensions
     {
-
-        public static string ToUrlSafeBase64(this byte[] bytes)
-            => Convert.ToBase64String(bytes ?? throw new ArgumentNullException(nameof(bytes)))
-               .Trim('=')
-               .Replace('+', '-')
-               .Replace('/', '_');
-
         public static ArraySegment<byte> ToArraySegment(this ReadOnlyMemory<byte> memory)
             => !MemoryMarshal.TryGetArray(memory, out var result)
                 ? throw new InvalidOperationException("Buffer backed by array was expected")
@@ -57,6 +49,12 @@ namespace System.Buffers
                 1 => new ReadOnlySequence<byte>(segments.First()),
                 _ => LinkedSegment.Link(segments)
             };
+
+        public static string ToUrlSafeBase64(this byte[] bytes)
+                            => Convert.ToBase64String(bytes ?? throw new ArgumentNullException(nameof(bytes)))
+               .Trim('=')
+               .Replace('+', '-')
+               .Replace('/', '_');
 
         private class LinkedSegment : ReadOnlySequenceSegment<byte>
         {
@@ -80,6 +78,5 @@ namespace System.Buffers
                 RunningIndex = runningIndex;
             }
         }
-
     }
 }

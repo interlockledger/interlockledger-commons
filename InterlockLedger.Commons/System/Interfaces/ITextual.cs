@@ -30,15 +30,15 @@
 //
 // ******************************************************************************************************************************
 
+#nullable enable
+
 namespace System
 {
-    public interface ITextual
+    public interface ITextual<T>
     {
+        static ITextualService<T>? TextualService { get; }
+        bool IsEmpty { get; }
+        bool IsInvalid { get; }
         string TextualRepresentation { get; }
-    }
-
-    public interface ITextual<T> : ITextual where T : new()
-    {
-        T ResolveFrom(string textualRepresentation);
     }
 }

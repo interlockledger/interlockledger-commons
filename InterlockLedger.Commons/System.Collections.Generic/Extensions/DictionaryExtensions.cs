@@ -44,6 +44,12 @@ namespace System.Collections.Generic
             return dictionary;
         }
 
+        public static Dictionary<string, T> AddIf<T>(this Dictionary<string, T> dictionary, Func<bool> shouldAdd, string key, T value) {
+            if (shouldAdd.Required(nameof(shouldAdd))())
+                dictionary?.Add(key, value);
+            return dictionary;
+        }
+
         public static Dictionary<string, T> CaseIgnoring<T>(this Dictionary<string, T> dictionary)
             => new(dictionary, CaseIgnoringComparer);
     }

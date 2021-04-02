@@ -39,17 +39,28 @@ namespace System.Linq
     {
         public static bool AnyWithNoNulls<T>(this IEnumerable<T> items) => items.SafeAny() && items.NoNulls();
 
+        public static IEnumerable<T> Append<T>(this IEnumerable<T> first, params T[] extras)
+            => first.Safe().Concat(extras);
+
+        public static IEnumerable<T> Append<T>(this IEnumerable<T> first, IEnumerable<T> second)
+            => first.Safe().Concat(second);
+
         public static IEnumerable<T> AppendedOf<T>(this T item, IEnumerable<T> remainingItems)
             => InnerAppend(item, remainingItems);
 
         public static IEnumerable<T> AppendedOf<T>(this T item, params T[] remainingItems)
             => InnerAppend(item, remainingItems);
 
+        public static string DefaultFormatter<T>(T t) => t?.ToString();
+
         public static bool EqualTo<T>(this IEnumerable<T> first, IEnumerable<T> second)
             => first is null && second is null || !(first is null || second is null) && first.SequenceEqual(second);
 
         public static bool EquivalentTo<T>(this IEnumerable<T> first, IEnumerable<T> second)
             => first.Safe().SequenceEqual(second.Safe());
+
+        public static IEnumerable<T> ExceptFor<T>(this IEnumerable<T> first, params T[] exceptions)
+            => first.Safe().Except(exceptions);
 
         public static IEnumerable<T> FilledTo<T>(this IEnumerable<T> list, int length) {
             if (list != null)
@@ -73,7 +84,7 @@ namespace System.Linq
             => list == null ? string.Empty : string.Join(joiner, list);
 
         public static string JoinedBy<T>(this IEnumerable<T> list, string joiner, Func<T, string> formatter)
-            => list == null ? string.Empty : string.Join(joiner, list.Select(formatter ?? (t => t.ToString())));
+            => list == null ? string.Empty : string.Join(joiner, list.Select(formatter ?? DefaultFormatter));
 
         public static bool None<T>(this IEnumerable<T> items) => !items.SafeAny();
 
@@ -100,6 +111,13 @@ namespace System.Linq
                 yield return it;
         }
 
+        public static IEnumerable<T> PrependedBy<T>(this IEnumerable<T> items, params T[] prefixItems) {
+            foreach (var it in prefixItems.Safe())
+                yield return it;
+            foreach (var it in items.Safe())
+                yield return it;
+        }
+
         public static IEnumerable<T> RequireNonNulls<T>(this IEnumerable<T> items, string parameterName) where T : class
             => items.None(item => item is null)
                 ? items.Safe()
@@ -119,14 +137,30 @@ namespace System.Linq
         public static IEnumerable<TResult> SelectSkippingNulls<TSource, TResult>(this IEnumerable<TSource> values, Func<TSource, TResult> selector) where TResult : class
             => Safe(values?.Select(selector).SkipNulls());
 
+        public static IEnumerable<T> Skip<T>(this IEnumerable<T> values, Func<T, bool> predicate)
+            => values.Safe().Where(item => !predicate(item));
+
+        public static IEnumerable<T> SkipDefaults<T>(this IEnumerable<T> values) => values.Skip(item => item.IsDefault());
+
+        public static IEnumerable<T> SkipNonDefaults<T>(this IEnumerable<T> values) => values.Skip(item => !item.IsDefault());
+
+        public static IEnumerable<T> SkipNonNulls<T>(this IEnumerable<T> values) where T : class
+            => values.Skip(item => item is not null);
+
         public static IEnumerable<T> SkipNulls<T>(this IEnumerable<T> values) where T : class
-            => Safe(values?.Where(item => item != null));
+            => values.Skip(item => item is null);
 
         public static IEnumerable<T> TakeULong<T>(this IEnumerable<T> items, ulong howMany)
             => (howMany <= int.MaxValue) ? items.Safe().Take((int)howMany) : items.Safe();
 
+        public static IEnumerable<string> ToStrings<T>(this IEnumerable<T> values)
+            => values.Safe().Select(v => v.WithDefault(string.Empty));
+
+        public static string ValidateAll<T>(this IEnumerable<T> items, Func<T, string> validator)
+            => items.Safe().Select(validator.Required(nameof(validator))).SkipBlanks().WithLineBreaks();
+
         public static string WithCommas<T>(this IEnumerable<T> list, bool noSpaces = false)
-                    => JoinedBy(list, noSpaces ? "," : ", ");
+            => JoinedBy(list, noSpaces ? "," : ", ");
 
         public static IEnumerable<T> WithDefault<T>(this IEnumerable<T> values, Func<IEnumerable<T>> alternativeValues)
             => values.SafeAny() ? values : Safe(alternativeValues?.Invoke());
@@ -155,6 +189,8 @@ namespace System.Linq
                 ? nonNullValues
                 : (await getAlternativeValuesAsync.Required(nameof(getAlternativeValuesAsync))()).Safe();
         }
+
+        public static string WithLineBreaks<T>(this IEnumerable<T> list) => JoinedBy(list, "\n");
 
         public static IEnumerable<T> WithMinimums<T>(this IEnumerable<T> values, params T[] minimums)
             where T : IComparable<T>

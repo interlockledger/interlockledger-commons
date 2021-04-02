@@ -1,4 +1,4 @@
-// ******************************************************************************************************************************
+﻿// ******************************************************************************************************************************
 //
 // Copyright (c) 2018-2021 InterlockLedger Network
 // All rights reserved.
@@ -30,30 +30,48 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Text.Json.Serialization
+#nullable enable
+
+using System.Text.RegularExpressions;
+
+namespace System
 {
-    public class JsonCustomConverter<T> : JsonConverter<T> where T : ITextual<T>
+    public interface ITextualService<T>
     {
-        public JsonCustomConverter() {
-            if (_service is null) {
-                var ctor = typeof(T).GetConstructor(new Type[] { typeof(string) });
-                _service = (s) => (T)ctor.Invoke(new object[] { s });
-            }
+        public enum Resolution
+        {
+            Empty,
+            Valid,
+            Invalid
         }
 
-        public override bool CanConvert(Type typeToConvert)
-            => typeToConvert.Required(nameof(typeToConvert)) == typeof(T) || typeToConvert.IsSubclassOf(typeof(T));
+        T Empty { get; }
+        T Invalid { get; }
+        Regex Mask { get; }
 
-        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.TokenType == JsonTokenType.String
-                ? _service(reader.GetString())
-                : throw new NotSupportedException();
+        T Build(string textualRepresentation);
 
-        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) {
-            writer.Required(nameof(writer));
-            writer.WriteStringValue(value.TextualRepresentation);
-        }
+        string MessageForMissing { get; }
 
-        private static Func<object, T> _service;
+        Resolution IsValidTextual(string? textualRepresentation)
+            => textualRepresentation.IsBlank()
+                ? Resolution.Empty
+                : Mask.IsMatch(textualRepresentation)
+                    ? Resolution.Valid
+                    : Resolution.Invalid;
+
+        string MessageForInvalid(string? textualRepresentation);
+
+        T Resolve(string textualRepresentation) => IsValidTextual(textualRepresentation) switch {
+            Resolution.Empty => Empty,
+            Resolution.Valid => Build(textualRepresentation),
+            _ => Invalid
+        };
+
+        string? Validate(string? textualRepresentation) => IsValidTextual(textualRepresentation) switch {
+            Resolution.Valid => null,
+            Resolution.Empty => MessageForMissing,
+            _ => MessageForInvalid(textualRepresentation)
+        };
     }
 }

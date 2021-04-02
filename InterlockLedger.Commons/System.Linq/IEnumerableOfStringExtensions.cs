@@ -45,10 +45,19 @@ namespace System.Linq
         public static IEnumerable<ulong> AsOrderedUlongs(this IEnumerable<string> strings)
             => strings.Safe().Select(StringExtensions.AsUlong);
 
-        public static IEnumerable<string> SkipNullOrWhiteSpace(this IEnumerable<string> strings)
-            => strings.Safe().Where(kn => !string.IsNullOrWhiteSpace(kn));
+        public static IEnumerable<string> SkipBlanks(this IEnumerable<string> strings)
+            => strings.Skip(item => item.IsBlank());
+
+        public static IEnumerable<string> SkipNonBlanks(this IEnumerable<string> strings)
+            => strings.Skip(item => !item.IsBlank());
 
         public static IEnumerable<string> Trimmed(this IEnumerable<string> strings)
-            => strings.SkipNullOrWhiteSpace().Select(kn => kn.Trim());
+            => strings.SkipBlanks().Select(kn => kn.Trim());
+
+        public static IEnumerable<string> Trimmed(this IEnumerable<string> strings, char trimChar)
+            => strings.SkipBlanks().Select(kn => kn.Trim(trimChar));
+
+        public static IEnumerable<string> Trimmed(this IEnumerable<string> strings, params char[] trimChars)
+            => strings.SkipBlanks().Select(kn => kn.Trim(trimChars));
     }
 }
