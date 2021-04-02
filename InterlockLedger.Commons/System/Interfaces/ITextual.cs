@@ -34,11 +34,15 @@
 
 namespace System
 {
-    public interface ITextual<T>
+    public interface ITextual
     {
-        static ITextualService<T>? TextualService { get; }
         bool IsEmpty { get; }
         bool IsInvalid { get; }
         string TextualRepresentation { get; }
+    }
+
+    public interface ITextual<T> : ITextual
+    {
+        public static ITextualService<T>? TextualService { get; }
     }
 }
