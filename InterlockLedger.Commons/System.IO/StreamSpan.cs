@@ -30,6 +30,9 @@
 //
 // ******************************************************************************************************************************
 
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace System.IO
 {
     public class StreamSpan : Stream
@@ -50,6 +53,7 @@ namespace System.IO
                     ? offset
                     : throw new ArgumentException("offset doesn't match current position on non-seeking stream");
             _begin = s.Position;
+            _positionAfterSpan = _length + _begin;
         }
 
         public override bool CanRead => true;
@@ -73,8 +77,14 @@ namespace System.IO
             }
         }
 
+        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state) => throw new NotSupportedException(_isReadonly);
+
+        public override void EndWrite(IAsyncResult asyncResult) => throw new NotSupportedException(_isReadonly);
+
         public override void Flush() {
         }
+
+        public override Task FlushAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
         public override int Read(byte[] buffer, int offset, int count) {
             if (Position + count > _length) {
@@ -86,51 +96,71 @@ namespace System.IO
             return _s.Read(buffer, offset, count);
         }
 
-        public override long Seek(long offset, SeekOrigin origin)
-            => CanSeek
+        public override long Seek(long offset, SeekOrigin origin) {
+            return CanSeek
                 ? _s.Seek(AdjustOffset(offset, origin), SeekOrigin.Begin) - _begin
                 : throw new NotSupportedException("Can't position non-seekable stream");
 
+            long AdjustOffset(long offset, SeekOrigin origin)
+                => origin switch {
+                    SeekOrigin.Begin => ValidateWithinBounds(offset),
+                    SeekOrigin.Current => ValidateWithinBounds(offset + (Position - _begin)),
+                    SeekOrigin.End => ValidateWithinBounds(_length + offset),
+                    _ => throw new ArgumentException($"Unknown origin {origin}")
+                };
+            long ValidateWithinBounds(long offset)
+                => offset < 0
+                    ? throw new ArgumentOutOfRangeException(nameof(offset), "Can't position before start")
+                    : offset >= _length
+                        ? throw new ArgumentOutOfRangeException(nameof(offset), "Can't position after end")
+                        : offset + _begin;
+        }
+
         public override void SetLength(long value) => throw new NotSupportedException("This StreamSpan can't have its length changed");
 
-        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException("This StreamSpan is readonly");
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException(_isReadonly);
+
+        public override void Write(ReadOnlySpan<byte> buffer) => throw new NotSupportedException(_isReadonly);
+
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => throw new NotSupportedException(_isReadonly);
+
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default) => throw new NotSupportedException(_isReadonly);
+
+        public override void WriteByte(byte value) => throw new NotSupportedException(_isReadonly);
 
         protected override void Dispose(bool disposing) {
             base.Dispose(disposing);
             if (_closeWrappedStreamOnDispose) {
                 _s.Dispose();
             } else {
-                long positionAfterSpan = _length + _begin;
-                var unreadBytes = (int)(positionAfterSpan - _s.Position);
+                var unreadBytes = (int)(_positionAfterSpan - _s.Position);
                 if (unreadBytes > 0) {
                     if (CanSeek) {
-                        _s.Position = positionAfterSpan;
+                        _s.Position = _positionAfterSpan;
                     } else {
-                        var buffer = new byte[unreadBytes];
-                        _s.Read(buffer, 0, unreadBytes);
+                        AdvanceByReading(_s, unreadBytes);
                     }
                 }
             }
+
+            static void AdvanceByReading(Stream s, int unreadBytes) {
+                var bufferSize = Math.Min(unreadBytes, 16 * 1024);
+                var buffer = new byte[unreadBytes];
+                while (unreadBytes > bufferSize) {
+                    var read = s.Read(buffer, 0, bufferSize);
+                    if (read == 0)
+                        return;
+                    unreadBytes -= read;
+                }
+                s.Read(buffer, 0, unreadBytes);
+            }
         }
 
+        private const string _isReadonly = "This StreamSpan is readonly";
         private readonly long _begin;
         private readonly bool _closeWrappedStreamOnDispose;
         private readonly long _length;
+        private readonly long _positionAfterSpan;
         private readonly Stream _s;
-
-        private long AdjustOffset(long offset, SeekOrigin origin)
-            => origin switch {
-                SeekOrigin.Begin => ValidateWithinBounds(offset),
-                SeekOrigin.Current => ValidateWithinBounds(offset + (Position - _begin)),
-                SeekOrigin.End => ValidateWithinBounds(_length + offset),
-                _ => throw new ArgumentException($"Unknown origin {origin}")
-            };
-
-        private long ValidateWithinBounds(long offset)
-            => offset < 0
-                ? throw new ArgumentOutOfRangeException(nameof(offset), "Can't position before start")
-                : offset >= _length
-                    ? throw new ArgumentOutOfRangeException(nameof(offset), "Can't position after end")
-                    : offset + _begin;
     }
 }

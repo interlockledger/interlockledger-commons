@@ -13,9 +13,9 @@
       <Product>InterlockLedger</Product>
       <RepositoryType>git</RepositoryType>
       <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-      <Version>1.2.4</Version>
+      <Version>1.2.5</Version>
       <PackageId>InterlockLedger.Commons</PackageId>
-      <PackageReleaseNotes>ITextual and Custom Converters + another fix</PackageReleaseNotes>
+      <PackageReleaseNotes>Use less memory to dispose a StreamSpan around a non-seekable Stream</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
