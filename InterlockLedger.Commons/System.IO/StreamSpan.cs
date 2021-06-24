@@ -71,7 +71,7 @@ namespace System.IO
                     throw new NotSupportedException("Can't position non-seekable stream");
                 if (value < 0)
                     throw new ArgumentOutOfRangeException(nameof(value), "Can't position before start");
-                if (value >= _length)
+                if (value > _length)
                     throw new ArgumentOutOfRangeException(nameof(value), "Can't position after end");
                 _s.Position = (value + _begin);
             }
@@ -104,14 +104,14 @@ namespace System.IO
             long AdjustOffset(long offset, SeekOrigin origin)
                 => origin switch {
                     SeekOrigin.Begin => ValidateWithinBounds(offset),
-                    SeekOrigin.Current => ValidateWithinBounds(offset + (Position - _begin)),
+                    SeekOrigin.Current => ValidateWithinBounds(offset + Position),
                     SeekOrigin.End => ValidateWithinBounds(_length + offset),
                     _ => throw new ArgumentException($"Unknown origin {origin}")
                 };
             long ValidateWithinBounds(long offset)
                 => offset < 0
                     ? throw new ArgumentOutOfRangeException(nameof(offset), "Can't position before start")
-                    : offset >= _length
+                    : offset > _length
                         ? throw new ArgumentOutOfRangeException(nameof(offset), "Can't position after end")
                         : offset + _begin;
         }

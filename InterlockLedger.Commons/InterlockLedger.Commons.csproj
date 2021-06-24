@@ -13,9 +13,9 @@
       <Product>InterlockLedger</Product>
       <RepositoryType>git</RepositoryType>
       <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-      <Version>1.2.5</Version>
+      <Version>1.3.0</Version>
       <PackageId>InterlockLedger.Commons</PackageId>
-      <PackageReleaseNotes>Use less memory to dispose a StreamSpan around a non-seekable Stream</PackageReleaseNotes>
+      <PackageReleaseNotes>Fix seeking behavior (off by one check at end) of StreamSpan</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
