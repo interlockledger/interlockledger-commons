@@ -1,52 +1,48 @@
-<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-      <LangVersion>preview</LangVersion>
-      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-      <Authors>InterlockLedger Network Team</Authors>
-      <Company>InterlockLedger Network</Company>
-      <Copyright>Copyright (c) 2018-2021 InterlockLedger Network</Copyright>
-      <Description>This library implements lots of lifesaving classes and extensions.</Description>
-      <PackageLicenseFile>LICENSE</PackageLicenseFile>
-      <PackageProjectUrl>https://interlockledger.network/</PackageProjectUrl>
-      <Product>InterlockLedger</Product>
-      <RepositoryType>git</RepositoryType>
-      <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-      <Version>1.3.0</Version>
-      <PackageId>InterlockLedger.Commons</PackageId>
-      <PackageReleaseNotes>Fix seeking behavior (off by one check at end) of StreamSpan</PackageReleaseNotes>
-      <EnableNETAnalyzers>true</EnableNETAnalyzers>
-      <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-      <AnalysisLevel>preview</AnalysisLevel>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>DEBUG</DefineConstants>
-  </PropertyGroup>
-  <ItemGroup>
-      <None Include="..\LICENSE">
-          <Pack>True</Pack>
-          <PackagePath></PackagePath>
-      </None>
-  </ItemGroup>
-  <Target Name="PublishLocally" AfterTargets="Pack" Condition="Exists('$(INTERLOCK_LOCAL_NUGETS_FOLDER)')">
-      <ItemGroup>
-          <NugetPackages Include="$(PackageOutputAbsolutePath)\$(PackageId).$(Version).nupkg" />
-      </ItemGroup>
-      <Message Importance="high" Text="Publish to Local Nugets Folder '$(INTERLOCK_LOCAL_NUGETS_FOLDER)'" />
-      <Copy DestinationFolder="$(INTERLOCK_LOCAL_NUGETS_FOLDER)" SourceFiles="@(NugetPackages)" ContinueOnError="true" SkipUnchangedFiles="false" />
-  </Target>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="System.Memory" Version="4.5.4" />
-    <PackageReference Include="System.Text.Json" Version="5.0.2" />
-	<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
-	<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
-  </ItemGroup>
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <LangVersion>preview</LangVersion>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Authors>InterlockLedger Network Team</Authors>
+        <Company>InterlockLedger Network</Company>
+        <Copyright>Copyright (c) 2018-2021 InterlockLedger Network</Copyright>
+        <Description>This library implements lots of lifesaving classes and extensions.</Description>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageProjectUrl>https://interlockledger.network/</PackageProjectUrl>
+        <Product>InterlockLedger</Product>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
+        <Version>1.3.1</Version>
+        <PackageId>InterlockLedger.Commons</PackageId>
+        <PackageReleaseNotes>Small refactorings</PackageReleaseNotes>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <AnalysisLevel>preview</AnalysisLevel>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DefineConstants>DEBUG</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="..\LICENSE">
+            <Pack>True</Pack>
+            <PackagePath/>
+        </None>
+    </ItemGroup>
+    <Target Name="PublishLocally" AfterTargets="Pack" Condition="Exists('$(INTERLOCK_LOCAL_NUGETS_FOLDER)')">
+        <ItemGroup>
+            <NugetPackages Include="$(PackageOutputAbsolutePath)\$(PackageId).$(Version).nupkg"/>
+        </ItemGroup>
+        <Message Importance="high" Text="Publish to Local Nugets Folder '$(INTERLOCK_LOCAL_NUGETS_FOLDER)'"/>
+        <Copy DestinationFolder="$(INTERLOCK_LOCAL_NUGETS_FOLDER)" SourceFiles="@(NugetPackages)" ContinueOnError="true" SkipUnchangedFiles="false"/>
+    </Target>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="5.0.3">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="System.Memory" Version="4.5.4"/>
+        <PackageReference Include="System.Text.Json" Version="5.0.2"/>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0"/>
+    </ItemGroup>
 </Project>

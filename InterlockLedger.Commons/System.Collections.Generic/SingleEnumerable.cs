@@ -36,7 +36,7 @@ namespace System.Collections.Generic
     {
         public SingleEnumerable(T singleElement) => _singleElement = singleElement;
 
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => new Enumerator(_singleElement);
+        public IEnumerator<T> GetEnumerator() => new Enumerator(_singleElement);
 
         IEnumerator IEnumerable.GetEnumerator() => new Enumerator(_singleElement);
 
@@ -46,21 +46,20 @@ namespace System.Collections.Generic
         {
             public Enumerator(T singleElement) {
                 _singleElement = singleElement;
-                _count = 1;
+                Reset();
             }
 
-            T IEnumerator<T>.Current => _value;
-            object IEnumerator.Current => _value;
+            public T Current => _count == 0 ? _singleElement : default;
+            object IEnumerator.Current => Current;
 
-            void IDisposable.Dispose() { }
+            public void Dispose() { }
 
-            bool IEnumerator.MoveNext() => _count-- > 0;
+            public bool MoveNext() => _count-- > 0;
 
-            void IEnumerator.Reset() => _count = 1;
+            public void Reset() => _count = 1;
 
             private readonly T _singleElement;
             private byte _count;
-            private T _value => _count == 0 ? _singleElement : default;
         }
     }
 }

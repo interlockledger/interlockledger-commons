@@ -108,8 +108,12 @@ namespace System
 
         private class LimitedRangeTextualService : ITextualService<LimitedRange>
         {
-            public LimitedRange Empty { get; } = new LimitedRange(default(ulong), default(ulong), "[]");
-            public LimitedRange Invalid { get; } = new LimitedRange(ulong.MaxValue, ulong.MaxValue - 1, "[?]");
+            public LimitedRange Empty { get; } = new LimitedRange(start: default,
+                                                                  end: default,
+                                                                  textualRepresentation: "[]");
+            public LimitedRange Invalid { get; } = new LimitedRange(start: ulong.MaxValue,
+                                                                    end: ulong.MaxValue - 1,
+                                                                    textualRepresentation: "[?]");
             public Regex Mask { get; } = new Regex(@"^\[\d+(-\d+)?\]$");
             public string MessageForMissing => "No LimitedRange supplied";
 
