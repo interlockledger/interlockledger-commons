@@ -1,20 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31005.135
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31521.260
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterlockLedger.Commons", "InterlockLedger.Commons\InterlockLedger.Commons.csproj", "{923A351F-8C05-4133-9019-93055CD59F32}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InterlockLedger.Commons", "InterlockLedger.Commons\InterlockLedger.Commons.csproj", "{923A351F-8C05-4133-9019-93055CD59F32}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3DE7133F-0157-4787-A058-29438E3E5987}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
+		.github\workflows\create-diagram.yml = .github\workflows\create-diagram.yml
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterlockLedger.Commons.NUnit.Tests", "InterlockLedger.Commons.NUnit.Tests\InterlockLedger.Commons.NUnit.Tests.csproj", "{F0563492-2617-473A-97EF-40AAB731F73A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InterlockLedger.Commons.NUnit.Tests", "InterlockLedger.Commons.NUnit.Tests\InterlockLedger.Commons.NUnit.Tests.csproj", "{F0563492-2617-473A-97EF-40AAB731F73A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
