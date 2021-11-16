@@ -30,78 +30,75 @@
 //
 // ******************************************************************************************************************************
 
-using System.Collections.Generic;
-using System.IO;
+namespace System.Buffers;
 
-namespace System.Buffers
+public static class ReadOnlySequenceExtensions
 {
-    public static class ReadOnlySequenceExtensions
-    {
-        public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, ReadOnlySequence<byte> otherSequence)
-            => sequence.JoinTo(otherSequence).ToSequence();
+    public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, ReadOnlySequence<byte> otherSequence)
+        => sequence.JoinTo(otherSequence).ToSequence();
 
-        public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, ReadOnlyMemory<byte> memory)
-            => sequence.Append(memory).ToSequence();
+    public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, ReadOnlyMemory<byte> memory)
+        => sequence.Append(memory).ToSequence();
 
-        public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, byte[] array)
-            => sequence.Add(new ReadOnlyMemory<byte>(array));
+    public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, byte[] array)
+        => sequence.Add(new ReadOnlyMemory<byte>(array));
 
-        public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, byte[] array, int start, int length)
-            => sequence.Add(new ReadOnlyMemory<byte>(array, start, length));
+    public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, byte[] array, int start, int length)
+        => sequence.Add(new ReadOnlyMemory<byte>(array, start, length));
 
-        public static ReadOnlySequenceStream AsStream(this ReadOnlySequence<byte> memory) => new(memory);
+    public static ReadOnlySequenceStream AsStream(this ReadOnlySequence<byte> memory) => new(memory);
 
-        public static T AsStreamDo<T>(this ReadOnlySequence<byte> memory, Func<Stream, T> func) {
-            if (func is null)
-                throw new ArgumentNullException(nameof(func));
-            using Stream s = memory.AsStream();
-            return func(s);
-        }
+    public static T AsStreamDo<T>(this ReadOnlySequence<byte> memory, Func<Stream, T> func) {
+        if (func is null)
+            throw new ArgumentNullException(nameof(func));
+        using Stream s = memory.AsStream();
+        return func(s);
+    }
 
-        public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, ReadOnlySequence<byte> otherSequence)
-            => otherSequence.JoinTo(sequence).ToSequence();
+    public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, ReadOnlySequence<byte> otherSequence)
+        => otherSequence.JoinTo(sequence).ToSequence();
 
-        public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, ReadOnlyMemory<byte> memory)
-            => sequence.PrependMemory(memory).ToSequence();
+    public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, ReadOnlyMemory<byte> memory)
+        => sequence.PrependMemory(memory).ToSequence();
 
-        public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, byte[] array)
-            => sequence.Prepend(new ReadOnlyMemory<byte>(array));
+    public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, byte[] array)
+        => sequence.Prepend(new ReadOnlyMemory<byte>(array));
 
-        public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, byte[] array, int start, int length)
-            => sequence.Prepend(new ReadOnlyMemory<byte>(array, start, length));
+    public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, byte[] array, int start, int length)
+        => sequence.Prepend(new ReadOnlyMemory<byte>(array, start, length));
 
-        public static ReadOnlySequence<byte> Realloc(this ReadOnlySequence<byte> body) {
-            var newBuffer = new byte[body.Length];
-            body.CopyTo(newBuffer.AsSpan());
-            return new ReadOnlySequence<byte>(newBuffer);
-        }
+    public static ReadOnlySequence<byte> Realloc(this ReadOnlySequence<byte> body) {
+        var newBuffer = new byte[body.Length];
+        body.CopyTo(newBuffer.AsSpan());
+        return new ReadOnlySequence<byte>(newBuffer);
+    }
 
-        public static string ToUrlSafeBase64(this ReadOnlySequence<byte> readOnlyBytes)
-            => readOnlyBytes.Length > 256
-                ? ReadOnlyMemoryExtensions.ToUrlSafeBase64(readOnlyBytes.Slice(0, 256).ToArray()) + "..."
-                : ReadOnlyMemoryExtensions.ToUrlSafeBase64(readOnlyBytes.ToArray());
+    [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1055:URI-like return values should not be strings", Justification = "Not URI-like")]
+    public static string ToUrlSafeBase64(this ReadOnlySequence<byte> readOnlyBytes)
+        => readOnlyBytes.Length > 256
+            ? ReadOnlyMemoryExtensions.ToUrlSafeBase64(readOnlyBytes.Slice(0, 256).ToArray()) + "..."
+            : ReadOnlyMemoryExtensions.ToUrlSafeBase64(readOnlyBytes.ToArray());
 
-        private static IEnumerable<ReadOnlyMemory<byte>> Append(this ReadOnlySequence<byte> sequence, ReadOnlyMemory<byte> memory) {
-            var current = sequence.Start;
-            while (sequence.TryGet(ref current, out var segment))
-                yield return segment;
-            yield return memory;
-        }
+    private static IEnumerable<ReadOnlyMemory<byte>> Append(this ReadOnlySequence<byte> sequence, ReadOnlyMemory<byte> memory) {
+        var current = sequence.Start;
+        while (sequence.TryGet(ref current, out var segment))
+            yield return segment;
+        yield return memory;
+    }
 
-        private static IEnumerable<ReadOnlyMemory<byte>> JoinTo(this ReadOnlySequence<byte> sequence, ReadOnlySequence<byte> otherSequence) {
-            var current = sequence.Start;
-            while (sequence.TryGet(ref current, out var segment))
-                yield return segment;
-            current = otherSequence.Start;
-            while (otherSequence.TryGet(ref current, out var segment))
-                yield return segment;
-        }
+    private static IEnumerable<ReadOnlyMemory<byte>> JoinTo(this ReadOnlySequence<byte> sequence, ReadOnlySequence<byte> otherSequence) {
+        var current = sequence.Start;
+        while (sequence.TryGet(ref current, out var segment))
+            yield return segment;
+        current = otherSequence.Start;
+        while (otherSequence.TryGet(ref current, out var segment))
+            yield return segment;
+    }
 
-        private static IEnumerable<ReadOnlyMemory<byte>> PrependMemory(this ReadOnlySequence<byte> sequence, ReadOnlyMemory<byte> memory) {
-            yield return memory;
-            var current = sequence.Start;
-            while (sequence.TryGet(ref current, out var segment))
-                yield return segment;
-        }
+    private static IEnumerable<ReadOnlyMemory<byte>> PrependMemory(this ReadOnlySequence<byte> sequence, ReadOnlyMemory<byte> memory) {
+        yield return memory;
+        var current = sequence.Start;
+        while (sequence.TryGet(ref current, out var segment))
+            yield return segment;
     }
 }

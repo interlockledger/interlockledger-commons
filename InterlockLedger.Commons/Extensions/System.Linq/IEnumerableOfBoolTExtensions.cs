@@ -30,18 +30,15 @@
 //
 // ******************************************************************************************************************************
 
-using System.Collections.Generic;
+namespace System.Linq;
 
-namespace System.Linq
+public static class IEnumerableOfBoolTExtensions
 {
-    public static class IEnumerableOfBoolTExtensions
-    {
-        public static bool AllFalse(this IEnumerable<bool> items) => items.Safe().All(b => !b);
+    public static bool AllFalse(this IEnumerable<bool> items) => items.Safe().All(b => !b);
 
-        public static bool AllTrue(this IEnumerable<bool> items) => items.Safe().All(b => b);
+    public static bool AllTrue(this IEnumerable<bool> items) => items.Safe().All(b => b);
 
-        public static bool AnyFalse(this IEnumerable<bool> items) => items.Safe().Any(b => !b);
+    public static bool AnyFalse(this IEnumerable<bool> items) => items.Safe().Any(b => !b);
 
-        public static bool AnyTrue(this IEnumerable<bool> items) => items.Safe().Any(b => b);
-    }
+    public static bool AnyTrue(this IEnumerable<bool> items) => items.Safe().Any(b => b);
 }

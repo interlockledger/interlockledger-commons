@@ -30,15 +30,11 @@
 //
 // ******************************************************************************************************************************
 
-using System;
-using System.Linq;
+namespace System;
 
-namespace System
+public static class ULongExtensions
 {
-    public static class ULongExtensions
-    {
-        public static DateTimeOffset AsDateTime(this ulong milliseconds) => DateTimeOffsetExtensions.TimeZero.AddMilliseconds(milliseconds);
+    public static DateTimeOffset AsDateTime(this ulong milliseconds) => DateTimeOffsetExtensions.TimeZero.AddMilliseconds(milliseconds);
 
-        public static bool In(this ulong value, params ulong[] list) => list?.Contains(value) ?? false;
-    }
+    public static bool In(this ulong value, params ulong[] list) => list?.Contains(value) ?? false;
 }

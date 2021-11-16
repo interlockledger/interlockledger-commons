@@ -30,10 +30,9 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Security.Claims
+namespace System.Security.Claims;
+
+public static class ClaimsIdentityExtensions
 {
-    public static class ClaimsIdentityExtensions
-    {
-        public static bool HasRole(this ClaimsIdentity identity, string roleName) => identity?.HasClaim(ClaimTypes.Role, roleName) ?? false;
-    }
+    public static bool HasRole(this ClaimsIdentity identity, string roleName) => identity?.HasClaim(ClaimTypes.Role, roleName) ?? false;
 }

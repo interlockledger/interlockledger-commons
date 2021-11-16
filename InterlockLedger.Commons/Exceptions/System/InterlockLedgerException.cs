@@ -30,16 +30,15 @@
 //
 // ******************************************************************************************************************************
 
-namespace System
-{
-    /// <summary>Base class from all InterlockLedger exceptions.</summary>
-    /// <seealso cref="Exception" />
-    public class InterlockLedgerException : Exception
-    {
-        protected InterlockLedgerException(string message) : base(message) {
-        }
+namespace System;
 
-        protected InterlockLedgerException(string message, Exception innerException) : base(message, innerException) {
-        }
+/// <summary>Base class from all InterlockLedger exceptions.</summary>
+/// <seealso cref="Exception" />
+public class InterlockLedgerException : Exception
+{
+    protected InterlockLedgerException(string message) : base(message) {
+    }
+
+    protected InterlockLedgerException(string message, Exception innerException) : base(message, innerException) {
     }
 }

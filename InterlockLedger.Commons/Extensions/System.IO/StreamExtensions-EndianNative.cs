@@ -30,76 +30,75 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.IO
+namespace System.IO;
+
+public static partial class StreamExtensions
 {
-    public static partial class StreamExtensions
-    {
-        public static int BigEndianReadInt(this Stream s)
-            => s is null
-                ? throw new ArgumentNullException(nameof(s))
-                : ReadByte(s) + (ReadByte(s) << 8) + (ReadByte(s) << 16) + (ReadByte(s) << 24);
+    public static int BigEndianReadInt(this Stream s)
+        => s is null
+            ? throw new ArgumentNullException(nameof(s))
+            : ReadByte(s) + (ReadByte(s) << 8) + (ReadByte(s) << 16) + (ReadByte(s) << 24);
 
-        public static long BigEndianReadLong(this Stream s)
-            => s is null
-                ? throw new ArgumentNullException(nameof(s))
-                : ReadByte(s) + ((long)ReadByte(s) << 8) + ((long)ReadByte(s) << 16) + ((long)ReadByte(s) << 24) + ((long)ReadByte(s) << 32) + ((long)ReadByte(s) << 40) + ((long)ReadByte(s) << 48) + ((long)ReadByte(s) << 56);
+    public static long BigEndianReadLong(this Stream s)
+        => s is null
+            ? throw new ArgumentNullException(nameof(s))
+            : ReadByte(s) + ((long)ReadByte(s) << 8) + ((long)ReadByte(s) << 16) + ((long)ReadByte(s) << 24) + ((long)ReadByte(s) << 32) + ((long)ReadByte(s) << 40) + ((long)ReadByte(s) << 48) + ((long)ReadByte(s) << 56);
 
-        public static short BigEndianReadShort(this Stream s)
-            => s is null ? throw new ArgumentNullException(nameof(s)) : (short)(ReadByte(s) + (ReadByte(s) << 8));
+    public static short BigEndianReadShort(this Stream s)
+        => s is null ? throw new ArgumentNullException(nameof(s)) : (short)(ReadByte(s) + (ReadByte(s) << 8));
 
-        public static uint BigEndianReadUInt(this Stream s)
-            => s is null
-                ? throw new ArgumentNullException(nameof(s))
-                : (uint)(ReadByte(s) + (ReadByte(s) << 8) + (ReadByte(s) << 16) + (ReadByte(s) << 24));
+    public static uint BigEndianReadUInt(this Stream s)
+        => s is null
+            ? throw new ArgumentNullException(nameof(s))
+            : (uint)(ReadByte(s) + (ReadByte(s) << 8) + (ReadByte(s) << 16) + (ReadByte(s) << 24));
 
-        public static ulong BigEndianReadULong(this Stream s)
-            => s is null
-                ? throw new ArgumentNullException(nameof(s))
-                : ReadByte(s) + ((ulong)ReadByte(s) << 8) + ((ulong)ReadByte(s) << 16) + ((ulong)ReadByte(s) << 24) + ((ulong)ReadByte(s) << 32) + ((ulong)ReadByte(s) << 40) + ((ulong)ReadByte(s) << 48) + ((ulong)ReadByte(s) << 56);
+    public static ulong BigEndianReadULong(this Stream s)
+        => s is null
+            ? throw new ArgumentNullException(nameof(s))
+            : ReadByte(s) + ((ulong)ReadByte(s) << 8) + ((ulong)ReadByte(s) << 16) + ((ulong)ReadByte(s) << 24) + ((ulong)ReadByte(s) << 32) + ((ulong)ReadByte(s) << 40) + ((ulong)ReadByte(s) << 48) + ((ulong)ReadByte(s) << 56);
 
-        public static ushort BigEndianReadUShort(this Stream s)
-            => s is null ? throw new ArgumentNullException(nameof(s)) : (ushort)(ReadByte(s) + (ReadByte(s) << 8));
+    public static ushort BigEndianReadUShort(this Stream s)
+        => s is null ? throw new ArgumentNullException(nameof(s)) : (ushort)(ReadByte(s) + (ReadByte(s) << 8));
 
-        public static Stream BigEndianWriteInt(this Stream s, int value)
-            => s.WriteSingleByte(AsByte(value)).WriteSingleByte(AsByte(value >> 8)).WriteSingleByte(AsByte(value >> 16)).WriteSingleByte(AsByte(value >> 24));
+    public static Stream BigEndianWriteInt(this Stream s, int value)
+        => s.WriteSingleByte(AsByte(value)).WriteSingleByte(AsByte(value >> 8)).WriteSingleByte(AsByte(value >> 16)).WriteSingleByte(AsByte(value >> 24));
 
-        public static Stream BigEndianWriteLong(this Stream s, long value)
-            => s.WriteSingleByte(AsByte(value)).WriteSingleByte(AsByte(value >> 8)).WriteSingleByte(AsByte(value >> 16)).WriteSingleByte(AsByte(value >> 24))
-                .WriteSingleByte(AsByte(value >> 32)).WriteSingleByte(AsByte(value >> 40)).WriteSingleByte(AsByte(value >> 48)).WriteSingleByte(AsByte(value >> 56));
+    public static Stream BigEndianWriteLong(this Stream s, long value)
+        => s.WriteSingleByte(AsByte(value)).WriteSingleByte(AsByte(value >> 8)).WriteSingleByte(AsByte(value >> 16)).WriteSingleByte(AsByte(value >> 24))
+            .WriteSingleByte(AsByte(value >> 32)).WriteSingleByte(AsByte(value >> 40)).WriteSingleByte(AsByte(value >> 48)).WriteSingleByte(AsByte(value >> 56));
 
-        public static Stream BigEndianWriteShort(this Stream s, short value)
-            => s.WriteSingleByte(AsByte(value)).WriteSingleByte(AsByte(value >> 8));
+    public static Stream BigEndianWriteShort(this Stream s, short value)
+        => s.WriteSingleByte(AsByte(value)).WriteSingleByte(AsByte(value >> 8));
 
-        public static Stream BigEndianWriteUInt(this Stream s, uint value)
-            => s.WriteSingleByte(AsByte(value)).WriteSingleByte(AsByte(value >> 8)).WriteSingleByte(AsByte(value >> 16)).WriteSingleByte(AsByte(value >> 24));
+    public static Stream BigEndianWriteUInt(this Stream s, uint value)
+        => s.WriteSingleByte(AsByte(value)).WriteSingleByte(AsByte(value >> 8)).WriteSingleByte(AsByte(value >> 16)).WriteSingleByte(AsByte(value >> 24));
 
-        public static Stream BigEndianWriteULong(this Stream s, ulong value)
-            => s.WriteSingleByte(AsByteU(value)).WriteSingleByte(AsByteU(value >> 8)).WriteSingleByte(AsByteU(value >> 16)).WriteSingleByte(AsByteU(value >> 24))
-                .WriteSingleByte(AsByteU(value >> 32)).WriteSingleByte(AsByteU(value >> 40)).WriteSingleByte(AsByteU(value >> 48)).WriteSingleByte(AsByteU(value >> 56));
+    public static Stream BigEndianWriteULong(this Stream s, ulong value)
+        => s.WriteSingleByte(AsByteU(value)).WriteSingleByte(AsByteU(value >> 8)).WriteSingleByte(AsByteU(value >> 16)).WriteSingleByte(AsByteU(value >> 24))
+            .WriteSingleByte(AsByteU(value >> 32)).WriteSingleByte(AsByteU(value >> 40)).WriteSingleByte(AsByteU(value >> 48)).WriteSingleByte(AsByteU(value >> 56));
 
-        public static Stream BigEndianWriteUShort(this Stream s, ushort value)
-            => s.WriteSingleByte(AsByte(value)).WriteSingleByte(AsByte(value >> 8));
+    public static Stream BigEndianWriteUShort(this Stream s, ushort value)
+        => s.WriteSingleByte(AsByte(value)).WriteSingleByte(AsByte(value >> 8));
 
-        public static int LittleEndianReadInteger(this Stream s)
-            => s is null
-                ? throw new ArgumentNullException(nameof(s))
-                : (ReadByte(s) << 24) + (ReadByte(s) << 16) + (ReadByte(s) << 8) + ReadByte(s);
+    public static int LittleEndianReadInteger(this Stream s)
+        => s is null
+            ? throw new ArgumentNullException(nameof(s))
+            : (ReadByte(s) << 24) + (ReadByte(s) << 16) + (ReadByte(s) << 8) + ReadByte(s);
 
-        public static long LittleEndianReadLong(this Stream s)
-            => s is null
-                ? throw new ArgumentNullException(nameof(s))
-                : ((long)ReadByte(s) << 56) + ((long)ReadByte(s) << 48) + ((long)ReadByte(s) << 40) + ((long)ReadByte(s) << 32) + ((long)ReadByte(s) << 24) + ((long)ReadByte(s) << 16) + ((long)ReadByte(s) << 8) + ReadByte(s);
+    public static long LittleEndianReadLong(this Stream s)
+        => s is null
+            ? throw new ArgumentNullException(nameof(s))
+            : ((long)ReadByte(s) << 56) + ((long)ReadByte(s) << 48) + ((long)ReadByte(s) << 40) + ((long)ReadByte(s) << 32) + ((long)ReadByte(s) << 24) + ((long)ReadByte(s) << 16) + ((long)ReadByte(s) << 8) + ReadByte(s);
 
-        public static short LittleEndianReadShort(this Stream s)
-            => s is null ? throw new ArgumentNullException(nameof(s)) : (short)((ReadByte(s) << 8) + ReadByte(s));
+    public static short LittleEndianReadShort(this Stream s)
+        => s is null ? throw new ArgumentNullException(nameof(s)) : (short)((ReadByte(s) << 8) + ReadByte(s));
 
-        public static void LittleEndianWriteInteger(this Stream s, int value)
-            => WriteBytes(s, value.ToBytes());
+    public static void LittleEndianWriteInteger(this Stream s, int value)
+        => WriteBytes(s, value.ToBytes());
 
-        public static void LittleEndianWriteLong(this Stream s, long value)
-            => WriteBytes(s, value.ToBytes());
+    public static void LittleEndianWriteLong(this Stream s, long value)
+        => WriteBytes(s, value.ToBytes());
 
-        public static void LittleEndianWriteShort(this Stream s, short value)
-            => WriteBytes(s, value.ToBytes());
-    }
+    public static void LittleEndianWriteShort(this Stream s, short value)
+        => WriteBytes(s, value.ToBytes());
 }

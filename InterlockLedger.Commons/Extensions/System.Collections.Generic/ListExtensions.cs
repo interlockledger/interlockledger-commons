@@ -30,13 +30,13 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Collections.Generic
+namespace System.Collections.Generic;
+
+public static class ListExtensions
 {
-    public static class ListExtensions
-    {
-        public static List<T> SafeAdd<T>(this List<T> list, params T[] itens) {
-            list?.AddRange(itens);
-            return list;
-        }
+    [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "Needed")]
+    public static List<T>? SafeAdd<T>(this List<T>? list, params T[] itens) {
+        list?.AddRange(itens);
+        return list;
     }
 }

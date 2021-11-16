@@ -30,30 +30,26 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Text.Json.Serialization
+namespace System.Text.Json.Serialization;
+
+public class JsonCustomConverter<T> : JsonConverter<T> where T : ITextual<T>
 {
-    public class JsonCustomConverter<T> : JsonConverter<T> where T : ITextual<T>
-    {
-        public JsonCustomConverter() {
-            if (_service is null) {
-                var ctor = typeof(T).GetConstructor(new Type[] { typeof(string) });
-                _service = (s) => (T)ctor.Invoke(new object[] { s });
-            }
-        }
+    public JsonCustomConverter() { }
 
-        public override bool CanConvert(Type typeToConvert)
-            => typeToConvert.Required(nameof(typeToConvert)) == typeof(T) || typeToConvert.IsSubclassOf(typeof(T));
+    public override bool CanConvert(Type typeToConvert)
+        => typeToConvert.Required() == typeof(T) || typeToConvert.IsSubclassOf(typeof(T));
 
-        public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-            => reader.TokenType == JsonTokenType.String
-                ? _service(reader.GetString())
-                : throw new NotSupportedException();
+    public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        => reader.TokenType == JsonTokenType.String
+            ? _service(reader.GetString()!)
+            : throw new NotSupportedException();
 
-        public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) {
-            writer.Required(nameof(writer));
-            writer.WriteStringValue(value.TextualRepresentation);
-        }
+    public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
+        => writer.Required().WriteStringValue(value.TextualRepresentation);
 
-        private static Func<object, T> _service;
+    private static readonly Func<object, T> _service = BuildService();
+    private static Func<object, T> BuildService() {
+        var ctor = typeof(T).GetConstructor(new Type[] { typeof(string) }).Required();
+        return (s) => (T)ctor.Invoke(new object[] { s });
     }
 }

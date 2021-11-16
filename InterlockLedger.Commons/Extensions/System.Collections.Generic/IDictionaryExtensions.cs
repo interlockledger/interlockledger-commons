@@ -32,11 +32,10 @@
 
 using System.Collections.ObjectModel;
 
-namespace System.Collections.Generic
+namespace System.Collections.Generic;
+
+public static class IDictionaryExtensions
 {
-    public static class IDictionaryExtensions
-    {
-        public static IReadOnlyDictionary<string, string> AsReadonly(this IDictionary<string, string> dict)
-            => new ReadOnlyDictionary<string, string>(dict);
-    }
+    public static IReadOnlyDictionary<string, string> AsReadonly(this IDictionary<string, string> dict)
+        => new ReadOnlyDictionary<string, string>(dict);
 }

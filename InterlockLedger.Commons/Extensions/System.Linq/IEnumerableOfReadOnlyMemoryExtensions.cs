@@ -30,14 +30,20 @@
 //
 // ******************************************************************************************************************************
 
-using System.Collections.Generic;
+namespace System.Linq;
 
-namespace System.Linq
+public static class IEnumerableOfReadOnlyMemoryExtensions
 {
-    public static class IEnumerableOfReadOnlyMemoryExtensions
-    {
-        // TODO: optimize to have less creation of arrays and copying
-        public static T[] ToArray<T>(this IEnumerable<ReadOnlyMemory<T>> buffers) =>
-            buffers?.SelectMany(b => b.ToArray()).ToArray();
+    public static T[] ToArray<T>(this IEnumerable<ReadOnlyMemory<T>> buffers) {
+        if (buffers.None())
+            return Array.Empty<T>();
+        var length = buffers.Sum(rom => rom.Length);
+        var result = new T[length];
+        int offset = 0;
+        foreach (var buffer in buffers) {
+            buffer.CopyTo(new Memory<T>(result, offset, buffer.Length));
+            offset += buffer.Length;
+        }
+        return result;
     }
 }
