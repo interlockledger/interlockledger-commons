@@ -58,35 +58,58 @@ public class StreamSpanTests
             Assert.AreEqual(30L, sp.Length);
             Assert.AreEqual(0L, sp.Position);
             Assert.AreEqual(11L, baseStream.Position);
+            Assert.AreEqual(baseStream.Position, sp.OriginalPosition);
             _ = sp.ReadBytes(20);
             Assert.AreEqual(20L, sp.Position);
             Assert.AreEqual(31L, baseStream.Position);
+            Assert.AreEqual(baseStream.Position, sp.OriginalPosition);
             if (sp.CanSeek) {
                 sp.Position = 30;
                 Assert.AreEqual(41L, baseStream.Position);
+                Assert.AreEqual(baseStream.Position, sp.OriginalPosition);
                 sp.Position = 5;
                 Assert.AreEqual(16L, baseStream.Position);
+                Assert.AreEqual(baseStream.Position, sp.OriginalPosition);
                 sp.Seek(30, SeekOrigin.Begin);
                 Assert.AreEqual(41L, baseStream.Position);
+                Assert.AreEqual(baseStream.Position, sp.OriginalPosition);
                 sp.Position = 5;
                 Assert.AreEqual(16L, baseStream.Position);
+                Assert.AreEqual(baseStream.Position, sp.OriginalPosition);
                 sp.Seek(0, SeekOrigin.End);
                 Assert.AreEqual(41L, baseStream.Position);
+                Assert.AreEqual(baseStream.Position, sp.OriginalPosition);
                 sp.Position = 5;
                 Assert.AreEqual(16L, baseStream.Position);
+                Assert.AreEqual(baseStream.Position, sp.OriginalPosition);
                 sp.Seek(25, SeekOrigin.Current);
                 Assert.AreEqual(41L, baseStream.Position);
+                Assert.AreEqual(baseStream.Position, sp.OriginalPosition);
                 sp.Position = 5;
                 Assert.AreEqual(16L, baseStream.Position);
+                Assert.AreEqual(baseStream.Position, sp.OriginalPosition);
+                using (var ss = new StreamSpan(sp, 20)) {
+                    Assert.AreEqual(0L, ss.Position);
+                    Assert.AreEqual(5L, sp.Position);
+                    Assert.AreEqual(baseStream.Position, ss.OriginalPosition);
+                    Assert.AreEqual(16L, baseStream.Position);
+                    ss.Seek(8, SeekOrigin.Current);
+                    Assert.AreEqual(8L, ss.Position);
+                    Assert.AreEqual(13L, sp.Position);
+                    Assert.AreEqual(baseStream.Position, ss.OriginalPosition);
+                    Assert.AreEqual(24L, baseStream.Position);
+                }
             }
         }
         Assert.AreEqual(41L, baseStream.Position);
         using (var sp2 = new StreamSpan(baseStream, (ulong)(baseStream.Length - baseStream.Position))) {
             Assert.AreEqual(0L, sp2.Position);
             Assert.AreEqual(41L, baseStream.Position);
+            Assert.AreEqual(baseStream.Position, sp2.OriginalPosition);
             _ = sp2.ReadBytes(20);
             Assert.AreEqual(20L, sp2.Position);
             Assert.AreEqual(61L, baseStream.Position);
+            Assert.AreEqual(baseStream.Position, sp2.OriginalPosition);
         }
         Assert.AreEqual(baseStream.Length, baseStream.Position);
     }

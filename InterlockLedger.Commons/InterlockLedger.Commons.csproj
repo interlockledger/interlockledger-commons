@@ -11,10 +11,9 @@
         <Product>InterlockLedger</Product>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-        <Version>2.0.0</Version>
+        <Version>2.0.1</Version>
         <PackageId>InterlockLedger.Commons</PackageId>
-        <PackageReleaseNotes>Moving to .NET 6.0
-        - BREAKING: Simplification on Required() method extension with CallerArgumentExpression</PackageReleaseNotes>
+        <PackageReleaseNotes>- Add OriginalPosition property to StreamSpan</PackageReleaseNotes>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <AnalysisLevel>6.0</AnalysisLevel>

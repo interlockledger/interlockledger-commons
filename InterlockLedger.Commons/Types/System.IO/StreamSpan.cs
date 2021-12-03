@@ -61,6 +61,7 @@ public class StreamSpan : Stream
 
     public override long Length => _length;
 
+    public long OriginalPosition => _s is StreamSpan ss ? ss.OriginalPosition : _s.Position;
     public override long Position {
         get => _s.Position - _begin;
         set {
