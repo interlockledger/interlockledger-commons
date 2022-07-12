@@ -38,30 +38,51 @@ namespace System;
 
 public static class ObjectExtensions
 {
-    public static IEnumerable<T> AsSingle<T>(this T s) => new SingleEnumerable<T>(s);
+    public static IEnumerable<T> AsSingle<T>(this T s) =>
+        new SingleEnumerable<T>(s);
 
+    public static List<T> AsSingleList<T>(this T s) =>
+        s.AsSingle().ToList();
 
-    [SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "Needed")]
-    public static List<T> AsSingleList<T>(this T s) => s.AsSingle().ToList();
+    public static async Task<TO?> IfNotNullAsync<T, TO>(this T? value, Func<T, Task<TO?>> transformAsync)
+        where T : class
+        where TO : class =>
+        value is null ? null : await transformAsync.Required()(value).ConfigureAwait(false);
 
-    public static async Task<TO?> IfNotNullAsync<T, TO>(this T? value, Func<T, Task<TO?>> transformAsync) where T : class where TO : class
-        => value is null ? null : await transformAsync.Required()(value).ConfigureAwait(false);
+    public static bool In<T>(this T value, params T[] set) =>
+        set?.Contains(value) ?? false;
 
-    public static bool In<T>(this T value, params T[] set) => set?.Contains(value) ?? false;
+    public static bool In<T>(this T value, IEnumerable<T> set) =>
+        set?.Contains(value) ?? false;
 
-    public static bool In<T>(this T value, IEnumerable<T> set) => set?.Contains(value) ?? false;
+    public static bool IsDefault<T>(this T value) =>
+        object.Equals(value, default(T));
 
-    public static bool IsDefault<T>(this T value) => object.Equals(value, default(T));
+    public static string? PadLeft(this object? value, int totalWidth) =>
+        value?.ToString()?.PadLeft(totalWidth);
 
-    public static string? PadLeft(this object? value, int totalWidth) => value?.ToString()?.PadLeft(totalWidth);
+    public static string? PadRight(this object? value, int totalWidth) =>
+        value?.ToString()?.PadRight(totalWidth);
 
-    public static string? PadRight(this object? value, int totalWidth) => value?.ToString()?.PadRight(totalWidth);
+    public static T Required<T>([NotNull] this T? value, [CallerArgumentExpression("value")] string? name = null)
+        where T : class =>
+        value ?? throw ArgRequired(name);
 
-    public static T Required<T>([NotNull] this T? value, [CallerArgumentExpression("value")] string? name = null) where T : class
-        => value ?? throw new ArgumentException("Required", name);
+    public static T RequiredUsing<T>([NotNull] this T? value, Func<string?, Exception> exceptor, [CallerArgumentExpression("value")] string? name = null)
+        where T : class =>
+        value ?? throw exceptor.Required()(name);
 
-    public static string TypeOrNull(this object? value) => value is null ? "null" : value.GetType().Name;
+    public const string RequireExceptionMessageStart = "Required";
 
-    public static string WithDefault(this object? value, string @default)
-        => StringExtensions.WithDefault(value?.ToString(), @default);
+    public static Exception ArgRequired(string? name) =>
+        new ArgumentException(RequireExceptionMessageStart, name ?? "?");
+
+    public static Exception ArgNullRequired(string? name) =>
+        new ArgumentNullException(name ?? "?", RequireExceptionMessageStart);
+
+    public static string TypeOrNull(this object? value) =>
+        value is null ? "null" : value.GetType().Name;
+
+    public static string WithDefault(this object? value, string @default) =>
+        StringExtensions.WithDefault(value?.ToString(), @default);
 }

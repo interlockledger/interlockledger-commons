@@ -88,17 +88,16 @@ public class StreamSpanTests
                 sp.Position = 5;
                 Assert.AreEqual(16L, baseStream.Position);
                 Assert.AreEqual(baseStream.Position, sp.OriginalPosition);
-                using (var ss = new StreamSpan(sp, 20)) {
-                    Assert.AreEqual(0L, ss.Position);
-                    Assert.AreEqual(5L, sp.Position);
-                    Assert.AreEqual(baseStream.Position, ss.OriginalPosition);
-                    Assert.AreEqual(16L, baseStream.Position);
-                    ss.Seek(8, SeekOrigin.Current);
-                    Assert.AreEqual(8L, ss.Position);
-                    Assert.AreEqual(13L, sp.Position);
-                    Assert.AreEqual(baseStream.Position, ss.OriginalPosition);
-                    Assert.AreEqual(24L, baseStream.Position);
-                }
+                using var ss = new StreamSpan(sp, 20);
+                Assert.AreEqual(0L, ss.Position);
+                Assert.AreEqual(5L, sp.Position);
+                Assert.AreEqual(baseStream.Position, ss.OriginalPosition);
+                Assert.AreEqual(16L, baseStream.Position);
+                ss.Seek(8, SeekOrigin.Current);
+                Assert.AreEqual(8L, ss.Position);
+                Assert.AreEqual(13L, sp.Position);
+                Assert.AreEqual(baseStream.Position, ss.OriginalPosition);
+                Assert.AreEqual(24L, baseStream.Position);
             }
         }
         Assert.AreEqual(41L, baseStream.Position);

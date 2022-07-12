@@ -1,5 +1,5 @@
 // ******************************************************************************************************************************
-//
+//  
 // Copyright (c) 2018-2021 InterlockLedger Network
 // All rights reserved.
 //
@@ -29,19 +29,35 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // ******************************************************************************************************************************
+#nullable enable
 
+using NUnit.Framework;
 
+using static System.ObjectExtensions;
+using static System.ObjectExtensionsTests;
 
 namespace System;
 
-public interface ITextual
+[TestFixture]
+public class StringExtensionsTests
 {
-    bool IsEmpty { get; }
-    bool IsInvalid { get; }
-    string TextualRepresentation { get; }
-}
+    [Test]
+    public void RequiredForString() => _ = TestRequired(null, "stringNull") && TestRequired(string.Empty, "stringEmpty");
+    [Test]
+    public void RequiredUsingForString() => _ = TestRequiredUsing(null, "stringNull") && TestRequiredUsing(string.Empty, "stringEmpty");
 
-public interface ITextual<T> : ITextual
-{
-    public static ITextualService<T>? TextualService { get; }
+    private static bool TestRequired(string? value, string name) =>
+        AssertArgumentException<ArgumentException>(name, () => value.Required(name))
+        && AssertArgumentException<ArgumentException>(nameof(value), () => value.Required());
+
+    private static bool TestRequiredUsing(string? value, string name) =>
+        AssertArgumentException<ArgumentException>(name, () => value.RequiredUsing(n => new ArgumentException(_expectedExceptionMessageStart, n), name))
+        && AssertArgumentException<ArgumentException>(name, () => value.RequiredUsing(ArgRequired, name))
+        && AssertArgumentException<ArgumentNullException>(name, () => value.RequiredUsing(n => new ArgumentNullException(n, _expectedExceptionMessageStart), name))
+        && AssertArgumentException<ArgumentNullException>(name, () => value.RequiredUsing(ArgNullRequired, name))
+        && AssertArgumentException<ArgumentException>(nameof(value), () => value.RequiredUsing(n => new ArgumentException(_expectedExceptionMessageStart, n)))
+        && AssertArgumentException<ArgumentException>(nameof(value), () => value.RequiredUsing(ArgRequired))
+        && AssertArgumentException<ArgumentNullException>(nameof(value), () => value.RequiredUsing(n => new ArgumentNullException(n, _expectedExceptionMessageStart)))
+        && AssertArgumentException<ArgumentNullException>(nameof(value), () => value.RequiredUsing(ArgNullRequired));
+
 }

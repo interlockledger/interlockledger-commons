@@ -73,7 +73,6 @@ public static class ReadOnlySequenceExtensions
         return new ReadOnlySequence<byte>(newBuffer);
     }
 
-    [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1055:URI-like return values should not be strings", Justification = "Not URI-like")]
     public static string ToUrlSafeBase64(this ReadOnlySequence<byte> readOnlyBytes)
         => readOnlyBytes.Length > 256
             ? ReadOnlyMemoryExtensions.ToUrlSafeBase64(readOnlyBytes.Slice(0, 256).ToArray()) + "..."

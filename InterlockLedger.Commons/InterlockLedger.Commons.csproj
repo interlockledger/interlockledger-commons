@@ -11,12 +11,12 @@
         <Product>InterlockLedger</Product>
         <RepositoryType>git</RepositoryType>
         <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-        <Version>2.0.1</Version>
+        <Version>2.1.0</Version>
         <PackageId>InterlockLedger.Commons</PackageId>
         <PackageReleaseNotes>- Add OriginalPosition property to StreamSpan</PackageReleaseNotes>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-        <AnalysisLevel>6.0</AnalysisLevel>
+        <AnalysisLevel>preview</AnalysisLevel>
         <AnalysisMode>AllEnabledByDefault</AnalysisMode>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>

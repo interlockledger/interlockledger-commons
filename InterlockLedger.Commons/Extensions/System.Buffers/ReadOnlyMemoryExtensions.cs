@@ -49,7 +49,6 @@ public static class ReadOnlyMemoryExtensions
         };
 
 
-    [Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1055:URI-like return values should not be strings", Justification = "Not URI-like")]
     public static string ToUrlSafeBase64(this byte[] bytes)
         => Convert.ToBase64String(bytes ?? throw new ArgumentNullException(nameof(bytes)))
            .Trim('=')
