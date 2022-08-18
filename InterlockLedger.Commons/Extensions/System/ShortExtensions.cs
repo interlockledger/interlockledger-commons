@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,7 +35,7 @@ namespace System;
 public static class ShortExtensions
 {
     public static byte[] ToBytes(this short value) {
-        var bytes = BitConverter.GetBytes(value);
+        byte[] bytes = BitConverter.GetBytes(value);
         if (BitConverter.IsLittleEndian)
             Array.Reverse(bytes);
         return bytes;

@@ -1,4 +1,4 @@
-// ******************************************************************************************************************************
+﻿// ******************************************************************************************************************************
 //  
 // Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
@@ -30,9 +30,10 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Security.Cryptography.X509Certificates;
+namespace System;
 
-public static class PublicKeyExtensions
+public static class ConsoleExtensions
 {
-    public static byte[]? ToBytes(this PublicKey? publicKey) => publicKey?.EncodedKeyValue?.RawData;
+    public static void Separator() =>
+        Console.WriteLine("=".PadRight(Console.BufferWidth, '='));
 }

@@ -1,4 +1,4 @@
-// ******************************************************************************************************************************
+﻿// ******************************************************************************************************************************
 //  
 // Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
@@ -30,9 +30,30 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
-public static class PublicKeyExtensions
+namespace System;
+
+public class DateOnlyConverter : JsonConverter<DateOnly>
 {
-    public static byte[]? ToBytes(this PublicKey? publicKey) => publicKey?.EncodedKeyValue?.RawData;
+    private readonly string _format;
+
+    public DateOnlyConverter(string? format = null) =>
+        _format = format ?? "yyyy'-'MM'-'dd";
+
+    public override bool CanConvert(Type typeToConvert) =>
+        typeToConvert == typeof(DateOnly);
+
+    public override DateOnly Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
+        if (typeToConvert == typeof(DateOnly)) {
+            string? s = reader.GetString();
+            if (s is not null)
+                return DateOnly.ParseExact(s, new string[] { _format, "yyyyMMdd", "dd'-'MMM'-'yy" }, CultureInfo.InvariantCulture);
+        }
+
+        throw new InvalidDataException("Not a valid date");
+    }
+    public override void Write(Utf8JsonWriter writer, DateOnly value, JsonSerializerOptions options) =>
+        writer.WriteStringValue(value.ToString(_format, CultureInfo.InvariantCulture));
 }

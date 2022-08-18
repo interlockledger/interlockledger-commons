@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -63,7 +63,7 @@ public static partial class StreamExtensions
         }
     }
 
-    public static bool HasBytes(this Stream s) => !(s is null) && s.CanSeek && s.Position < s.Length;
+    public static bool HasBytes(this Stream s) => s is not null && s.CanSeek && s.Position < s.Length;
 
     public static async Task<byte[]> ReadAllBytesAsync(this Stream s) {
         if (s == null)
@@ -76,11 +76,11 @@ public static partial class StreamExtensions
     public static byte[] ReadBytes(this Stream s, int length) {
         if (s is null || length <= 0)
             return Array.Empty<byte>();
-        var bytes = new byte[length];
-        var offset = 0;
-        var retries = 3;
+        byte[] bytes = new byte[length];
+        int offset = 0;
+        int retries = 3;
         while (length > 0) {
-            var count = s.Read(bytes, offset, length);
+            int count = s.Read(bytes, offset, length);
             if (count == length)
                 break;
             if (count == 0) {
@@ -92,30 +92,33 @@ public static partial class StreamExtensions
             length -= count;
             offset += count;
         }
+
         return bytes;
     }
 
     public static byte[] ReadExactly(this Stream s, int length) {
         if (s is null)
             throw new ArgumentNullException(nameof(s));
-        var offset = 0;
-        var buffer = new byte[length];
+        int offset = 0;
+        byte[] buffer = new byte[length];
         while (offset < length) {
             offset += s.Read(buffer, offset, length - offset);
         }
+
         return buffer;
     }
 
     public static byte ReadSingleByte(this Stream s) {
         if (s is null)
             throw new ArgumentNullException(nameof(s));
-        var bytes = new byte[1];
-        var retries = 3;
+        byte[] bytes = new byte[1];
+        int retries = 3;
         while (retries-- > 0) {
             if (s.Read(bytes, 0, 1) == 1)
                 return bytes[0];
             Thread.Sleep(100);
         }
+
         throw new TooFewBytesException();
     }
 
@@ -140,13 +143,14 @@ public static partial class StreamExtensions
     private static byte AsByteU(ulong value) => (byte)(value & 0xFF);
 
     private static byte ReadByte(Stream s) {
-        var retries = 3;
+        int retries = 3;
         while (retries-- > 0) {
-            var v = s.ReadByte();
+            int v = s.ReadByte();
             if (v >= 0)
                 return (byte)v;
             Thread.Sleep(100);
         }
+
         throw new TooFewBytesException();
     }
 }

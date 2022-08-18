@@ -1,52 +1,59 @@
-<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <LangVersion>preview</LangVersion>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Authors>InterlockLedger Network Team</Authors>
-        <Company>InterlockLedger Network</Company>
-        <Copyright>Copyright (c) 2018-2021 InterlockLedger Network</Copyright>
-        <Description>This library implements lots of lifesaving classes and extensions.</Description>
-        <PackageProjectUrl>https://interlockledger.network/</PackageProjectUrl>
-        <Product>InterlockLedger</Product>
-        <RepositoryType>git</RepositoryType>
-        <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-        <Version>2.1.0</Version>
-        <PackageId>InterlockLedger.Commons</PackageId>
-        <PackageReleaseNotes>- Add OriginalPosition property to StreamSpan</PackageReleaseNotes>
-        <EnableNETAnalyzers>true</EnableNETAnalyzers>
-        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-        <AnalysisLevel>preview</AnalysisLevel>
-        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>        
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <DefineConstants>DEBUG</DefineConstants>
-    </PropertyGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>InterlockLedger Network Team</Authors>
+    <Company>InterlockLedger Network</Company>
+    <Copyright>Copyright (c) 2018-2022 InterlockLedger Network</Copyright>
+    <Description>This library implements lots of lifesaving classes and extensions.</Description>
+    <PackageProjectUrl>https://interlockledger.network/</PackageProjectUrl>
+    <Product>InterlockLedger</Product>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
+    <Version>2.2.0</Version>
+    <PackageId>InterlockLedger.Commons</PackageId>
+    <PackageReleaseNotes>- Add OriginalPosition property to StreamSpan</PackageReleaseNotes>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>preview</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Using Include="System.Diagnostics.CodeAnalysis"/>
+    <Using Include="System.Runtime.CompilerServices"/>
+    <Using Include="System.Globalization"/>
+    <Using Include="System.Text"/>
+    <Using Include="System.Text.RegularExpressions"/>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <Target Name="PublishLocally" AfterTargets="Pack" Condition="Exists('$(INTERLOCK_LOCAL_NUGETS_FOLDER)')">
     <ItemGroup>
-        <None Include="..\LICENSE">
-            <Pack>True</Pack>
-            <PackagePath>\</PackagePath>
-        </None>
-        <None Include="..\README.md">
-          <Pack>True</Pack>
-          <PackagePath>\</PackagePath>
-        </None>
+      <NugetPackages Include="$(PackageOutputAbsolutePath)\$(PackageId).$(Version).nupkg" />
     </ItemGroup>
-    <Target Name="PublishLocally" AfterTargets="Pack" Condition="Exists('$(INTERLOCK_LOCAL_NUGETS_FOLDER)')">
-        <ItemGroup>
-            <NugetPackages Include="$(PackageOutputAbsolutePath)\$(PackageId).$(Version).nupkg" />
-        </ItemGroup>
-        <Message Importance="high" Text="Publish to Local Nugets Folder '$(INTERLOCK_LOCAL_NUGETS_FOLDER)'" />
-        <Copy DestinationFolder="$(INTERLOCK_LOCAL_NUGETS_FOLDER)" SourceFiles="@(NugetPackages)" ContinueOnError="true" SkipUnchangedFiles="false" />
-    </Target>
-    <ItemGroup>
-        <PackageReference Include="System.Memory" Version="4.5.4" />
-        <PackageReference Include="System.Text.Json" Version="6.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
-    </ItemGroup>
+    <Message Importance="high" Text="Publish to Local Nugets Folder '$(INTERLOCK_LOCAL_NUGETS_FOLDER)'" />
+    <Copy DestinationFolder="$(INTERLOCK_LOCAL_NUGETS_FOLDER)" SourceFiles="@(NugetPackages)" ContinueOnError="true" SkipUnchangedFiles="false" />
+  </Target>
+  <ItemGroup>
+    <PackageReference Include="System.Memory" Version="4.5.4" />
+    <PackageReference Include="System.Text.Json" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+  </ItemGroup>
 </Project>

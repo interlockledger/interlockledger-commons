@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,27 +34,27 @@ namespace System;
 
 public static class StringSuffixExtensions
 {
-    public static FileInfo TempFileInfo(this string suffix)
-        => new(Path.GetTempFileName().WithSuffixReplaced(suffix)!);
+    public static FileInfo TempFileInfo(this string suffix) =>
+         new(Path.GetTempFileName().WithSuffixReplaced(suffix)!);
 
-    public static string? WithSuffix(this string? s, string? suffix, char separator = '.')
-        => SuffixAdderInternal(AddMissingSuffix,
+    public static string? WithSuffix(this string? s, string? suffix, char separator = '.') =>
+         SuffixAdderInternal(AddMissingSuffix,
                                s?.Trim().TrimEnd(separator),
                                suffix.IsBlank() ? string.Empty : separator + suffix.Trim().TrimStart(separator));
 
-    public static string? WithSuffixReplaced(this string? s, string? suffix, char separator = '.')
-        => SuffixAdderInternal(ReplaceSuffix,
+    public static string? WithSuffixReplaced(this string? s, string? suffix, char separator = '.') =>
+         SuffixAdderInternal(ReplaceSuffix,
                                s?.Trim().TrimEnd(separator),
                                suffix.IsBlank() ? string.Empty : separator + suffix.Trim().TrimStart(separator));
 
-    private static string AddMissingSuffix(string s, string suffix)
-        => s.EndsWith(suffix, StringComparison.OrdinalIgnoreCase) ? s : s + suffix;
+    private static string AddMissingSuffix(string s, string suffix) =>
+         s.EndsWith(suffix, StringComparison.OrdinalIgnoreCase) ? s : s + suffix;
 
     private static string ReplaceSuffix(string s, string suffix) {
         int lastSeparatorPosition = s.LastIndexOf(suffix.First());
         return (lastSeparatorPosition >= 1 ? s[..lastSeparatorPosition] : s) + suffix;
     }
 
-    private static string? SuffixAdderInternal(Func<string, string, string> modifier, string? trimmed, string? suffix)
-        => trimmed is null || suffix.IsBlank() ? trimmed : modifier(trimmed, suffix);
+    private static string? SuffixAdderInternal(Func<string, string, string> modifier, string? trimmed, string? suffix) =>
+         trimmed is null || suffix.IsBlank() ? trimmed : modifier(trimmed, suffix);
 }

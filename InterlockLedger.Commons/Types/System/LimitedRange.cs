@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,9 +31,7 @@
 // ******************************************************************************************************************************
 
 using System.ComponentModel;
-using System.Globalization;
 using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
 
 namespace System;
 
@@ -54,11 +52,12 @@ public struct LimitedRange : IEquatable<LimitedRange>, ITextual<LimitedRange>
         checked {
             End = start + count - 1;
         }
+
         TextualRepresentation = $"[{Start}{(End != Start ? "-" + End : "")}]";
     }
 
     public LimitedRange(string textualRepresentation) {
-        var parts = textualRepresentation.Required().Trim('[', ']').Split('-');
+        string[] parts = textualRepresentation.Required().Trim('[', ']').Split('-');
         string startText = parts[0].Trim();
         Start = ulong.Parse(startText, CultureInfo.InvariantCulture);
         if (parts.Length == 1) {
@@ -71,6 +70,7 @@ public struct LimitedRange : IEquatable<LimitedRange>, ITextual<LimitedRange>
             if (End > (Start + ushort.MaxValue))
                 throw new ArgumentException($"Range is too wide (Count > {ushort.MaxValue}");
         }
+
         TextualRepresentation = $"[{Start}{(End != Start ? "-" + End : "")}]";
     }
 

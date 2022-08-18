@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ public class StreamSpan : Stream
                 throw new ArgumentOutOfRangeException(nameof(value), "Can't position before start");
             if (value > _length)
                 throw new ArgumentOutOfRangeException(nameof(value), "Can't position after end");
-            _s.Position = (value + _begin);
+            _s.Position = value + _begin;
         }
     }
 
@@ -86,11 +86,12 @@ public class StreamSpan : Stream
 
     public override int Read(byte[] buffer, int offset, int count) {
         if (Position + count > _length) {
-            var newCount = _length - Position;
+            long newCount = _length - Position;
             if (newCount <= 0)
                 return 0;
             count = newCount > int.MaxValue ? int.MaxValue : (int)newCount;
         }
+
         return _s.Read(buffer, offset, count);
     }
 
@@ -99,15 +100,15 @@ public class StreamSpan : Stream
             ? _s.Seek(AdjustOffset(offset, origin), SeekOrigin.Begin) - _begin
             : throw new NotSupportedException("Can't position non-seekable stream");
 
-        long AdjustOffset(long offset, SeekOrigin origin)
-            => origin switch {
-                SeekOrigin.Begin => ValidateWithinBounds(offset),
-                SeekOrigin.Current => ValidateWithinBounds(offset + Position),
-                SeekOrigin.End => ValidateWithinBounds(_length + offset),
-                _ => throw new ArgumentException($"Unknown origin {origin}")
-            };
-        long ValidateWithinBounds(long offset)
-            => offset < 0
+        long AdjustOffset(long offset, SeekOrigin origin) =>
+             origin switch {
+                 SeekOrigin.Begin => ValidateWithinBounds(offset),
+                 SeekOrigin.Current => ValidateWithinBounds(offset + Position),
+                 SeekOrigin.End => ValidateWithinBounds(_length + offset),
+                 _ => throw new ArgumentException($"Unknown origin {origin}")
+             };
+        long ValidateWithinBounds(long offset) =>
+             offset < 0
                 ? throw new ArgumentOutOfRangeException(nameof(offset), "Can't position before start")
                 : offset > _length
                     ? throw new ArgumentOutOfRangeException(nameof(offset), "Can't position after end")
@@ -131,7 +132,7 @@ public class StreamSpan : Stream
         if (_closeWrappedStreamOnDispose) {
             _s.Dispose();
         } else {
-            var unreadBytes = (int)(_positionAfterSpan - _s.Position);
+            int unreadBytes = (int)(_positionAfterSpan - _s.Position);
             if (unreadBytes > 0) {
                 if (CanSeek) {
                     _s.Position = _positionAfterSpan;
@@ -142,15 +143,16 @@ public class StreamSpan : Stream
         }
 
         static void AdvanceByReading(Stream s, int unreadBytes) {
-            var bufferSize = Math.Min(unreadBytes, 16 * 1024);
-            var buffer = new byte[unreadBytes];
+            int bufferSize = Math.Min(unreadBytes, 16 * 1024);
+            byte[] buffer = new byte[unreadBytes];
             while (unreadBytes > bufferSize) {
-                var read = s.Read(buffer, 0, bufferSize);
+                int read = s.Read(buffer, 0, bufferSize);
                 if (read == 0)
                     return;
                 unreadBytes -= read;
             }
-            s.Read(buffer, 0, unreadBytes);
+
+            _ = s.Read(buffer, 0, unreadBytes);
         }
     }
 

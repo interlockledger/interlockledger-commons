@@ -1,4 +1,4 @@
-// ******************************************************************************************************************************
+﻿// ******************************************************************************************************************************
 //  
 // Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
@@ -30,9 +30,19 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Security.Cryptography.X509Certificates;
+namespace System;
 
-public static class PublicKeyExtensions
+public static class StringsExtensions
 {
-    public static byte[]? ToBytes(this PublicKey? publicKey) => publicKey?.EncodedKeyValue?.RawData;
+    public static string JoinedBy(this IEnumerable<string>? strings, string joiner) =>
+        string.Join(joiner, strings.Safe());
+    public static string JoinedBy(this string[]? strings, string joiner) =>
+        string.Join(joiner, strings.Safe());
+    public static string[] WithDefaults(this string[]? values, params string[] defaults) {
+        var realValues = values.SkipBlanks();
+        return realValues.None() ? defaults : realValues.ToArray();
+    }
+    public static IEnumerable<string> SkipBlanks(this string[]? values) =>
+        values.Safe().Where(x => !string.IsNullOrWhiteSpace(x));
+
 }

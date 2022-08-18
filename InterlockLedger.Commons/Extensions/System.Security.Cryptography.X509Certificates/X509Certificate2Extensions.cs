@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,12 +34,12 @@ namespace System.Security.Cryptography.X509Certificates;
 
 public static class X509Certificate2Extensions
 {
-    public static string FullName(this X509Certificate2 certificate)
-        => certificate.Required().SubjectName.Format(false);
+    public static string FullName(this X509Certificate2 certificate) =>
+         certificate.Required().SubjectName.Format(false);
 
-    public static string SimpleName(this X509Certificate2 certificate)
-        => certificate.Required().FriendlyName.WithDefault(certificate.DottedName());
+    public static string SimpleName(this X509Certificate2 certificate) =>
+         certificate.Required().FriendlyName.WithDefault(certificate.DottedName());
 
-    private static string DottedName(this X509Certificate2 certificate)
-        => certificate.Required().SubjectName.Name.Split(',').Select(part => part.Split('=').Last()).Reverse().JoinedBy(".");
+    private static string DottedName(this X509Certificate2 certificate) =>
+         certificate.Required().SubjectName.Name.Split(',').Select(part => part.Split('=').Last()).Reverse().JoinedBy(".");
 }

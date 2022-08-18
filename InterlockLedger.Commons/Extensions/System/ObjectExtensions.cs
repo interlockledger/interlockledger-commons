@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,10 +30,6 @@
 //
 // ******************************************************************************************************************************
 
-
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-
 namespace System;
 
 public static class ObjectExtensions
@@ -54,10 +50,8 @@ public static class ObjectExtensions
 
     public static bool In<T>(this T value, IEnumerable<T> set) =>
         set?.Contains(value) ?? false;
-
     public static bool IsDefault<T>(this T value) =>
         object.Equals(value, default(T));
-
     public static string? PadLeft(this object? value, int totalWidth) =>
         value?.ToString()?.PadLeft(totalWidth);
 

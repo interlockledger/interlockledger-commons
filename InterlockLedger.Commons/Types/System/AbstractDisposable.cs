@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -47,19 +47,23 @@ public abstract class AbstractDisposable : IDisposable
 
     protected virtual void DisposeUnmanagedResources() { }
 
-    protected T Do<T>(Func<T> function, T @default = default) where T : struct => !Disposed ? function.Required()() : @default;
-    protected T? UnsafeDo<T>(Func<T?> function, T? @default = default) where T : class => !Disposed ? function.Required()() : @default;
+    protected T Do<T>(Func<T> function, T @default = default) where T : struct =>
+        !Disposed ? function.Required()() : @default;
+    protected T? UnsafeDo<T>(Func<T?> function, T? @default = default) where T : class =>
+        !Disposed ? function.Required()() : @default;
 
     protected void Do(Action action) {
         if (!Disposed) action.Required()();
     }
 
-    protected async Task<T> DoAsync<T>(Func<Task<T>> function, T @default = default) where T : struct => !Disposed ? await function.Required()() : @default;
-    protected async Task<T?> UnsafeDoAsync<T>(Func<Task<T?>> function, T? @default = default) where T : class => !Disposed ? await function.Required()() : @default;
+    protected async Task<T> DoAsync<T>(Func<Task<T>> function, T @default = default) where T : struct =>
+        !Disposed ? await function.Required()().ConfigureAwait(false) : @default;
+    protected async Task<T?> UnsafeDoAsync<T>(Func<Task<T?>> function, T? @default = default) where T : class =>
+        !Disposed ? await function.Required()().ConfigureAwait(false) : @default;
 
     protected async Task DoAsync(Func<Task> function) {
         if (!Disposed)
-            await function.Required()();
+            await function.Required()().ConfigureAwait(false);
     }
 
     private volatile int _disposed;
@@ -70,9 +74,8 @@ public abstract class AbstractDisposable : IDisposable
 
     private void Dispose(bool disposing) {
         if (Interlocked.CompareExchange(ref _disposed, 1, 0) == 0) {
-            if (disposing) {
+            if (disposing)
                 DisposeManagedResources();
-            }
             DisposeUnmanagedResources();
         }
     }

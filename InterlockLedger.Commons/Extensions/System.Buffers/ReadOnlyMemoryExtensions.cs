@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -36,21 +36,20 @@ namespace System.Buffers;
 
 public static class ReadOnlyMemoryExtensions
 {
-    public static ArraySegment<byte> ToArraySegment(this ReadOnlyMemory<byte> memory)
-        => !MemoryMarshal.TryGetArray(memory, out var result)
+    public static ArraySegment<byte> ToArraySegment(this ReadOnlyMemory<byte> memory) =>
+         !MemoryMarshal.TryGetArray(memory, out var result)
             ? throw new InvalidOperationException("Buffer backed by array was expected")
             : result;
 
-    public static ReadOnlySequence<byte> ToSequence(this IEnumerable<ReadOnlyMemory<byte>> segments)
-        => (segments?.Count() ?? 0) switch {
-            0 => ReadOnlySequence<byte>.Empty,
-            1 => new ReadOnlySequence<byte>(segments!.First()),
-            _ => LinkedSegment.Link(segments!)
-        };
+    public static ReadOnlySequence<byte> ToSequence(this IEnumerable<ReadOnlyMemory<byte>> segments) =>
+         (segments?.Count() ?? 0) switch {
+             0 => ReadOnlySequence<byte>.Empty,
+             1 => new ReadOnlySequence<byte>(segments!.First()),
+             _ => LinkedSegment.Link(segments!)
+         };
 
-
-    public static string ToUrlSafeBase64(this byte[] bytes)
-        => Convert.ToBase64String(bytes ?? throw new ArgumentNullException(nameof(bytes)))
+    public static string ToUrlSafeBase64(this byte[] bytes) =>
+         Convert.ToBase64String(bytes ?? throw new ArgumentNullException(nameof(bytes)))
            .Trim('=')
            .Replace('+', '-')
            .Replace('/', '_');
@@ -69,6 +68,7 @@ public static class ReadOnlyMemoryExtensions
                 current.Next = next;
                 current = next;
             }
+
             return new ReadOnlySequence<byte>(first, 0, current, current.Length);
         }
 

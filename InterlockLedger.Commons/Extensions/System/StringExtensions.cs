@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,25 +30,30 @@
 //
 // ******************************************************************************************************************************
 
-
-
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Text.RegularExpressions;
-
 using static System.ObjectExtensions;
 
 namespace System;
 
 public static class StringExtensions
 {
+    public static string Safe(this string? value) =>
+        string.IsNullOrWhiteSpace(value)
+            ? string.Empty
+            : value;
+
+    public static bool IsNumeric(this string s) =>
+        s.All(char.IsDigit);
+
+    public static string LimitedTo(this string? value, short limit) =>
+        (value = value.Safe().Trim()).Length < limit
+            ? value
+            : value[0..limit];
+
     public static uint AsUint(this string? s, uint @default = 0u) =>
-        uint.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result) ? result : @default;
+        uint.TryParse(s, NumberStyles.Integer, CultureInfo.InvariantCulture, out uint result) ? result : @default;
 
     public static ulong AsUlong(this string? s) =>
-        ulong.TryParse(s?.Trim(), out var value) ? value : 0ul;
+        ulong.TryParse(s?.Trim(), out ulong value) ? value : 0ul;
 
     public static string? Capitalize(this string? value) =>
         value.RegexReplace(@"(^[^_]|_+\w)", ToUpperInvariant);
@@ -63,19 +68,21 @@ public static class StringExtensions
         if (s.IsBlank())
             return false;
         s = s.Trim();
-        var count = 0;
+        int count = 0;
         if (!s.StartsWith("(", StringComparison.Ordinal)) return false;
-        for (var i = 0; i < s.Length; i++) {
-            var c = s[i];
+        for (int i = 0; i < s.Length; i++) {
+            char c = s[i];
             if (c == '(') {
                 count++;
                 continue;
             }
+
             if (c == ')') {
                 count--;
                 if (count == 0 && (i + 1) < s.Length) return false;
             }
         }
+
         return count == 0;
     }
 
@@ -108,9 +115,6 @@ public static class StringExtensions
 
     public static string Reversed(this string s) =>
         s.IsBlank() ? string.Empty : new string(s.ToCharArray().Reverse().ToArray());
-
-    public static string Safe(this string? s) =>
-        s.WithDefault(string.Empty);
 
     public static bool SafeEqualsTo(this string? s, string? other) =>
         s is null ? other is null : s.Equals(other, StringComparison.Ordinal);

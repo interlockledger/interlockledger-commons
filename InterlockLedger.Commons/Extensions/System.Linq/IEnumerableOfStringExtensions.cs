@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,27 +34,27 @@ namespace System.Linq;
 
 public static class IEnumerableOfStringExtensions
 {
-    public static bool AnyNullOrWhiteSpace(this IEnumerable<string> strings)
-        => strings.SafeAny(kn => string.IsNullOrWhiteSpace(kn));
+    public static bool AnyNullOrWhiteSpace(this IEnumerable<string> strings) =>
+         strings.SafeAny(string.IsNullOrWhiteSpace);
 
-    public static IEnumerable<ulong> AsDistinctUlongs(this IEnumerable<string> strings)
-        => strings.Safe().Select(StringExtensions.AsUlong).Distinct();
+    public static IEnumerable<ulong> AsDistinctUlongs(this IEnumerable<string> strings) =>
+         strings.Safe().Select(StringExtensions.AsUlong).Distinct();
 
-    public static IEnumerable<ulong> AsOrderedUlongs(this IEnumerable<string> strings)
-        => strings.Safe().Select(StringExtensions.AsUlong);
+    public static IEnumerable<ulong> AsOrderedUlongs(this IEnumerable<string> strings) =>
+         strings.Safe().Select(StringExtensions.AsUlong);
 
-    public static IEnumerable<string> SkipBlanks(this IEnumerable<string> strings)
-        => strings.Skip(item => item.IsBlank());
+    public static IEnumerable<string> SkipBlanks(this IEnumerable<string> strings) =>
+         strings.Skip(item => item.IsBlank());
 
-    public static IEnumerable<string> SkipNonBlanks(this IEnumerable<string> strings)
-        => strings.Skip(item => !item.IsBlank());
+    public static IEnumerable<string> SkipNonBlanks(this IEnumerable<string> strings) =>
+         strings.Skip(item => !item.IsBlank());
 
-    public static IEnumerable<string> Trimmed(this IEnumerable<string> strings)
-        => strings.SkipBlanks().Select(kn => kn.Trim());
+    public static IEnumerable<string> Trimmed(this IEnumerable<string> strings) =>
+         strings.SkipBlanks().Select(kn => kn.Trim());
 
-    public static IEnumerable<string> Trimmed(this IEnumerable<string> strings, char trimChar)
-        => strings.SkipBlanks().Select(kn => kn.Trim(trimChar));
+    public static IEnumerable<string> Trimmed(this IEnumerable<string> strings, char trimChar) =>
+         strings.SkipBlanks().Select(kn => kn.Trim(trimChar));
 
-    public static IEnumerable<string> Trimmed(this IEnumerable<string> strings, params char[] trimChars)
-        => strings.SkipBlanks().Select(kn => kn.Trim(trimChars));
+    public static IEnumerable<string> Trimmed(this IEnumerable<string> strings, params char[] trimChars) =>
+         strings.SkipBlanks().Select(kn => kn.Trim(trimChars));
 }

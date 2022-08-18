@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,13 +37,14 @@ public static class IEnumerableOfReadOnlyMemoryExtensions
     public static T[] ToArray<T>(this IEnumerable<ReadOnlyMemory<T>> buffers) {
         if (buffers.None())
             return Array.Empty<T>();
-        var length = buffers.Sum(rom => rom.Length);
+        int length = buffers.Sum(rom => rom.Length);
         var result = new T[length];
         int offset = 0;
         foreach (var buffer in buffers) {
             buffer.CopyTo(new Memory<T>(result, offset, buffer.Length));
             offset += buffer.Length;
         }
+
         return result;
     }
 }

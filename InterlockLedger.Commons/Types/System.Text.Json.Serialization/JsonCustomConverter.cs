@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -36,16 +36,16 @@ public class JsonCustomConverter<T> : JsonConverter<T> where T : ITextual<T>
 {
     public JsonCustomConverter() { }
 
-    public override bool CanConvert(Type typeToConvert)
-        => typeToConvert.Required() == typeof(T) || typeToConvert.IsSubclassOf(typeof(T));
+    public override bool CanConvert(Type typeToConvert) =>
+         typeToConvert.Required() == typeof(T) || typeToConvert.IsSubclassOf(typeof(T));
 
-    public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-        => reader.TokenType == JsonTokenType.String
+    public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+         reader.TokenType == JsonTokenType.String
             ? _service(reader.GetString()!)
             : throw new NotSupportedException();
 
-    public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
-        => writer.Required().WriteStringValue(value.TextualRepresentation);
+    public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) =>
+         writer.Required().WriteStringValue(value.TextualRepresentation);
 
     private static readonly Func<object, T> _service = BuildService();
     private static Func<object, T> BuildService() {

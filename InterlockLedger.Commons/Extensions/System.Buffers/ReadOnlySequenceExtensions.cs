@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,17 +34,17 @@ namespace System.Buffers;
 
 public static class ReadOnlySequenceExtensions
 {
-    public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, ReadOnlySequence<byte> otherSequence)
-        => sequence.JoinTo(otherSequence).ToSequence();
+    public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, ReadOnlySequence<byte> otherSequence) =>
+         sequence.JoinTo(otherSequence).ToSequence();
 
-    public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, ReadOnlyMemory<byte> memory)
-        => sequence.Append(memory).ToSequence();
+    public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, ReadOnlyMemory<byte> memory) =>
+         sequence.Append(memory).ToSequence();
 
-    public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, byte[] array)
-        => sequence.Add(new ReadOnlyMemory<byte>(array));
+    public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, byte[] array) =>
+         sequence.Add(new ReadOnlyMemory<byte>(array));
 
-    public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, byte[] array, int start, int length)
-        => sequence.Add(new ReadOnlyMemory<byte>(array, start, length));
+    public static ReadOnlySequence<byte> Add(this ReadOnlySequence<byte> sequence, byte[] array, int start, int length) =>
+         sequence.Add(new ReadOnlyMemory<byte>(array, start, length));
 
     public static ReadOnlySequenceStream AsStream(this ReadOnlySequence<byte> memory) => new(memory);
 
@@ -55,26 +55,26 @@ public static class ReadOnlySequenceExtensions
         return func(s);
     }
 
-    public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, ReadOnlySequence<byte> otherSequence)
-        => otherSequence.JoinTo(sequence).ToSequence();
+    public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, ReadOnlySequence<byte> otherSequence) =>
+         otherSequence.JoinTo(sequence).ToSequence();
 
-    public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, ReadOnlyMemory<byte> memory)
-        => sequence.PrependMemory(memory).ToSequence();
+    public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, ReadOnlyMemory<byte> memory) =>
+         sequence.PrependMemory(memory).ToSequence();
 
-    public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, byte[] array)
-        => sequence.Prepend(new ReadOnlyMemory<byte>(array));
+    public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, byte[] array) =>
+         sequence.Prepend(new ReadOnlyMemory<byte>(array));
 
-    public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, byte[] array, int start, int length)
-        => sequence.Prepend(new ReadOnlyMemory<byte>(array, start, length));
+    public static ReadOnlySequence<byte> Prepend(this ReadOnlySequence<byte> sequence, byte[] array, int start, int length) =>
+         sequence.Prepend(new ReadOnlyMemory<byte>(array, start, length));
 
     public static ReadOnlySequence<byte> Realloc(this ReadOnlySequence<byte> body) {
-        var newBuffer = new byte[body.Length];
+        byte[] newBuffer = new byte[body.Length];
         body.CopyTo(newBuffer.AsSpan());
         return new ReadOnlySequence<byte>(newBuffer);
     }
 
-    public static string ToUrlSafeBase64(this ReadOnlySequence<byte> readOnlyBytes)
-        => readOnlyBytes.Length > 256
+    public static string ToUrlSafeBase64(this ReadOnlySequence<byte> readOnlyBytes) =>
+         readOnlyBytes.Length > 256
             ? ReadOnlyMemoryExtensions.ToUrlSafeBase64(readOnlyBytes.Slice(0, 256).ToArray()) + "..."
             : ReadOnlyMemoryExtensions.ToUrlSafeBase64(readOnlyBytes.ToArray());
 

@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,6 @@
 // ******************************************************************************************************************************
 
 using System.ComponentModel.Design.Serialization;
-using System.Globalization;
 
 namespace System.ComponentModel;
 
@@ -41,14 +40,14 @@ public class TypeCustomConverter<T> : TypeConverter where T : ITextual<T>
 
     public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) => sourceType == typeof(string);
 
-    public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType)
-        => destinationType == typeof(InstanceDescriptor) || destinationType == typeof(string);
+    public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType) =>
+         destinationType == typeof(InstanceDescriptor) || destinationType == typeof(string);
 
-    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
-        => value is string text ? _service(text) : base.ConvertFrom(context, culture, value);
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) =>
+         value is string text ? _service(text) : base.ConvertFrom(context, culture, value);
 
-    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type? destinationType)
-        => destinationType is null
+    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type? destinationType) =>
+         destinationType is null
             ? throw new ArgumentNullException(nameof(destinationType))
             : value is null
                 ? throw new ArgumentNullException(nameof(value))
@@ -61,5 +60,4 @@ public class TypeCustomConverter<T> : TypeConverter where T : ITextual<T>
         var ctor = typeof(T).GetConstructor(new Type[] { typeof(string) }).Required();
         return (s) => (T)ctor.Invoke(new object[] { s });
     }
-
 }

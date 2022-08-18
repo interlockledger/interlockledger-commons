@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2021 InterlockLedger Network
+//  
+// Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,6 @@
 //
 // ******************************************************************************************************************************
 
-using System.Text.RegularExpressions;
-
 namespace System;
 
 public interface ITextualService<T>
@@ -51,8 +49,8 @@ public interface ITextualService<T>
 
     string MessageForMissing { get; }
 
-    Resolution IsValidTextual(string? textualRepresentation)
-        => textualRepresentation.IsBlank()
+    Resolution IsValidTextual(string? textualRepresentation) =>
+         textualRepresentation.IsBlank()
             ? Resolution.Empty
             : Mask.IsMatch(textualRepresentation)
                 ? Resolution.Valid
