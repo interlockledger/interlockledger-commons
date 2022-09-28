@@ -1,4 +1,4 @@
-﻿// ******************************************************************************************************************************
+// ******************************************************************************************************************************
 //  
 // Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
@@ -29,16 +29,9 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 // ******************************************************************************************************************************
-
 namespace System;
-
-public static class ObjectsExtensions
+public static class ArrayOfTExtensions
 {
-
-    public static string JoinedBy<T>(this IEnumerable<T>? values, string joiner) =>
-        string.Join(joiner, ToStrings(values));
     public static string JoinedBy<T>(this T[]? values, string joiner) =>
-        string.Join(joiner, ToStrings(values.Safe()));
-    public static IEnumerable<string> ToStrings<T>(this IEnumerable<T>? values) =>
-        values is null ? Enumerable.Empty<string>() : values.Where(v => v is not null).Select(v => v!.ToString()!);
+        string.Join(joiner, values.Safe().ToStrings());
 }

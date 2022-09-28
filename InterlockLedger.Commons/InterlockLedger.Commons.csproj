@@ -11,9 +11,9 @@
     <Product>InterlockLedger</Product>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-    <Version>2.2.0</Version>
+    <Version>2.3.0</Version>
     <PackageId>InterlockLedger.Commons</PackageId>
-    <PackageReleaseNotes>- Add OriginalPosition property to StreamSpan</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix ambiguity brought by 2.2.0 on nearly identical JoinedBy extension methods</PackageReleaseNotes>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <AnalysisLevel>preview</AnalysisLevel>
