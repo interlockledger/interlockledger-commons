@@ -34,6 +34,13 @@ namespace System.Linq;
 
 public static class IEnumerableOfTExtensions
 {
+
+    public static IEnumerable<T> _<T>(this IEnumerable<T> first, T secondItem) =>
+        first.Append(secondItem);
+
+    public static IEnumerable<T> _<T>(this T item, T secondItem) =>
+        new SingleEnumerable<T>(item).Append(secondItem);
+
     public static bool AnyWithNoNulls<T>([NotNullWhen(true)] this IEnumerable<T> items) => items.SafeAny() && items.NoNulls();
 
     public static IEnumerable<T> Append<T>(this IEnumerable<T>? first, params T[] extras) =>

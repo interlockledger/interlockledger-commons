@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <LangVersion>preview</LangVersion>
@@ -11,9 +11,9 @@
     <Product>InterlockLedger</Product>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-    <Version>2.3.0</Version>
+    <Version>2.4.0</Version>
     <PackageId>InterlockLedger.Commons</PackageId>
-    <PackageReleaseNotes>Fix ambiguity brought by 2.2.0 on nearly identical JoinedBy extension methods</PackageReleaseNotes>
+    <PackageReleaseNotes>New Task Extensions for Fluent usage</PackageReleaseNotes>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <AnalysisLevel>preview</AnalysisLevel>
@@ -27,11 +27,11 @@
     <DefineConstants>DEBUG</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Using Include="System.Diagnostics.CodeAnalysis"/>
-    <Using Include="System.Runtime.CompilerServices"/>
-    <Using Include="System.Globalization"/>
-    <Using Include="System.Text"/>
-    <Using Include="System.Text.RegularExpressions"/>
+    <Using Include="System.Diagnostics.CodeAnalysis" />
+    <Using Include="System.Runtime.CompilerServices" />
+    <Using Include="System.Globalization" />
+    <Using Include="System.Text" />
+    <Using Include="System.Text.RegularExpressions" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\LICENSE">

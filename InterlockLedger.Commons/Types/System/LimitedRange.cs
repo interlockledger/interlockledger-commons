@@ -35,6 +35,7 @@ using System.Text.Json.Serialization;
 
 namespace System;
 
+
 [TypeConverter(typeof(TypeCustomConverter<LimitedRange>))]
 [JsonConverter(typeof(JsonCustomConverter<LimitedRange>))]
 public struct LimitedRange : IEquatable<LimitedRange>, ITextual<LimitedRange>
