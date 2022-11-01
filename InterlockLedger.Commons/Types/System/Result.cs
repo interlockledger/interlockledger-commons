@@ -32,44 +32,83 @@
 
 namespace System;
 
-public class Result
+public interface IResult
 {
+    const int _noError = 0;
 
-    public static Result Ok { get; } = new(true, null);
-    public static Result WithError(Exception error) => new(false, error);
-
-    public static implicit operator Result(Exception error) => new(false, error);
-
-    public bool Success { get; }
-    public string Message => _error?.Message ?? "";
-    public Exception Error => _error ?? throw new InvalidOperationException($"Error property for this Result not set.");
-
-    protected Result(bool success, Exception? error) {
-        Success = success;
-        _error = error;
-    }
-
-    protected readonly Exception? _error;
+    bool Success { get; }
 }
 
-public sealed class Result<T> : Result where T : class
+public class Result : IResult
 {
-    public T Value => Success
-        ? _payload ?? throw new InvalidOperationException($"Payload for Result<{typeof(T)}> was not set.")
-        : throw new InvalidOperationException($"Operation for Result<{typeof(T)}> was not successful.");
+    public static Result Ok { get; } = new(IResult._noError);
 
-    public static Result<T> With(T value) => new(value);
-    public static new Result<T> WithError(Exception error) => new(error);
+    public static implicit operator Result(Exception error) => new Error(error);
+    public static implicit operator bool(Result result) => result.Success;
 
-    public static implicit operator Result<T>(T value) => new(value);
+    public bool Success => _errorType == IResult._noError;
+    protected Result(int errorType) => _errorType = errorType;
 
-    public static implicit operator Result<T>(Exception exception) => new(exception);
-    private Result(T? value, bool success, Exception? error) : base(success, error) => _payload = value;
+    protected readonly int _errorType;
+}
 
-    public Result(T value) : this(value.Required(), true, null) { }
+public interface IError
+{
+    const int DefaultErrorType = 500;
 
-    public Result(Exception error) : base(false, error) {
+    string ErrorMessage { get; }
+    int ErrorType { get; }
+    Exception? Exception { get; }
+}
+
+public sealed class Error : Result, IError
+{
+    public int ErrorType => _errorType;
+    public string ErrorMessage { get; }
+    public Exception? Exception { get; }
+    public Error(Exception error, int errorType = IError.DefaultErrorType) : base(errorType) {
+        Exception = error;
+        ErrorMessage = Exception?.Message ?? string.Empty;
     }
 
-    private readonly T? _payload;
+    public Error(string errorMessage, int errorType = IError.DefaultErrorType) : base(errorType) =>
+        ErrorMessage = errorMessage;
+}
+
+public class Result<T> : Result
+{
+    public static implicit operator T?(Result<T> r) => r.Value;
+
+    public static implicit operator Result<T>(T? value) => new(value);
+
+    public static implicit operator Result<T>(Exception exception) => new Error<T>(exception);
+    public static Result<T> Default { get; } = new Result<T>(default(T));
+    public T? Value => Success ? _value : throw new InvalidOperationException($"Operation for Result<{typeof(T)}> was not successful.");
+    public bool IsDefault => Success && _value is null;
+
+    public Result(T? value) : base(IResult._noError) => _value = value;
+    protected Result(int errorType) : base(errorType) { }
+
+    private readonly T? _value;
+}
+
+public sealed class Error<T> : Result<T>, IError
+{
+    public int ErrorType => _errorType;
+    public string ErrorMessage { get; }
+    public Exception? Exception { get; }
+    public Error(Exception error, int errorType = IError.DefaultErrorType) : base(errorType) {
+        Exception = error;
+        ErrorMessage = Exception?.Message ?? string.Empty;
+    }
+    public Error(string? errorMessage, int errorType = IError.DefaultErrorType) : base(errorType) =>
+        ErrorMessage = errorMessage ?? string.Empty;
+
+    public static explicit operator Error<T>(Error error) =>
+        new(error.Required().Exception, error.ErrorMessage, error.ErrorType);
+
+    private Error(Exception? error, string? errorMessage = null, int errorType = IError.DefaultErrorType) : base(errorType) {
+        Exception = error;
+        ErrorMessage = Exception?.Message ?? errorMessage ?? string.Empty;
+    }
 }

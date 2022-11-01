@@ -32,6 +32,8 @@
 
 namespace System;
 
+
+
 public static class ObjectExtensions
 {
     public static IEnumerable<T> AsSingle<T>(this T s) =>

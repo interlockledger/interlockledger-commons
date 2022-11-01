@@ -34,22 +34,37 @@ namespace System.IO;
 
 public static class FileInfoExtensions
 {
-    public static FileStream GetWritingStream(this FileInfo fileInfo, Action<FileInfo> use) => new FbbaInputStream(fileInfo, use);
+    public static FileStream GetWritingStream(this FileInfo fileInfo, Action<FileInfo> onDispose) => new FbbaInputStream(fileInfo, onDispose);
+
+    public static string? ReadAllText(this FileInfo file) {
+        if (!file.Exists)
+            return null;
+        using var s = file.OpenText();
+        return s.ReadToEnd();
+    }
+
+    public static async Task<string> ReadToEndAsync(this FileInfo file, string missingFileMessageMask) {
+        if (file.Required().Exists) {
+            using var reader = file.OpenText();
+            return await reader.ReadToEndAsync().ConfigureAwait(false);
+        }
+        return string.Format(missingFileMessageMask.Required(), file.Name);
+    }
 
     private class FbbaInputStream : FileStream
     {
-        public FbbaInputStream(FileInfo fileInfo, Action<FileInfo> use) : base(fileInfo.Required().FullName, FileMode.CreateNew, FileAccess.Write) {
+        public FbbaInputStream(FileInfo fileInfo, Action<FileInfo> onDispose) : base(fileInfo.Required().FullName, FileMode.CreateNew, FileAccess.Write) {
             _fileInfo = fileInfo.Required();
-            _use = use.Required();
+            _onDispose = onDispose.Required();
         }
 
         protected override void Dispose(bool disposing) {
             base.Dispose(disposing);
             if (disposing)
-                _use(_fileInfo);
+                _onDispose(_fileInfo);
         }
 
         private readonly FileInfo _fileInfo;
-        private readonly Action<FileInfo> _use;
+        private readonly Action<FileInfo> _onDispose;
     }
 }

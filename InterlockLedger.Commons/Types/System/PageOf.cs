@@ -30,35 +30,12 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Collections.Generic;
+namespace System;
 
-public sealed class SingleEnumerable<T> : IEnumerable<T>
+public record PageOf<T>(IEnumerable<T> Items, ushort Page, byte PageSize, ushort TotalNumberOfPages, bool LastToFirst)
 {
-    public SingleEnumerable(T singleElement) => _singleElement = singleElement;
-
-    public IEnumerator<T> GetEnumerator() => new Enumerator(_singleElement);
-
-    IEnumerator IEnumerable.GetEnumerator() => new Enumerator(_singleElement);
-
-    private readonly T _singleElement;
-
-    private class Enumerator : IEnumerator<T>
-    {
-        public Enumerator(T singleElement) {
-            _value = singleElement;
-            Reset();
-        }
-
-        public T Current => _count == 0 ? _value : default!;
-        object? IEnumerator.Current => Current;
-
-        public void Dispose() { }
-
-        public bool MoveNext() => _count-- > 0;
-
-        public void Reset() => _count = 1;
-
-        private byte _count;
-        private readonly T _value;
+    public PageOf(IEnumerable<T> items, bool lastToFirst) : this(items.Required(), 0, 0, (ushort)(items.SafeAny() ? 1 : 0), lastToFirst) {
     }
+
+    public static PageOf<T> Empty { get; } = new PageOf<T>(Enumerable.Empty<T>(), 0, 0, 0, false);
 }

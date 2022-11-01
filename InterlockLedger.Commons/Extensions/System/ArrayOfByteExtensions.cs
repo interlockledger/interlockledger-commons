@@ -157,6 +157,11 @@ public static class ArrayOfByteExtensions
         Array.Copy(bytes, offset, part, 0, length);
         return part;
     }
+    public static byte[] RandomBytes(this int size) {
+        byte[] buffer = new byte[size];
+        _rnd.NextBytes(buffer);
+        return buffer;
+    }
 
     public static int SafeGetHashCode(this byte[] bytes) => bytes?.ToSafeBase64().GetHashCode(StringComparison.InvariantCulture) ?? 0;
 
@@ -179,4 +184,7 @@ public static class ArrayOfByteExtensions
             base64 += "=";
         return base64;
     }
+
+    private static readonly Random _rnd = new();
+
 }

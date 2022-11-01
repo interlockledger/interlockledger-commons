@@ -32,33 +32,11 @@
 
 namespace System.Collections.Generic;
 
-public sealed class SingleEnumerable<T> : IEnumerable<T>
+public static class IEnumerableOfClassExtensions
 {
-    public SingleEnumerable(T singleElement) => _singleElement = singleElement;
+    public static IEnumerable<T> NonNulls<T>(this IEnumerable<T?>? values) where T : class
+        => values.Safe().Skip(item => item is null)!;
 
-    public IEnumerator<T> GetEnumerator() => new Enumerator(_singleElement);
-
-    IEnumerator IEnumerable.GetEnumerator() => new Enumerator(_singleElement);
-
-    private readonly T _singleElement;
-
-    private class Enumerator : IEnumerator<T>
-    {
-        public Enumerator(T singleElement) {
-            _value = singleElement;
-            Reset();
-        }
-
-        public T Current => _count == 0 ? _value : default!;
-        object? IEnumerator.Current => Current;
-
-        public void Dispose() { }
-
-        public bool MoveNext() => _count-- > 0;
-
-        public void Reset() => _count = 1;
-
-        private byte _count;
-        private readonly T _value;
-    }
+    public static T[] NonEmpty<T>([NotNull] this T[] items, [CallerArgumentExpression("items")] string? parameterName = null) =>
+        items is null || items.Length == 0 ? throw new ArgumentException("Should not be empty", parameterName) : items;
 }
