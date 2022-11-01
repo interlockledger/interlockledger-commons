@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <LangVersion>preview</LangVersion>
@@ -43,7 +43,7 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-  
+
   <Target Name="TagSources">
     <Exec Command="git tag v$(Version)" ContinueOnError="true" StandardErrorImportance="low" StandardOutputImportance="low" IgnoreExitCode="true" />
     <Message Importance="high" Text="Recent tags:" />
@@ -59,12 +59,13 @@
   </Target>
 
   <Target Name="NugetOrg" Condition="'$(Configuration)'=='Release'" DependsOnTargets="Pack">
-    <ItemGroup>
-      <NugetPackages Include="$(PackageOutputAbsolutePath)\$(PackageId).$(Version).nupkg" />
-    </ItemGroup>
-    <Exec Command="dotnet nuget push -s nuget.org @(NugetPackages)" ContinueOnError="true" StandardErrorImportance="high" StandardOutputImportance="high" IgnoreExitCode="true" />
+    <PropertyGroup>
+      <NugetPackage>$(PackageOutputAbsolutePath)$(PackageId).$(Version).nupkg</NugetPackage>
+    </PropertyGroup>
+    <Message Importance="high" Text="Pushing $(NugetPackage)" Condition="Exists('$(NugetPackage)')"/>
+    <Exec Command="dotnet nuget push --skip-duplicate -s nuget.org $(NugetPackage)" ContinueOnError="true" StandardErrorImportance="high" StandardOutputImportance="high" IgnoreExitCode="true"  Condition="Exists('$(NugetPackage)')"/>
   </Target>
-  
+
   <ItemGroup>
     <PackageReference Include="System.Memory" Version="4.5.5" />
   </ItemGroup>

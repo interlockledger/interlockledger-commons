@@ -1,15 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
-		<IsPackable>false</IsPackable>
-	</PropertyGroup>
-    <Target Name="TagSources" />
-	<ItemGroup>
-		<PackageReference Include="NUnit" Version="3.13.3" />
-		<PackageReference Include="NUnit3TestAdapter" Version="4.3.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
-	</ItemGroup>
-	<ItemGroup>
-		<ProjectReference Include="..\InterlockLedger.Commons\InterlockLedger.Commons.csproj" />
-	</ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <Target Name="TagSources" />
+  <Target Name="NugetOrg" />
+  <ItemGroup>
+    <PackageReference Include="NUnit" Version="3.13.3" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.3.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\InterlockLedger.Commons\InterlockLedger.Commons.csproj" />
+  </ItemGroup>
 </Project>
