@@ -156,7 +156,7 @@ public static class StringExtensions
             char ch = value[i];
             if (char.IsLetterOrDigit(ch)) {
                 addDash = !char.IsUpper(ch);
-                sb.Append(char.ToLowerInvariant(ch));
+                _ = sb.Append(char.ToLowerInvariant(ch));
                 i++;
                 break;
             }
@@ -168,16 +168,16 @@ public static class StringExtensions
             if (char.IsUpper(ch)) {
                 if (addDash) {
                     addDash = false;
-                    sb.Append('-');
+                    _ = sb.Append('-');
                 }
-                sb.Append(char.ToLowerInvariant(ch));
+                _ = sb.Append(char.ToLowerInvariant(ch));
             } else if (char.IsLetterOrDigit(ch)) {
                 addDash = true;
-                sb.Append(ch);
+                _ = sb.Append(ch);
             } else {
                 //this converts all non letter/digits to dash - specifically periods and underscores. Is this needed?
                 addDash = false;
-                sb.Append('-');
+                _ = sb.Append('-');
             }
         }
 
