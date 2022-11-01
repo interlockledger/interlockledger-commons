@@ -11,10 +11,10 @@
     <Product>InterlockLedger</Product>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-    <Version>3.0.2</Version>
+    <Version>3.0.3</Version>
     <PackageId>InterlockLedger.Commons</PackageId>
-    <PackageReleaseNotes>Add icon to nuget package</PackageReleaseNotes>
-    <PackageIcon>IL2.png</PackageIcon>
+    <PackageReleaseNotes>Update to a square icon for the nuget package</PackageReleaseNotes>
+    <PackageIcon>il2.png</PackageIcon>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <AnalysisLevel>preview</AnalysisLevel>
@@ -43,7 +43,7 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <None Include="..\IL2.png">
+    <None Include="..\il2.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
