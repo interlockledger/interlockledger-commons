@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>InterlockLedger Network Team</Authors>
@@ -11,9 +11,9 @@
     <Product>InterlockLedger</Product>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-    <Version>3.0.3</Version>
+    <Version>4.0.0</Version>
     <PackageId>InterlockLedger.Commons</PackageId>
-    <PackageReleaseNotes>Update to a square icon for the nuget package</PackageReleaseNotes>
+    <PackageReleaseNotes>.NET 7 - Breaking changes on ITextual interface and thus on LimitedRange struct</PackageReleaseNotes>
     <PackageIcon>il2.png</PackageIcon>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>

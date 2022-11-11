@@ -39,7 +39,46 @@ public interface ITextual
     string TextualRepresentation { get; }
 }
 
-public interface ITextual<T> : ITextual
+public interface ITextual<T> : ITextual, IParsable<T> where T : ITextual<T>
 {
-    public static ITextualService<T>? TextualService { get; }
+    protected static abstract T FromString(string textualRepresentation);
+    protected static abstract string MessageForInvalid(string? textualRepresentation);
+
+    public static bool TryParse([NotNullWhen(true)] string? s, [MaybeNullWhen(false)] out T result) {
+        result = Resolve(s!);
+        return !result.IsInvalid;
+    }
+
+    public enum Resolution
+    {
+        Empty,
+        Valid,
+        Invalid
+    }
+
+    public static abstract T Empty { get; }
+    public static abstract T Invalid { get; }
+    protected static abstract Regex Mask { get; }
+    protected static abstract string MessageForMissing { get; }
+
+    public static Resolution IsValidTextual(string? textualRepresentation) =>
+         textualRepresentation.IsBlank() || textualRepresentation.SafeEqualsTo(T.Empty.TextualRepresentation)
+            ? Resolution.Empty
+            : T.Mask.IsMatch(textualRepresentation)
+                ? Resolution.Valid
+                : Resolution.Invalid;
+
+    public static T Resolve(string textualRepresentation) =>
+        IsValidTextual(textualRepresentation) switch {
+            Resolution.Empty => T.Empty,
+            Resolution.Valid => T.FromString(textualRepresentation),
+            _ => T.Invalid
+        };
+
+    public static string? Validate(string? textualRepresentation) =>
+        IsValidTextual(textualRepresentation) switch {
+            Resolution.Valid => null,
+            Resolution.Empty => T.MessageForMissing,
+            _ => T.MessageForInvalid(textualRepresentation)
+        };
 }

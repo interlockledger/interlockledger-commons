@@ -35,10 +35,9 @@ using System.Text.Json.Serialization;
 
 namespace System;
 
-
 [TypeConverter(typeof(TypeCustomConverter<LimitedRange>))]
 [JsonConverter(typeof(JsonCustomConverter<LimitedRange>))]
-public struct LimitedRange : IEquatable<LimitedRange>, ITextual<LimitedRange>
+public readonly partial struct LimitedRange : IEquatable<LimitedRange>, ITextual<LimitedRange>
 {
     public readonly ulong End;
     public readonly ulong Start;
@@ -57,25 +56,7 @@ public struct LimitedRange : IEquatable<LimitedRange>, ITextual<LimitedRange>
         TextualRepresentation = $"[{Start}{(End != Start ? "-" + End : "")}]";
     }
 
-    public LimitedRange(string textualRepresentation) {
-        string[] parts = textualRepresentation.Required().Trim('[', ']').Split('-');
-        string startText = parts[0].Trim();
-        Start = ulong.Parse(startText, CultureInfo.InvariantCulture);
-        if (parts.Length == 1) {
-            End = Start;
-        } else {
-            string endText = parts[1].Trim();
-            End = ulong.Parse(endText, CultureInfo.InvariantCulture);
-            if (End < Start)
-                throw new ArgumentException($"End of range ['{endText}' => {End}] must be greater than the start ['{startText}' => {Start}]", nameof(textualRepresentation));
-            if (End > (Start + ushort.MaxValue))
-                throw new ArgumentException($"Range is too wide (Count > {ushort.MaxValue}");
-        }
 
-        TextualRepresentation = $"[{Start}{(End != Start ? "-" + End : "")}]";
-    }
-
-    public static ITextualService<LimitedRange> TextualService { get; } = new LimitedRangeTextualService();
     public ushort Count => (ushort)(End - Start + 1);
     public bool IsEmpty => Start == End && End == default;
     public bool IsInvalid => Start > End;
@@ -105,28 +86,38 @@ public struct LimitedRange : IEquatable<LimitedRange>, ITextual<LimitedRange>
         TextualRepresentation = textualRepresentation;
     }
 
-    private class LimitedRangeTextualService : ITextualService<LimitedRange>
-    {
-        public LimitedRange Empty { get; } = new LimitedRange(start: default,
-                                                              end: default,
-                                                              textualRepresentation: "[]");
-        public LimitedRange Invalid { get; } = new LimitedRange(start: ulong.MaxValue,
-                                                                end: ulong.MaxValue - 1,
-                                                                textualRepresentation: "[?]");
-        public Regex Mask { get; } = new Regex(@"^\[\d+(-\d+)?\]$");
-        public string MessageForMissing => "No LimitedRange supplied";
+    public static LimitedRange Empty { get; } = new LimitedRange(start: default,
+                                                                 end: default,
+                                                                 textualRepresentation: "[]");
+    public static LimitedRange Invalid { get; } = new LimitedRange(start: ulong.MaxValue,
+                                                                   end: ulong.MaxValue - 1,
+                                                                   textualRepresentation: "[?]");
+    public static Regex Mask { get; } = MaskRegex();
+    public static string MessageForMissing => "No LimitedRange supplied";
 
-        public LimitedRange Build(string textualRepresentation) {
-            if (textualRepresentation.IsBlank() || textualRepresentation.SafeEqualsTo(Empty.TextualRepresentation))
-                return Empty;
-            try {
-                return new LimitedRange(textualRepresentation);
-            } catch {
-                return Invalid;
-            }
+    public static LimitedRange FromString(string textualRepresentation) => new(textualRepresentation);
+
+    public static string MessageForInvalid(string? textualRepresentation) => $"Not a valid LimitedRange '{textualRepresentation}'";
+    public static LimitedRange Parse(string s, IFormatProvider? provider) => LimitedRange.FromString(s);
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out LimitedRange result) =>
+        ITextual<LimitedRange>.TryParse(s, out result);
+
+    [GeneratedRegex("^\\[\\d+(-\\d+)?\\]$")]
+    private static partial Regex MaskRegex();
+    private LimitedRange(string textualRepresentation) {
+        string[] parts = textualRepresentation.Required().Trim('[', ']').Split('-');
+        string startText = parts[0].Trim();
+        Start = ulong.Parse(startText, CultureInfo.InvariantCulture);
+        if (parts.Length == 1) End = Start;
+        else {
+            string endText = parts[1].Trim();
+            End = ulong.Parse(endText, CultureInfo.InvariantCulture);
+            if (End < Start)
+                throw new ArgumentException($"End of range ['{endText}' => {End}] must be greater than the start ['{startText}' => {Start}]", nameof(textualRepresentation));
+            if (End > Start + ushort.MaxValue)
+                throw new ArgumentException($"Range is too wide (Count > {ushort.MaxValue}");
         }
-
-        public string MessageForInvalid(string? textualRepresentation) => $"Not a valid LimitedRange '{textualRepresentation}'";
+        TextualRepresentation = $"[{Start}{(End != Start ? "-" + End : "")}]";
     }
 }
 
