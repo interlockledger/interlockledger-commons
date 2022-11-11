@@ -41,15 +41,9 @@ public class JsonCustomConverter<T> : JsonConverter<T> where T : ITextual<T>
 
     public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
          reader.TokenType == JsonTokenType.String
-            ? _service(reader.GetString()!)
+            ? ITextual<T>.Resolve(reader.GetString())
             : throw new NotSupportedException();
 
     public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) =>
          writer.Required().WriteStringValue(value.TextualRepresentation);
-
-    private static readonly Func<object, T> _service = BuildService();
-    private static Func<object, T> BuildService() {
-        var ctor = typeof(T).GetConstructor(new Type[] { typeof(string) }).Required();
-        return (s) => (T)ctor.Invoke(new object[] { s });
-    }
 }

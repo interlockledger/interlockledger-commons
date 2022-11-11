@@ -37,6 +37,7 @@ public interface ITextual
     bool IsEmpty { get; }
     bool IsInvalid { get; }
     string TextualRepresentation { get; }
+    string? InvalidityCause { get; }
 }
 
 public interface ITextual<T> : ITextual, IParsable<T> where T : ITextual<T>
@@ -45,7 +46,7 @@ public interface ITextual<T> : ITextual, IParsable<T> where T : ITextual<T>
     protected static abstract string MessageForInvalid(string? textualRepresentation);
 
     public static bool TryParse([NotNullWhen(true)] string? s, [MaybeNullWhen(false)] out T result) {
-        result = Resolve(s!);
+        result = Resolve(s);
         return !result.IsInvalid;
     }
 
@@ -68,10 +69,10 @@ public interface ITextual<T> : ITextual, IParsable<T> where T : ITextual<T>
                 ? Resolution.Valid
                 : Resolution.Invalid;
 
-    public static T Resolve(string textualRepresentation) =>
+    public static T Resolve(string? textualRepresentation) =>
         IsValidTextual(textualRepresentation) switch {
             Resolution.Empty => T.Empty,
-            Resolution.Valid => T.FromString(textualRepresentation),
+            Resolution.Valid => T.FromString(textualRepresentation!),
             _ => T.Invalid
         };
 

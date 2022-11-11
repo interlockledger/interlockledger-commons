@@ -46,21 +46,33 @@ public readonly partial struct LimitedRange : IEquatable<LimitedRange>, ITextual
     }
 
     public LimitedRange(ulong start, ushort count) {
-        if (count == 0)
-            throw new ArgumentOutOfRangeException(nameof(count));
-        Start = start;
-        checked {
-            End = start + count - 1;
+        if (count != 0) {
+            Start = start;
+            try {
+                checked {
+                    End = start + count - 1;
+                }
+                TextualRepresentation = NormalRepresentation(Start, End);
+            } catch (OverflowException) {
+                End = start;
+                IsInvalid = true;
+                TextualRepresentation = $"[{Start}+{count}]";
+                InvalidityCause = "Arithmetic operation resulted in an overflow";
+            }
+        } else {
+            End = Start = 0;
+            TextualRepresentation = "[]";
+            IsEmpty = true;
         }
-
-        TextualRepresentation = $"[{Start}{(End != Start ? "-" + End : "")}]";
     }
 
 
     public ushort Count => (ushort)(End - Start + 1);
-    public bool IsEmpty => Start == End && End == default;
-    public bool IsInvalid => Start > End;
+    public bool IsEmpty { get; }
+    public bool IsInvalid { get; }
     public string TextualRepresentation { get; }
+    public string? InvalidityCause { get; }
+
 
     public static bool operator !=(LimitedRange left, LimitedRange right) => !(left == right);
 
@@ -78,7 +90,19 @@ public readonly partial struct LimitedRange : IEquatable<LimitedRange>, ITextual
 
     public bool OverlapsWith(LimitedRange other) => Contains(other.Start) || Contains(other.End) || other.Contains(Start);
 
-    public override string ToString() => TextualRepresentation;
+    public override string ToString() => (IsInvalid && !InvalidityCause.IsBlank()) ? $"{TextualRepresentation}{Environment.NewLine}{InvalidityCause}" : TextualRepresentation;
+
+    public static LimitedRange Empty { get; } = new LimitedRange(0, 0);
+    public static LimitedRange Invalid { get; } = new LimitedRange(ulong.MaxValue, "Bad format");
+    public static Regex Mask { get; } = MaskRegex();
+    public static string MessageForMissing { get; } = "No LimitedRange";
+    public static string MessageForInvalid(string? textualRepresentation) => $"Not a valid LimitedRange '{textualRepresentation}'";
+    public static LimitedRange Parse(string s, IFormatProvider? provider) => FromString(s);
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out LimitedRange result) =>
+        ITextual<LimitedRange>.TryParse(s, out result);
+
+    [GeneratedRegex("""^\[\d+(-\d+)?\]$""")]
+    private static partial Regex MaskRegex();
 
     private LimitedRange(ulong start, ulong end, string textualRepresentation) {
         Start = start;
@@ -86,39 +110,35 @@ public readonly partial struct LimitedRange : IEquatable<LimitedRange>, ITextual
         TextualRepresentation = textualRepresentation;
     }
 
-    public static LimitedRange Empty { get; } = new LimitedRange(start: default,
-                                                                 end: default,
-                                                                 textualRepresentation: "[]");
-    public static LimitedRange Invalid { get; } = new LimitedRange(start: ulong.MaxValue,
-                                                                   end: ulong.MaxValue - 1,
-                                                                   textualRepresentation: "[?]");
-    public static Regex Mask { get; } = MaskRegex();
-    public static string MessageForMissing => "No LimitedRange supplied";
-
-    public static LimitedRange FromString(string textualRepresentation) => new(textualRepresentation);
-
-    public static string MessageForInvalid(string? textualRepresentation) => $"Not a valid LimitedRange '{textualRepresentation}'";
-    public static LimitedRange Parse(string s, IFormatProvider? provider) => LimitedRange.FromString(s);
-    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out LimitedRange result) =>
-        ITextual<LimitedRange>.TryParse(s, out result);
-
-    [GeneratedRegex("^\\[\\d+(-\\d+)?\\]$")]
-    private static partial Regex MaskRegex();
-    private LimitedRange(string textualRepresentation) {
-        string[] parts = textualRepresentation.Required().Trim('[', ']').Split('-');
-        string startText = parts[0].Trim();
-        Start = ulong.Parse(startText, CultureInfo.InvariantCulture);
-        if (parts.Length == 1) End = Start;
-        else {
-            string endText = parts[1].Trim();
-            End = ulong.Parse(endText, CultureInfo.InvariantCulture);
-            if (End < Start)
-                throw new ArgumentException($"End of range ['{endText}' => {End}] must be greater than the start ['{startText}' => {Start}]", nameof(textualRepresentation));
-            if (End > Start + ushort.MaxValue)
-                throw new ArgumentException($"Range is too wide (Count > {ushort.MaxValue}");
-        }
-        TextualRepresentation = $"[{Start}{(End != Start ? "-" + End : "")}]";
+    private LimitedRange(ulong start, string invalidityCause) {
+        Start = start;
+        End = start;
+        TextualRepresentation = "[?]";
+        IsInvalid = true;
+        InvalidityCause = invalidityCause;
     }
+
+    public static LimitedRange FromString(string textualRepresentation) {
+        string[] parts = textualRepresentation.Safe().Trim('[', ']').Split('-');
+        bool justOnePart = parts.Length == 1;
+        if (justOnePart && parts[0].IsBlank())
+            return Empty;
+        bool noStartValue = !ulong.TryParse(parts[0], CultureInfo.InvariantCulture, out ulong start);
+        ulong end = start;
+        bool noEndValue = !justOnePart && !ulong.TryParse(parts[1], CultureInfo.InvariantCulture, out end);
+        return noStartValue || noEndValue
+            ? new LimitedRange(start, $"Bad Format: '{textualRepresentation}'")
+            : end >= start && end <= start + ushort.MaxValue
+                ? new LimitedRange(start, end, NormalRepresentation(start, end))
+                : new LimitedRange(start, InvalidityCauseFrom(start, end));
+    }
+
+    private static string NormalRepresentation(ulong start, ulong end) =>
+        end == start ? $"[{start}]" : $"[{start}-{end}]";
+    private static string InvalidityCauseFrom(ulong start, ulong end) =>
+        end < start
+            ? $"End of range [{end}] must be greater than the start [{start}]"
+            : $"Range is too wide (Count [{end + 1 - start}] > {ushort.MaxValue})";
 }
 
 public static class IEnumerableOfLimitedRangeExtensions
