@@ -38,17 +38,26 @@ public interface ITextual
     bool IsInvalid { get; }
     string TextualRepresentation { get; }
     string? InvalidityCause { get; }
+
+    string InvalidityCoda => InvalidityCause is not null ? $"{Environment.NewLine}{InvalidityCause}" : string.Empty;
+
 }
 
-public interface ITextual<T> : ITextual, IParsable<T> where T : ITextual<T>
+public interface ITextual<T> : ITextual, IParsable<T>, IEquatable<T> where T : notnull, ITextual<T>
 {
     protected static abstract T FromString(string textualRepresentation);
     protected static abstract string MessageForInvalid(string? textualRepresentation);
 
+    public static T Parse(string s) => Resolve(s);
     public static bool TryParse([NotNullWhen(true)] string? s, [MaybeNullWhen(false)] out T result) {
         result = Resolve(s);
         return !result.IsInvalid;
     }
+
+    public bool EqualsForValidInstances(T other);
+
+    public bool EqualsForAnyInstances(T other) =>
+        (IsInvalid && other.IsInvalid) || (IsEmpty && other.IsEmpty) || EqualsForValidInstances(other);
 
     public enum Resolution
     {
@@ -58,7 +67,7 @@ public interface ITextual<T> : ITextual, IParsable<T> where T : ITextual<T>
     }
 
     public static abstract T Empty { get; }
-    public static abstract T Invalid { get; }
+    public static abstract T InvalidBy(string cause);
     protected static abstract Regex Mask { get; }
     protected static abstract string MessageForMissing { get; }
 
@@ -70,11 +79,14 @@ public interface ITextual<T> : ITextual, IParsable<T> where T : ITextual<T>
                 : Resolution.Invalid;
 
     public static T Resolve(string? textualRepresentation) =>
-        IsValidTextual(textualRepresentation) switch {
-            Resolution.Empty => T.Empty,
-            Resolution.Valid => T.FromString(textualRepresentation!),
-            _ => T.Invalid
+        ITextual<T>.IsValidTextual(textualRepresentation) switch {
+            ITextual<T>.Resolution.Empty => T.Empty,
+            ITextual<T>.Resolution.Valid => T.FromString(textualRepresentation!),
+            _ => T.InvalidBy(InvalidByNotMatchingMask(textualRepresentation))
         };
+
+    public static string InvalidByNotMatchingMask(string? textualRepresentation) =>
+        $"Input '{textualRepresentation}' does not match {T.Mask}";
 
     public static string? Validate(string? textualRepresentation) =>
         IsValidTextual(textualRepresentation) switch {

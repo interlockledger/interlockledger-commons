@@ -38,12 +38,27 @@ namespace System;
 [TestFixture]
 public class LimitedRangeTests
 {
+
+    [Test]
+    public void Equality() {
+        Assert.AreEqual(LimitedRange.Empty, LimitedRange.Empty);
+        var invalidByCause1 = LimitedRange.InvalidBy("Cause1");
+        var invalidByCause2 = LimitedRange.InvalidBy("Cause2");
+        Assert.AreEqual(invalidByCause1, invalidByCause2);
+        Assert.AreEqual(invalidByCause2, invalidByCause1);
+        Assert.AreEqual(new LimitedRange(1, 10), new LimitedRange(1, 10));
+        Assert.AreNotEqual(LimitedRange.Empty, invalidByCause1);
+        Assert.AreNotEqual(invalidByCause1, LimitedRange.Empty);
+        Assert.AreNotEqual(new LimitedRange(1, 10), new LimitedRange(1, 11));
+        Assert.AreNotEqual(new LimitedRange(1, 11), new LimitedRange(1, 10));
+    }
+
     [TestCase("\"[]\"", false, true, "")]
     [TestCase("\"[1]\"", false, false, "")]
     [TestCase("\"[1-10]\"", false, false, "")]
-    [TestCase("\"[10-9]\"", true, false, "End of range [9] must be greater than the start [10]")]
-    [TestCase("\"[*]\"", true, false, "Bad Format")]
-    [TestCase("\"[1-70000]\"", true, false, "Range is too wide (Count [70000] > 65535)")]
+    [TestCase("\"[10-9]\"", true, false, "End of range (9) must be greater than the start (10)")]
+    [TestCase("\"[*]\"", true, false, """Input '[*]' does not match ^\[\d+(-\d+)?\]$""")]
+    [TestCase("\"[1-70000]\"", true, false, "Range is too wide (Count 70000 > 65535)")]
     public void DeserializeFromJson(string json, bool isInvalid, bool isEmpty, string? cause) {
         var lr = JsonSerializer.Deserialize<LimitedRange>(json);
         AssertLimitedRange(lr, json.Replace("\"", ""), isInvalid, isEmpty, cause);
@@ -52,9 +67,9 @@ public class LimitedRangeTests
     [TestCase("[]", false, true, "")]
     [TestCase("[1]", false, false, "")]
     [TestCase("[1-10]", false, false, "")]
-    [TestCase("[10-9]", true, false, "End of range [9] must be greater than the start [10]")]
-    [TestCase("[*]", true, false, "Bad Format")]
-    [TestCase("[1-70000]", true, false, "Range is too wide (Count [70000] > 65535)")]
+    [TestCase("[10-9]", true, false, "End of range (9) must be greater than the start (10)")]
+    [TestCase("[*]", true, false, """Input '[*]' does not match ^\[\d+(-\d+)?\]$""")]
+    [TestCase("[1-70000]", true, false, "Range is too wide (Count 70000 > 65535)")]
     public void Resolve(string text, bool isInvalid, bool isEmpty, string? cause) {
         var lr = ITextual<LimitedRange>.Resolve(text);
         AssertLimitedRange(lr, text, isInvalid, isEmpty, cause);
@@ -63,9 +78,9 @@ public class LimitedRangeTests
     [TestCase("[]", false, true, "")]
     [TestCase("[1]", false, false, "")]
     [TestCase("[1-10]", false, false, "")]
-    [TestCase("[10-9]", true, false, "End of range [9] must be greater than the start [10]")]
-    [TestCase("[*]", true, false, "Bad Format: '[*]'")]
-    [TestCase("[1-70000]", true, false, "Range is too wide (Count [70000] > 65535)")]
+    [TestCase("[10-9]", true, false, "End of range (9) must be greater than the start (10)")]
+    [TestCase("[*]", true, false, """Input '[*]' does not match ^\[\d+(-\d+)?\]$""")]
+    [TestCase("[1-70000]", true, false, "Range is too wide (Count 70000 > 65535)")]
     public void FromString(string text, bool isInvalid, bool isEmpty, string? cause) {
         var lr = LimitedRange.FromString(text);
         AssertLimitedRange(lr, text, isInvalid, isEmpty, cause);
@@ -85,7 +100,10 @@ public class LimitedRangeTests
     public void MemberEmpty() => AssertLimitedRange(LimitedRange.Empty, LimitedRange.Empty.TextualRepresentation, false, true);
 
     [Test]
-    public void MemberInvalid() => AssertLimitedRange(LimitedRange.Invalid, LimitedRange.Invalid.TextualRepresentation, true, false);
+    public void MemberInvalidBy() {
+        var invalid = LimitedRange.InvalidBy("Test");
+        AssertLimitedRange(invalid, invalid.TextualRepresentation, true, false);
+    }
 
     [Test]
     public void OneToTen() => AssertLimitedRange(new LimitedRange(1, 10), "[1-10]", false, false);
