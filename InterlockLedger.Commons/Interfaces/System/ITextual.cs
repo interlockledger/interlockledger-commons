@@ -45,20 +45,6 @@ public interface ITextual
 
 public interface ITextual<T> : ITextual, IParsable<T>, IEquatable<T> where T : notnull, ITextual<T>
 {
-    protected static abstract T FromString(string textualRepresentation);
-    protected static abstract string MessageForInvalid(string? textualRepresentation);
-
-    public static T Parse(string s) => Resolve(s);
-    public static bool TryParse([NotNullWhen(true)] string? s, [MaybeNullWhen(false)] out T result) {
-        result = Resolve(s);
-        return !result.IsInvalid;
-    }
-
-    public bool EqualsForValidInstances(T other);
-
-    public bool EqualsForAnyInstances(T other) =>
-        (IsInvalid && other.IsInvalid) || (IsEmpty && other.IsEmpty) || EqualsForValidInstances(other);
-
     public enum Resolution
     {
         Empty,
@@ -66,10 +52,29 @@ public interface ITextual<T> : ITextual, IParsable<T>, IEquatable<T> where T : n
         Invalid
     }
 
+    #region Must Implement
+
     public static abstract T Empty { get; }
     public static abstract T InvalidBy(string cause);
     protected static abstract Regex Mask { get; }
     protected static abstract string MessageForMissing { get; }
+    protected static abstract T FromString(string textualRepresentation);
+    protected static abstract string MessageForInvalid(string? textualRepresentation);
+
+    protected bool EqualsForValidInstances(T other);
+
+    #endregion
+
+    #region Implemented
+
+    public static T Parse(string s) => Resolve(s);
+    public static bool TryParse([NotNullWhen(true)] string? s, [MaybeNullWhen(false)] out T result) {
+        result = Resolve(s);
+        return !result.IsInvalid;
+    }
+
+    public bool EqualsForAnyInstances(T? other) =>
+        other is not null && ((IsInvalid && other.IsInvalid) || (IsEmpty && other.IsEmpty) || EqualsForValidInstances(other));
 
     public static Resolution IsValidTextual(string? textualRepresentation) =>
          textualRepresentation.IsBlank() || textualRepresentation.SafeEqualsTo(T.Empty.TextualRepresentation)
@@ -79,9 +84,9 @@ public interface ITextual<T> : ITextual, IParsable<T>, IEquatable<T> where T : n
                 : Resolution.Invalid;
 
     public static T Resolve(string? textualRepresentation) =>
-        ITextual<T>.IsValidTextual(textualRepresentation) switch {
-            ITextual<T>.Resolution.Empty => T.Empty,
-            ITextual<T>.Resolution.Valid => T.FromString(textualRepresentation!),
+        IsValidTextual(textualRepresentation) switch {
+            Resolution.Empty => T.Empty,
+            Resolution.Valid => T.FromString(textualRepresentation!),
             _ => T.InvalidBy(InvalidByNotMatchingMask(textualRepresentation))
         };
 
@@ -94,4 +99,6 @@ public interface ITextual<T> : ITextual, IParsable<T>, IEquatable<T> where T : n
             Resolution.Empty => T.MessageForMissing,
             _ => T.MessageForInvalid(textualRepresentation)
         };
+
+    #endregion
 }

@@ -11,7 +11,7 @@
     <Product>InterlockLedger</Product>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-    <Version>6.0.0</Version>
+    <Version>6.1.0</Version>
     <PackageId>InterlockLedger.Commons</PackageId>
     <PackageReleaseNotes>More Breaking changes on ITextual interface and thus on LimitedRange struct</PackageReleaseNotes>
     <PackageIcon>il2.png</PackageIcon>

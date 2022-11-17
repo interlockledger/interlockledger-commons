@@ -101,7 +101,7 @@ public readonly partial struct LimitedRange : ITextual<LimitedRange>
     public static Regex Mask { get; } = MaskRegex();
     public static string MessageForMissing { get; } = "No LimitedRange";
     public static string MessageForInvalid(string? textualRepresentation) => $"Not a valid LimitedRange '{textualRepresentation}'";
-    public static LimitedRange Parse(string s, IFormatProvider? provider) => FromString(s);
+    public static LimitedRange Parse(string s, IFormatProvider? provider) => ITextual<LimitedRange>.Parse(s);
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out LimitedRange result) =>
         ITextual<LimitedRange>.TryParse(s, out result);
 
