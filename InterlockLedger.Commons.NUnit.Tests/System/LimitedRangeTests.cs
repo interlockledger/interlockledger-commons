@@ -71,7 +71,7 @@ public class LimitedRangeTests
     [TestCase("[*]", true, false, """Input '[*]' does not match ^\[\d+(-\d+)?\]$""")]
     [TestCase("[1-70000]", true, false, "Range is too wide (Count 70000 > 65535)")]
     public void Resolve(string text, bool isInvalid, bool isEmpty, string? cause) {
-        var lr = ITextual<LimitedRange>.Resolve(text);
+        var lr = ITextual<LimitedRange>.Parse(text);
         AssertLimitedRange(lr, text, isInvalid, isEmpty, cause);
     }
 
@@ -87,9 +87,9 @@ public class LimitedRangeTests
     }
 
     private static void AssertLimitedRange(LimitedRange lr, string text, bool isInvalid, bool isEmpty, string? cause = null) {
-        Assert.AreEqual(isInvalid, lr.IsInvalid, nameof(isInvalid));
+        Assert.AreEqual(isInvalid, lr.Textual.IsInvalid, nameof(isInvalid));
         Assert.AreEqual(isEmpty, lr.IsEmpty, nameof(isEmpty));
-        if (!lr.IsInvalid) {
+        if (!lr.Textual.IsInvalid) {
             Assert.That(lr.TextualRepresentation, Is.EqualTo(text));
         } else if (!cause.IsBlank())
             StringAssert.AreEqualIgnoringCase(cause, lr.InvalidityCause);

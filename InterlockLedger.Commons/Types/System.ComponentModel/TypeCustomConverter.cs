@@ -44,20 +44,10 @@ public class TypeCustomConverter<T> : TypeConverter where T : ITextual<T>
          destinationType == typeof(InstanceDescriptor) || destinationType == typeof(string);
 
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) =>
-         value is string text ? _service(text) : base.ConvertFrom(context, culture, value);
+         value is string text ? ITextual<T>.Parse(text) : base.ConvertFrom(context, culture, value);
 
     public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type? destinationType) =>
-         destinationType is null
-            ? throw new ArgumentNullException(nameof(destinationType))
-            : value is null
-                ? throw new ArgumentNullException(nameof(value))
-                : destinationType != typeof(string) || value is not T type
-                    ? throw new InvalidOperationException($"Can only convert {typeof(T).Name} to string!!!")
-                    : type.TextualRepresentation;
-
-    private static readonly Func<string, T> _service = BuildService();
-    private static Func<string, T> BuildService() {
-        var ctor = typeof(T).GetConstructor(new Type[] { typeof(string) }).Required();
-        return (s) => (T)ctor.Invoke(new object[] { s });
-    }
+        destinationType.Required() == typeof(string) && value is T typedValue
+            ? typedValue.TextualRepresentation
+            : throw new InvalidOperationException($"Can only convert {typeof(T).Name} to string!!!");
 }

@@ -30,21 +30,14 @@
 //
 // ******************************************************************************************************************************
 
-using System.ComponentModel;
-using System.Text.Json.Serialization;
-
 namespace System;
 
 [TypeConverter(typeof(TypeCustomConverter<LimitedRange>))]
 [JsonConverter(typeof(JsonCustomConverter<LimitedRange>))]
 public readonly partial struct LimitedRange : ITextual<LimitedRange>
 {
-    public readonly ulong End;
-    public readonly ulong Start;
-
     public LimitedRange(ulong start) : this(start, 1) {
     }
-
     public LimitedRange(ulong start, ushort count) {
         if (count != 0) {
             Start = start;
@@ -55,7 +48,6 @@ public readonly partial struct LimitedRange : ITextual<LimitedRange>
                 TextualRepresentation = NormalRepresentation(Start, End);
             } catch (OverflowException) {
                 End = start;
-                IsInvalid = true;
                 TextualRepresentation = $"[{Start}+{count}]";
                 InvalidityCause = "Arithmetic operation resulted in an overflow";
             }
@@ -65,46 +57,24 @@ public readonly partial struct LimitedRange : ITextual<LimitedRange>
             IsEmpty = true;
         }
     }
-
-
+    public readonly ulong Start;
+    public readonly ulong End;
     public ushort Count => (ushort)(End - Start + 1);
-    public bool IsEmpty { get; }
-    public bool IsInvalid { get; }
-    public string TextualRepresentation { get; }
-    public string? InvalidityCause { get; }
-
-
-    public static bool operator !=(LimitedRange left, LimitedRange right) => !(left == right);
-
-    public static bool operator ==(LimitedRange left, LimitedRange right) => left.Equals(right);
-
     public bool Contains(ulong value) => Start <= value && value <= End;
-
     public bool Contains(LimitedRange other) => Contains(other.Start) && Contains(other.End);
-
-    public override bool Equals(object? obj) => obj is LimitedRange limitedRange && Equals(limitedRange);
-
-    public bool Equals(LimitedRange other) => _traits.EqualsForAnyInstances(other);
-
-    public override int GetHashCode() => HashCode.Combine(End, Start);
-
     public bool OverlapsWith(LimitedRange other) => Contains(other.Start) || Contains(other.End) || other.Contains(Start);
-
-    public override string ToString() => $"{TextualRepresentation}{_traits.InvalidityCoda}";
-
+    public override int GetHashCode() => HashCode.Combine(End, Start, InvalidityCause);
+    public override bool Equals(object? obj) => obj is LimitedRange limitedRange && Equals(limitedRange);
+    public bool IsEmpty { get; }
+    public string TextualRepresentation { get; }
+    public string? InvalidityCause { get; init; }
+    public ITextual<LimitedRange> Textual => this;
+    public bool Equals(LimitedRange other) => Textual.EqualForAnyInstances(other);
+    public override string ToString() => Textual.FullRepresentation;
     public bool EqualsForValidInstances(LimitedRange other) => End == other.End && Start == other.Start;
-
-
     public static LimitedRange Empty { get; } = new LimitedRange(0, 0);
     public static LimitedRange InvalidBy(string cause) => new(ulong.MaxValue, cause);
-
     public static Regex Mask { get; } = MaskRegex();
-    public static string MessageForMissing { get; } = "No LimitedRange";
-    public static string MessageForInvalid(string? textualRepresentation) => $"Not a valid LimitedRange '{textualRepresentation}'";
-    public static LimitedRange Parse(string s, IFormatProvider? provider) => ITextual<LimitedRange>.Parse(s);
-    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out LimitedRange result) =>
-        ITextual<LimitedRange>.TryParse(s, out result);
-
     public static LimitedRange FromString(string textualRepresentation) {
         string[] parts = textualRepresentation.Safe().Trim('[', ']').Split('-');
         bool justOnePart = parts.Length == 1;
@@ -114,7 +84,7 @@ public readonly partial struct LimitedRange : ITextual<LimitedRange>
         ulong end = start;
         bool noEndValue = !justOnePart && !ulong.TryParse(parts[1], CultureInfo.InvariantCulture, out end);
         return noStartValue || noEndValue
-            ? new LimitedRange(start, ITextual<LimitedRange>.InvalidByNotMatchingMask(textualRepresentation))
+            ? new LimitedRange(start, Mask.InvalidityByNotMatching(textualRepresentation))
             : end >= start && end <= start + ushort.MaxValue
                 ? new LimitedRange(start, end, NormalRepresentation(start, end))
                 : new LimitedRange(start, InvalidityCauseFrom(start, end));
@@ -123,36 +93,21 @@ public readonly partial struct LimitedRange : ITextual<LimitedRange>
 
     [GeneratedRegex("""^\[\d+(-\d+)?\]$""")]
     private static partial Regex MaskRegex();
-
-    private ITextual<LimitedRange> _traits => this;
-
     private LimitedRange(ulong start, ulong end, string textualRepresentation) {
         Start = start;
         End = end;
         TextualRepresentation = textualRepresentation;
     }
-
     private LimitedRange(ulong start, string invalidityCause) {
         Start = start;
         End = start;
         TextualRepresentation = "[?]";
-        IsInvalid = true;
         InvalidityCause = invalidityCause;
     }
-
     private static string NormalRepresentation(ulong start, ulong end) =>
         end == start ? $"[{start}]" : $"[{start}-{end}]";
     private static string InvalidityCauseFrom(ulong start, ulong end) =>
         end < start
             ? $"End of range ({end}) must be greater than the start ({start})"
             : $"Range is too wide (Count {end + 1 - start} > {ushort.MaxValue})";
-}
-
-public static class IEnumerableOfLimitedRangeExtensions
-{
-    public static bool AnyOverlapsWith(this IEnumerable<LimitedRange> first, IEnumerable<LimitedRange> second) => first.Any(f => second.Any(s => s.OverlapsWith(f)));
-
-    public static bool Includes(this IEnumerable<LimitedRange> ranges, ulong value) => ranges.Any(r => r.Contains(value));
-
-    public static bool IsSupersetOf(this IEnumerable<LimitedRange> first, IEnumerable<LimitedRange> second) => second.All(r => first.Any(Value => Value.Contains(r)));
 }

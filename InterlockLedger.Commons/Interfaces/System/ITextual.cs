@@ -32,73 +32,52 @@
 
 namespace System;
 
-public interface ITextual
+public interface ITextual<T> : IEquatable<T> where T : notnull, ITextual<T>
 {
-    bool IsEmpty { get; }
-    bool IsInvalid { get; }
-    string TextualRepresentation { get; }
-    string? InvalidityCause { get; }
-
-    string InvalidityCoda => InvalidityCause is not null ? $"{Environment.NewLine}{InvalidityCause}" : string.Empty;
-
-}
-
-public interface ITextual<T> : ITextual, IParsable<T>, IEquatable<T> where T : notnull, ITextual<T>
-{
-    public enum Resolution
-    {
-        Empty,
-        Valid,
-        Invalid
-    }
-
     #region Must Implement
+    bool IsEmpty { get; }
+    string TextualRepresentation { get; }
+    string? InvalidityCause { get; init; }
 
     public static abstract T Empty { get; }
-    public static abstract T InvalidBy(string cause);
-    protected static abstract Regex Mask { get; }
-    protected static abstract string MessageForMissing { get; }
-    protected static abstract T FromString(string textualRepresentation);
-    protected static abstract string MessageForInvalid(string? textualRepresentation);
 
+    protected static abstract T InvalidBy(string cause);
+    protected static abstract Regex Mask { get; }
+    protected static abstract T FromString(string textualRepresentation);
     protected bool EqualsForValidInstances(T other);
 
     #endregion
 
     #region Implemented
+    public static virtual bool operator !=(T left, T right) => !(left == right);
 
-    public static T Parse(string s) => Resolve(s);
+    public static virtual bool operator ==(T left, T right) => left.Equals(right);
+
+    public bool EqualForAnyInstances(T? other) =>
+        other is not null
+        && ((IsEmpty || other.IsEmpty)
+            ? IsEmpty == other.IsEmpty
+            : (IsInvalid || other.IsInvalid)
+                ? IsInvalid == other.IsInvalid
+                : EqualsForValidInstances(other));
+
     public static bool TryParse([NotNullWhen(true)] string? s, [MaybeNullWhen(false)] out T result) {
-        result = Resolve(s);
+        result = Parse(s);
         return !result.IsInvalid;
     }
 
-    public bool EqualsForAnyInstances(T? other) =>
-        other is not null && ((IsInvalid && other.IsInvalid) || (IsEmpty && other.IsEmpty) || EqualsForValidInstances(other));
-
-    public static Resolution IsValidTextual(string? textualRepresentation) =>
-         textualRepresentation.IsBlank() || textualRepresentation.SafeEqualsTo(T.Empty.TextualRepresentation)
-            ? Resolution.Empty
+    public static T Parse(string? textualRepresentation) =>
+        textualRepresentation.IsBlank() || textualRepresentation.SafeEqualsTo(T.Empty.TextualRepresentation)
+            ? T.Empty
             : T.Mask.IsMatch(textualRepresentation)
-                ? Resolution.Valid
-                : Resolution.Invalid;
+                ? T.FromString(textualRepresentation!)
+                : T.InvalidBy(T.Mask.InvalidityByNotMatching(textualRepresentation));
+    string FullRepresentation =>
+        !IsInvalid
+        ? TextualRepresentation
+        : $"{TextualRepresentation}{Environment.NewLine}{InvalidityCause}";
 
-    public static T Resolve(string? textualRepresentation) =>
-        IsValidTextual(textualRepresentation) switch {
-            Resolution.Empty => T.Empty,
-            Resolution.Valid => T.FromString(textualRepresentation!),
-            _ => T.InvalidBy(InvalidByNotMatchingMask(textualRepresentation))
-        };
-
-    public static string InvalidByNotMatchingMask(string? textualRepresentation) =>
-        $"Input '{textualRepresentation}' does not match {T.Mask}";
-
-    public static string? Validate(string? textualRepresentation) =>
-        IsValidTextual(textualRepresentation) switch {
-            Resolution.Valid => null,
-            Resolution.Empty => T.MessageForMissing,
-            _ => T.MessageForInvalid(textualRepresentation)
-        };
+    bool IsInvalid => InvalidityCause is not null;
 
     #endregion
 }

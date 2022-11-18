@@ -30,20 +30,10 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Text.Json.Serialization;
+namespace System.Text.RegularExpressions;
 
-public class JsonCustomConverter<T> : JsonConverter<T> where T : ITextual<T>
+public static class RegexExtensions
 {
-    public JsonCustomConverter() { }
-
-    public override bool CanConvert(Type typeToConvert) =>
-         typeToConvert.Required() == typeof(T) || typeToConvert.IsSubclassOf(typeof(T));
-
-    public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-         reader.TokenType == JsonTokenType.String
-            ? ITextual<T>.Parse(reader.GetString())
-            : throw new NotSupportedException();
-
-    public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) =>
-         writer.Required().WriteStringValue(value.TextualRepresentation);
+    public static string InvalidityByNotMatching(this Regex mask, string? textualRepresentation) =>
+        $"Input '{textualRepresentation}' does not match {mask}";
 }

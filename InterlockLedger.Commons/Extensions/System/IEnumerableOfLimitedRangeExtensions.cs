@@ -1,4 +1,4 @@
-// ******************************************************************************************************************************
+﻿// ******************************************************************************************************************************
 //  
 // Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
@@ -30,20 +30,13 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Text.Json.Serialization;
+namespace System;
 
-public class JsonCustomConverter<T> : JsonConverter<T> where T : ITextual<T>
+public static class IEnumerableOfLimitedRangeExtensions
 {
-    public JsonCustomConverter() { }
+    public static bool AnyOverlapsWith(this IEnumerable<LimitedRange> first, IEnumerable<LimitedRange> second) => first.Any(f => second.Any(s => s.OverlapsWith(f)));
 
-    public override bool CanConvert(Type typeToConvert) =>
-         typeToConvert.Required() == typeof(T) || typeToConvert.IsSubclassOf(typeof(T));
+    public static bool Includes(this IEnumerable<LimitedRange> ranges, ulong value) => ranges.Any(r => r.Contains(value));
 
-    public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-         reader.TokenType == JsonTokenType.String
-            ? ITextual<T>.Parse(reader.GetString())
-            : throw new NotSupportedException();
-
-    public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) =>
-         writer.Required().WriteStringValue(value.TextualRepresentation);
+    public static bool IsSupersetOf(this IEnumerable<LimitedRange> first, IEnumerable<LimitedRange> second) => second.All(r => first.Any(Value => Value.Contains(r)));
 }
