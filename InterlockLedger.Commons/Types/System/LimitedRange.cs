@@ -36,6 +36,8 @@ namespace System;
 [JsonConverter(typeof(JsonCustomConverter<LimitedRange>))]
 public readonly partial struct LimitedRange : ITextual<LimitedRange>
 {
+    public LimitedRange() : this(0, "Invalid by construction") { }
+
     public LimitedRange(ulong start) : this(start, 1) {
     }
     public LimitedRange(ulong start, ushort count) {
