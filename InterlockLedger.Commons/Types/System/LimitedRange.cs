@@ -57,6 +57,7 @@ public readonly partial struct LimitedRange : ITextual<LimitedRange>
             IsEmpty = true;
         }
     }
+
     public readonly ulong Start;
     public readonly ulong End;
     public ushort Count => (ushort)(End - Start + 1);

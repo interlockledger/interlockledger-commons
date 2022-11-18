@@ -32,7 +32,7 @@
 
 namespace System.Text.Json.Serialization;
 
-public class JsonCustomConverter<T> : JsonConverter<T> where T : ITextual<T>
+public class JsonCustomConverter<T> : JsonConverter<T> where T : notnull, ITextual<T>, new()
 {
     public JsonCustomConverter() { }
 

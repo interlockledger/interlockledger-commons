@@ -32,16 +32,14 @@
 
 namespace System;
 
-public interface ITextual<T> : IEquatable<T> where T : notnull, ITextual<T>
+public interface ITextual<T> : IEquatable<T> where T : notnull, ITextual<T>, new()
 {
     #region Must Implement
     bool IsEmpty { get; }
     string TextualRepresentation { get; }
     string? InvalidityCause { get; init; }
-
     public static abstract T Empty { get; }
 
-    protected static abstract T InvalidBy(string cause);
     protected static abstract Regex Mask { get; }
     protected static abstract T FromString(string textualRepresentation);
     protected bool EqualsForValidInstances(T other);
@@ -49,10 +47,6 @@ public interface ITextual<T> : IEquatable<T> where T : notnull, ITextual<T>
     #endregion
 
     #region Implemented
-    public static virtual bool operator !=(T left, T right) => !(left == right);
-
-    public static virtual bool operator ==(T left, T right) => left.Equals(right);
-
     public bool EqualForAnyInstances(T? other) =>
         other is not null
         && ((IsEmpty || other.IsEmpty)
@@ -71,13 +65,15 @@ public interface ITextual<T> : IEquatable<T> where T : notnull, ITextual<T>
             ? T.Empty
             : T.Mask.IsMatch(textualRepresentation)
                 ? T.FromString(textualRepresentation!)
-                : T.InvalidBy(T.Mask.InvalidityByNotMatching(textualRepresentation));
+                : InvalidBy(T.Mask.InvalidityByNotMatching(textualRepresentation));
     string FullRepresentation =>
         !IsInvalid
         ? TextualRepresentation
         : $"{TextualRepresentation}{Environment.NewLine}{InvalidityCause}";
 
     bool IsInvalid => InvalidityCause is not null;
+
+    private static T InvalidBy(string cause) => new() { InvalidityCause = cause };
 
     #endregion
 }

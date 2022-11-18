@@ -11,9 +11,9 @@
     <Product>InterlockLedger</Product>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-    <Version>7.0.0</Version>
+    <Version>8.0.0</Version>
     <PackageId>InterlockLedger.Commons</PackageId>
-    <PackageReleaseNotes>Slimming down ITextual interface</PackageReleaseNotes>
+    <PackageReleaseNotes>Slimming down a little more the ITextual interface</PackageReleaseNotes>
     <PackageIcon>il2.png</PackageIcon>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
