@@ -32,7 +32,6 @@
 
 #nullable enable
 
-
 namespace System;
 
 [TestFixture]
@@ -42,8 +41,8 @@ public class LimitedRangeTests
     [Test]
     public void Equality() {
         Assert.AreEqual(LimitedRange.Empty, LimitedRange.Empty);
-        var invalidByCause1 = LimitedRange.InvalidBy("Cause1");
-        var invalidByCause2 = LimitedRange.InvalidBy("Cause2");
+        var invalidByCause1 = ITextual<LimitedRange>.InvalidBy("Cause1");
+        var invalidByCause2 = ITextual<LimitedRange>.InvalidBy("Cause2");
         Assert.AreEqual(invalidByCause1, invalidByCause2);
         Assert.AreEqual(invalidByCause2, invalidByCause1);
         Assert.AreEqual(new LimitedRange(1, 10), new LimitedRange(1, 10));
@@ -69,8 +68,9 @@ public class LimitedRangeTests
     [TestCase("[1-10]", false, false, "")]
     [TestCase("[10-9]", true, false, "End of range (9) must be greater than the start (10)")]
     [TestCase("[*]", true, false, """Input '[*]' does not match ^\[\d+(-\d+)?\]$""")]
+    [TestCase("1-10", true, false, """Input '1-10' does not match ^\[\d+(-\d+)?\]$""")]
     [TestCase("[1-70000]", true, false, "Range is too wide (Count 70000 > 65535)")]
-    public void Resolve(string text, bool isInvalid, bool isEmpty, string? cause) {
+    public void Parse(string text, bool isInvalid, bool isEmpty, string? cause) {
         var lr = ITextual<LimitedRange>.Parse(text);
         AssertLimitedRange(lr, text, isInvalid, isEmpty, cause);
     }
@@ -80,17 +80,20 @@ public class LimitedRangeTests
     [TestCase("[1-10]", false, false, "")]
     [TestCase("[10-9]", true, false, "End of range (9) must be greater than the start (10)")]
     [TestCase("[*]", true, false, """Input '[*]' does not match ^\[\d+(-\d+)?\]$""")]
+    [TestCase("1-10", false, false, "")]
     [TestCase("[1-70000]", true, false, "Range is too wide (Count 70000 > 65535)")]
     public void FromString(string text, bool isInvalid, bool isEmpty, string? cause) {
         var lr = LimitedRange.FromString(text);
-        AssertLimitedRange(lr, text, isInvalid, isEmpty, cause);
+        AssertLimitedRange(lr, text, isInvalid, isEmpty, cause, text[0] != '[');
     }
 
-    private static void AssertLimitedRange(LimitedRange lr, string text, bool isInvalid, bool isEmpty, string? cause = null) {
+    private static void AssertLimitedRange(LimitedRange lr, string text, bool isInvalid, bool isEmpty, string? cause = null, bool unwrapped = false) {
         Assert.AreEqual(isInvalid, lr.Textual.IsInvalid, nameof(isInvalid));
         Assert.AreEqual(isEmpty, lr.IsEmpty, nameof(isEmpty));
-        if (!lr.Textual.IsInvalid) {
+        if (!lr.Textual.IsInvalid && !unwrapped) {
             Assert.That(lr.TextualRepresentation, Is.EqualTo(text));
+            string lrAsString = lr; // implicit string conversion
+            Assert.That(lrAsString, Is.EqualTo(text));
         } else if (!cause.IsBlank())
             StringAssert.AreEqualIgnoringCase(cause, lr.InvalidityCause);
         TestContext.WriteLine(lr.ToString());
@@ -101,18 +104,23 @@ public class LimitedRangeTests
 
     [Test]
     public void MemberInvalidBy() {
-        var invalid = LimitedRange.InvalidBy("Test");
-        AssertLimitedRange(invalid, invalid.TextualRepresentation, true, false);
+        var invalid = ITextual<LimitedRange>.InvalidBy("Test");
+        AssertLimitedRange(invalid, invalid.TextualRepresentation, isInvalid: true, isEmpty: false);
     }
 
-    [Test]
-    public void OneToTen() => AssertLimitedRange(new LimitedRange(1, 10), "[1-10]", false, false);
 
     [Test]
-    public void One() => AssertLimitedRange(new LimitedRange(1), "[1]", false, false);
+    public void OneToTen() => AssertLimitedRange(new LimitedRange(1, 10), "[1-10]", isInvalid: false, isEmpty: false);
 
     [Test]
-    public void WrapAround() => AssertLimitedRange(new LimitedRange(ulong.MaxValue, 2), "[1-10]", true, false, "Arithmetic operation resulted in an overflow");
+    public void One() => AssertLimitedRange(new LimitedRange(1), "[1]", isInvalid: false, isEmpty: false);
+
+    [Test]
+    public void WrapAround() => AssertLimitedRange(new LimitedRange(ulong.MaxValue, 2),
+                                                   "",
+                                                   isInvalid: true,
+                                                   isEmpty: false,
+                                                   cause: "Arithmetic operation resulted in an overflow");
 
 
 }

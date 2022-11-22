@@ -37,7 +37,7 @@ public class StringSuffixExtensionsTests
 {
     [Test]
     public void WithSuffix() {
-        Assert.IsNull(((string)null).WithSuffix(".json"));
+        Assert.IsNull(((string?)null).WithSuffix(".json"));
         Assert.AreEqual(".json", "".WithSuffix(".json"));
         Assert.AreEqual("a.json", "a".WithSuffix(".json"));
         Assert.AreEqual("b.JSON", "b.JSON".WithSuffix(".json"));
@@ -55,7 +55,7 @@ public class StringSuffixExtensionsTests
 
     [Test]
     public void WithSuffixReplaced() {
-        Assert.IsNull(((string)null).WithSuffixReplaced(".jsonc"));
+        Assert.IsNull(((string?)null).WithSuffixReplaced(".jsonc"));
         Assert.AreEqual(".jsonc", "".WithSuffixReplaced(".jsonc"));
         Assert.AreEqual("a.jsonc", "a.json".WithSuffixReplaced(".jsonc"));
         Assert.AreEqual("b.jsonc", "b.JSONC".WithSuffixReplaced(".jsonc"));

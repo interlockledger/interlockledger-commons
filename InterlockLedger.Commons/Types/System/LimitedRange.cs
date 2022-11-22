@@ -36,10 +36,12 @@ namespace System;
 [JsonConverter(typeof(JsonCustomConverter<LimitedRange>))]
 public readonly partial struct LimitedRange : ITextual<LimitedRange>
 {
-    public LimitedRange() : this(0, "Invalid by construction") { }
-
-    public LimitedRange(ulong start) : this(start, 1) {
+    public LimitedRange() {
+        Start = End = ulong.MaxValue;
+        TextualRepresentation = InvalidTextualRepresentation;
+        InvalidityCause = "Invalid by construction";
     }
+    public LimitedRange(ulong start) : this(start, 1) { }
     public LimitedRange(ulong start, ushort count) {
         if (count != 0) {
             Start = start;
@@ -68,15 +70,16 @@ public readonly partial struct LimitedRange : ITextual<LimitedRange>
     public bool OverlapsWith(LimitedRange other) => Contains(other.Start) || Contains(other.End) || other.Contains(Start);
     public override int GetHashCode() => HashCode.Combine(End, Start, InvalidityCause);
     public override bool Equals(object? obj) => obj is LimitedRange limitedRange && Equals(limitedRange);
+    public static implicit operator string(LimitedRange limitedRange) => limitedRange.TextualRepresentation;
     public bool IsEmpty { get; }
-    public string TextualRepresentation { get; }
+    public string TextualRepresentation { get; init; }
     public string? InvalidityCause { get; init; }
     public ITextual<LimitedRange> Textual => this;
-    public bool Equals(LimitedRange other) => Textual.EqualForAnyInstances(other);
+    public bool Equals(LimitedRange other) => Textual.EqualsForAnyInstances(other);
     public override string ToString() => Textual.FullRepresentation;
     public bool EqualsForValidInstances(LimitedRange other) => End == other.End && Start == other.Start;
+    public static string InvalidTextualRepresentation => "[?]";
     public static LimitedRange Empty { get; } = new LimitedRange(0, 0);
-    public static LimitedRange InvalidBy(string cause) => new(ulong.MaxValue, cause);
     public static Regex Mask { get; } = MaskRegex();
     public static LimitedRange FromString(string textualRepresentation) {
         string[] parts = textualRepresentation.Safe().Trim('[', ']').Split('-');
@@ -87,10 +90,10 @@ public readonly partial struct LimitedRange : ITextual<LimitedRange>
         ulong end = start;
         bool noEndValue = !justOnePart && !ulong.TryParse(parts[1], CultureInfo.InvariantCulture, out end);
         return noStartValue || noEndValue
-            ? new LimitedRange(start, Mask.InvalidityByNotMatching(textualRepresentation))
+            ? ITextual<LimitedRange>.InvalidBy(Mask.InvalidityByNotMatching(textualRepresentation))
             : end >= start && end <= start + ushort.MaxValue
                 ? new LimitedRange(start, end, NormalRepresentation(start, end))
-                : new LimitedRange(start, InvalidityCauseFrom(start, end));
+                : ITextual<LimitedRange>.InvalidBy(InvalidityCauseFrom(start, end));
     }
 
 
@@ -101,16 +104,14 @@ public readonly partial struct LimitedRange : ITextual<LimitedRange>
         End = end;
         TextualRepresentation = textualRepresentation;
     }
-    private LimitedRange(ulong start, string invalidityCause) {
-        Start = start;
-        End = start;
-        TextualRepresentation = "[?]";
-        InvalidityCause = invalidityCause;
-    }
     private static string NormalRepresentation(ulong start, ulong end) =>
         end == start ? $"[{start}]" : $"[{start}-{end}]";
     private static string InvalidityCauseFrom(ulong start, ulong end) =>
         end < start
             ? $"End of range ({end}) must be greater than the start ({start})"
             : $"Range is too wide (Count {end + 1 - start} > {ushort.MaxValue})";
+
+    public static bool operator ==(LimitedRange left, LimitedRange right) => left.Equals(right);
+
+    public static bool operator !=(LimitedRange left, LimitedRange right) => !(left == right);
 }

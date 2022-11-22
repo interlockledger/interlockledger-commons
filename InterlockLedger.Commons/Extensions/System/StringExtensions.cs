@@ -34,7 +34,7 @@ using static System.ObjectExtensions;
 
 namespace System;
 
-public static class StringExtensions
+public static partial class StringExtensions
 {
     public static string Safe(this string? value) =>
         string.IsNullOrWhiteSpace(value)
@@ -79,7 +79,7 @@ public static class StringExtensions
 
             if (c == ')') {
                 count--;
-                if (count == 0 && (i + 1) < s.Length) return false;
+                if (count == 0 && i + 1 < s.Length) return false;
             }
         }
 
@@ -126,12 +126,12 @@ public static class StringExtensions
         transform is null || value is null ? default : transform(value);
 
     public static bool SafeTrimmedEqualsTo(this string s, string other) =>
-        SafeEqualsTo(s.TrimToNull(), other.TrimToNull());
+        s.TrimToNull().SafeEqualsTo(other.TrimToNull());
 
     public static string SimplifyAsFileName([NotNull] this string? name) =>
         name.IsBlank()
             ? throw new ArgumentException($"Name is empty or null")
-            : _nameFilter.Replace(name.Trim(), ".").ToLowerInvariant();
+            : NameFilterRegex().Replace(name.Trim(), ".").ToLowerInvariant();
 
     public static string? SingleUnderdashes(this string? value) =>
         value.RegexReplace("__+", "_").RegexReplace("^_", "");
@@ -200,16 +200,17 @@ public static class StringExtensions
         s.IsBlank() ? resolver.Required()() : s.Trim();
 
     public static string? WithNumericSuffix(this string? value, uint suffix, char separator = '#') =>
-        value.SafeTransformTo(s => $"{TrimNumericSuffix(s, separator)}{separator}{suffix:0}");
+        value.SafeTransformTo(s => $"{s.TrimNumericSuffix(separator)}{separator}{suffix:0}");
 
     public static string WithoutWhiteSpace(this string s) =>
         s.IsBlank() ? string.Empty : Regex.Replace(s, @"[\r\n\s]+", " ").Trim();
-
-    private static readonly Regex _nameFilter = new(@"[\.\s\r\n<>\:""/\\|\?\*]+");
 
     private static string ToLowerInvariant(Match match) =>
         match.Value.ToLowerInvariant();
 
     private static string ToUpperInvariant(Match match) =>
         match.Value.ToUpperInvariant();
+
+    [GeneratedRegex("""[\.\s\r\n<>\:"/\\|\?\*]+""")]
+    private static partial Regex NameFilterRegex();
 }
