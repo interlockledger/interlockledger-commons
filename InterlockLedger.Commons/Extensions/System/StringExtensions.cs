@@ -203,7 +203,7 @@ public static partial class StringExtensions
         value.SafeTransformTo(s => $"{s.TrimNumericSuffix(separator)}{separator}{suffix:0}");
 
     public static string WithoutWhiteSpace(this string s) =>
-        s.IsBlank() ? string.Empty : Regex.Replace(s, @"[\r\n\s]+", " ").Trim();
+        s.IsBlank() ? string.Empty : WhiteSpaceRegex().Replace(s, " ").Trim();
 
     private static string ToLowerInvariant(Match match) =>
         match.Value.ToLowerInvariant();
@@ -213,4 +213,7 @@ public static partial class StringExtensions
 
     [GeneratedRegex("""[\.\s\r\n<>\:"/\\|\?\*]+""")]
     private static partial Regex NameFilterRegex();
+
+    [GeneratedRegex("""[\r\n\s]+""")]
+    private static partial Regex WhiteSpaceRegex();
 }

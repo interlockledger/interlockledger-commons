@@ -36,8 +36,8 @@ public interface ITextual
 {
     #region Must Implement
     bool IsEmpty { get; }
-    string TextualRepresentation { get; init; }
-    string? InvalidityCause { get; init; }
+    string TextualRepresentation { get; }
+    string? InvalidityCause { get; }
     public static abstract string InvalidTextualRepresentation { get; }
     public static abstract Regex Mask { get; }
 
@@ -53,16 +53,17 @@ public interface ITextual
     #endregion
 }
 
-public interface ITextual<TSelf> : ITextual, IEquatable<TSelf> where TSelf : notnull, ITextual<TSelf>, new()
+public interface ITextual<TSelf> : ITextual, IEquatable<TSelf> where TSelf : ITextual<TSelf>
 {
     #region Must Implement
     bool EqualsForValidInstances(TSelf other);
     public static abstract TSelf Empty { get; }
     public static abstract TSelf FromString(string textualRepresentation);
+    protected static abstract TSelf New(string? invalidityCause, string textualRepresentation);
     #endregion
 
     #region Implemented
-    public bool EqualsForAnyInstances(TSelf? other) =>
+    bool IEquatable<TSelf>.Equals(TSelf? other) =>
         other is not null
         && ((IsEmpty || other.IsEmpty)
             ? IsEmpty == other.IsEmpty
@@ -83,11 +84,9 @@ public interface ITextual<TSelf> : ITextual, IEquatable<TSelf> where TSelf : not
                 : !TSelf.Mask.IsMatch(textualRepresentation)
                     ? ITextual<TSelf>.InvalidBy(TSelf.Mask.InvalidityByNotMatching(textualRepresentation))
                     : TSelf.FromString(textualRepresentation!);
+
     public static TSelf InvalidBy(string cause) =>
-        new() {
-            InvalidityCause = cause,
-            TextualRepresentation = TSelf.InvalidTextualRepresentation
-        };
+        TSelf.New(cause, TSelf.InvalidTextualRepresentation);
 
     private static bool MatchesEmptyRepresentation(string? textualRepresentation) =>
         textualRepresentation.Safe().SafeTrimmedEqualsTo(TSelf.Empty.TextualRepresentation.Safe());

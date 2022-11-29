@@ -34,7 +34,7 @@ using System.ComponentModel.Design.Serialization;
 
 namespace System.ComponentModel;
 
-public class TypeCustomConverter<T> : TypeConverter where T : notnull, ITextual<T>, new()
+public class TypeCustomConverter<T> : TypeConverter where T : ITextual<T>
 {
     public TypeCustomConverter() { }
 

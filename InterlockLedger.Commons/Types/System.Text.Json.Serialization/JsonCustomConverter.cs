@@ -32,7 +32,7 @@
 
 namespace System.Text.Json.Serialization;
 
-public class JsonCustomConverter<T> : JsonConverter<T> where T : notnull, ITextual<T>, new()
+public class JsonCustomConverter<T> : JsonConverter<T> where T : ITextual<T>
 {
     public JsonCustomConverter() { }
 
@@ -40,9 +40,11 @@ public class JsonCustomConverter<T> : JsonConverter<T> where T : notnull, ITextu
          typeToConvert.Required() == typeof(T) || typeToConvert.IsSubclassOf(typeof(T));
 
     public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-         reader.TokenType == JsonTokenType.String
-            ? ITextual<T>.Parse(reader.GetString())
-            : throw new NotSupportedException();
+        reader.TokenType switch {
+            JsonTokenType.Null => default!,
+            JsonTokenType.String => ITextual<T>.Parse(reader.GetString()),
+            _ => throw new NotSupportedException(),
+        };
 
     public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) =>
          writer.Required().WriteStringValue(value.TextualRepresentation);
