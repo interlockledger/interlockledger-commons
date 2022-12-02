@@ -31,7 +31,6 @@
 // ******************************************************************************************************************************
 
 namespace System;
-
 public interface ITextual
 {
     #region Must Implement
@@ -57,8 +56,8 @@ public interface ITextual<TSelf> : ITextual, IEquatable<TSelf> where TSelf : ITe
 {
     #region Must Implement
     bool EqualsForValidInstances(TSelf other);
-    public static abstract TSelf Empty { get; }
-    public static abstract TSelf FromString(string textualRepresentation);
+    protected static abstract TSelf Empty { get; }
+    protected static abstract TSelf FromString(string textualRepresentation);
     protected static abstract TSelf New(string? invalidityCause, string textualRepresentation);
     #endregion
 
