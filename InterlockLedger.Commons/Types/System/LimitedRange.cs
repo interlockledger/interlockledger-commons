@@ -30,111 +30,91 @@
 //
 // ******************************************************************************************************************************
 
-using System.ComponentModel;
-using System.Text.Json.Serialization;
-
 namespace System;
-
 
 [TypeConverter(typeof(TypeCustomConverter<LimitedRange>))]
 [JsonConverter(typeof(JsonCustomConverter<LimitedRange>))]
-public struct LimitedRange : IEquatable<LimitedRange>, ITextual<LimitedRange>
+public readonly partial struct LimitedRange : ITextual<LimitedRange>
 {
-    public readonly ulong End;
-    public readonly ulong Start;
-
-    public LimitedRange(ulong start) : this(start, 1) {
-    }
-
+    public LimitedRange(ulong start) : this(start, 1) { }
     public LimitedRange(ulong start, ushort count) {
-        if (count == 0)
-            throw new ArgumentOutOfRangeException(nameof(count));
-        Start = start;
-        checked {
-            End = start + count - 1;
-        }
-
-        TextualRepresentation = $"[{Start}{(End != Start ? "-" + End : "")}]";
-    }
-
-    public LimitedRange(string textualRepresentation) {
-        string[] parts = textualRepresentation.Required().Trim('[', ']').Split('-');
-        string startText = parts[0].Trim();
-        Start = ulong.Parse(startText, CultureInfo.InvariantCulture);
-        if (parts.Length == 1) {
-            End = Start;
+        if (count != 0) {
+            Start = start;
+            try {
+                checked {
+                    End = start + count - 1;
+                }
+                TextualRepresentation = NormalRepresentation(Start, End);
+            } catch (OverflowException) {
+                End = start;
+                TextualRepresentation = $"[{Start}+{count}]";
+                InvalidityCause = "Arithmetic operation resulted in an overflow";
+            }
         } else {
-            string endText = parts[1].Trim();
-            End = ulong.Parse(endText, CultureInfo.InvariantCulture);
-            if (End < Start)
-                throw new ArgumentException($"End of range ['{endText}' => {End}] must be greater than the start ['{startText}' => {Start}]", nameof(textualRepresentation));
-            if (End > (Start + ushort.MaxValue))
-                throw new ArgumentException($"Range is too wide (Count > {ushort.MaxValue}");
+            End = Start = 0;
+            TextualRepresentation = "[]";
+            IsEmpty = true;
         }
-
-        TextualRepresentation = $"[{Start}{(End != Start ? "-" + End : "")}]";
     }
 
-    public static ITextualService<LimitedRange> TextualService { get; } = new LimitedRangeTextualService();
+    public readonly ulong Start;
+    public readonly ulong End;
     public ushort Count => (ushort)(End - Start + 1);
-    public bool IsEmpty => Start == End && End == default;
-    public bool IsInvalid => Start > End;
-    public string TextualRepresentation { get; }
-
-    public static bool operator !=(LimitedRange left, LimitedRange right) => !(left == right);
-
-    public static bool operator ==(LimitedRange left, LimitedRange right) => left.Equals(right);
-
     public bool Contains(ulong value) => Start <= value && value <= End;
-
     public bool Contains(LimitedRange other) => Contains(other.Start) && Contains(other.End);
-
+    public bool OverlapsWith(LimitedRange other) => Contains(other.Start) || Contains(other.End) || other.Contains(Start);
+    public override int GetHashCode() => HashCode.Combine(End, Start, InvalidityCause);
     public override bool Equals(object? obj) => obj is LimitedRange limitedRange && Equals(limitedRange);
 
+    public static implicit operator string(LimitedRange limitedRange) => limitedRange.TextualRepresentation;
+    public bool IsEmpty { get; }
+    public string TextualRepresentation { get; }
+    public string? InvalidityCause { get; }
+    public static LimitedRange InvalidBy(string cause) => new(cause, _invalidTextualRepresentation);
+    public ITextual<LimitedRange> Textual => this;
+    public override string ToString() => Textual.FullRepresentation;
     public bool Equals(LimitedRange other) => End == other.End && Start == other.Start;
+    public static LimitedRange Empty { get; } = new LimitedRange(0, 0);
+    public static Regex Mask { get; } = MaskRegex();
+    public static LimitedRange Build(string textualRepresentation) {
+        string[] parts = textualRepresentation.Safe().Trim('[', ']').Split('-');
+        bool justOnePart = parts.Length == 1;
+        if (justOnePart && parts[0].IsBlank())
+            return Empty;
+        bool noStartValue = !ulong.TryParse(parts[0], CultureInfo.InvariantCulture, out ulong start);
+        ulong end = start;
+        bool noEndValue = !justOnePart && !ulong.TryParse(parts[1], CultureInfo.InvariantCulture, out end);
+        return noStartValue || noEndValue
+            ? new(Mask.InvalidityByNotMatching(textualRepresentation), _invalidTextualRepresentation)
+            : end >= start && end <= start + ushort.MaxValue
+                ? new LimitedRange(start, end, NormalRepresentation(start, end))
+                : new(InvalidityCauseFrom(start, end), _invalidTextualRepresentation);
 
-    public override int GetHashCode() => HashCode.Combine(End, Start);
+    }
+    private static string _invalidTextualRepresentation => "[?]";
 
-    public bool OverlapsWith(LimitedRange other) => Contains(other.Start) || Contains(other.End) || other.Contains(Start);
-
-    public override string ToString() => TextualRepresentation;
+    [GeneratedRegex("""^\[\d+(-\d+)?\]$""")]
+    private static partial Regex MaskRegex();
 
     private LimitedRange(ulong start, ulong end, string textualRepresentation) {
         Start = start;
         End = end;
         TextualRepresentation = textualRepresentation;
     }
-
-    private class LimitedRangeTextualService : ITextualService<LimitedRange>
-    {
-        public LimitedRange Empty { get; } = new LimitedRange(start: default,
-                                                              end: default,
-                                                              textualRepresentation: "[]");
-        public LimitedRange Invalid { get; } = new LimitedRange(start: ulong.MaxValue,
-                                                                end: ulong.MaxValue - 1,
-                                                                textualRepresentation: "[?]");
-        public Regex Mask { get; } = new Regex(@"^\[\d+(-\d+)?\]$");
-        public string MessageForMissing => "No LimitedRange supplied";
-
-        public LimitedRange Build(string textualRepresentation) {
-            if (textualRepresentation.IsBlank() || textualRepresentation.SafeEqualsTo(Empty.TextualRepresentation))
-                return Empty;
-            try {
-                return new LimitedRange(textualRepresentation);
-            } catch {
-                return Invalid;
-            }
-        }
-
-        public string MessageForInvalid(string? textualRepresentation) => $"Not a valid LimitedRange '{textualRepresentation}'";
+    private LimitedRange(string? invalidityCause, string textualRepresentation) {
+        Start = End = ulong.MaxValue;
+        TextualRepresentation = textualRepresentation;
+        InvalidityCause = invalidityCause;
     }
-}
 
-public static class IEnumerableOfLimitedRangeExtensions
-{
-    public static bool AnyOverlapsWith(this IEnumerable<LimitedRange> first, IEnumerable<LimitedRange> second) => first.Any(f => second.Any(s => s.OverlapsWith(f)));
+    private static string NormalRepresentation(ulong start, ulong end) =>
+        end == start ? $"[{start}]" : $"[{start}-{end}]";
+    private static string InvalidityCauseFrom(ulong start, ulong end) =>
+        end < start
+            ? $"End of range ({end}) must be greater than the start ({start})"
+            : $"Range is too wide (Count {end + 1 - start} > {ushort.MaxValue})";
 
-    public static bool Includes(this IEnumerable<LimitedRange> ranges, ulong value) => ranges.Any(r => r.Contains(value));
+    public static bool operator ==(LimitedRange left, LimitedRange right) => left.Equals(right);
 
-    public static bool IsSupersetOf(this IEnumerable<LimitedRange> first, IEnumerable<LimitedRange> second) => second.All(r => first.Any(Value => Value.Contains(r)));
+    public static bool operator !=(LimitedRange left, LimitedRange right) => !(left == right);
 }

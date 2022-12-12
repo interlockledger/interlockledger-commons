@@ -40,16 +40,12 @@ public class JsonCustomConverter<T> : JsonConverter<T> where T : ITextual<T>
          typeToConvert.Required() == typeof(T) || typeToConvert.IsSubclassOf(typeof(T));
 
     public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-         reader.TokenType == JsonTokenType.String
-            ? _service(reader.GetString()!)
-            : throw new NotSupportedException();
+        reader.TokenType switch {
+            JsonTokenType.Null => T.Empty,
+            JsonTokenType.String => reader.GetString().ParseAs<T>(),
+            _ => throw new NotSupportedException(),
+        };
 
     public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) =>
          writer.Required().WriteStringValue(value.TextualRepresentation);
-
-    private static readonly Func<object, T> _service = BuildService();
-    private static Func<object, T> BuildService() {
-        var ctor = typeof(T).GetConstructor(new Type[] { typeof(string) }).Required();
-        return (s) => (T)ctor.Invoke(new object[] { s });
-    }
 }

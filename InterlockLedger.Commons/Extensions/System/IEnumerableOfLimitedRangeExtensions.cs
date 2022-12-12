@@ -1,4 +1,4 @@
-// ******************************************************************************************************************************
+﻿// ******************************************************************************************************************************
 //  
 // Copyright (c) 2018-2022 InterlockLedger Network
 // All rights reserved.
@@ -32,41 +32,11 @@
 
 namespace System;
 
-public interface ITextualService<T>
+public static class IEnumerableOfLimitedRangeExtensions
 {
-    public enum Resolution
-    {
-        Empty,
-        Valid,
-        Invalid
-    }
+    public static bool AnyOverlapsWith(this IEnumerable<LimitedRange> first, IEnumerable<LimitedRange> second) => first.Any(f => second.Any(s => s.OverlapsWith(f)));
 
-    T Empty { get; }
-    T Invalid { get; }
-    Regex Mask { get; }
+    public static bool Includes(this IEnumerable<LimitedRange> ranges, ulong value) => ranges.Any(r => r.Contains(value));
 
-    T Build(string textualRepresentation);
-
-    string MessageForMissing { get; }
-
-    Resolution IsValidTextual(string? textualRepresentation) =>
-         textualRepresentation.IsBlank()
-            ? Resolution.Empty
-            : Mask.IsMatch(textualRepresentation)
-                ? Resolution.Valid
-                : Resolution.Invalid;
-
-    string MessageForInvalid(string? textualRepresentation);
-
-    T Resolve(string textualRepresentation) => IsValidTextual(textualRepresentation) switch {
-        Resolution.Empty => Empty,
-        Resolution.Valid => Build(textualRepresentation),
-        _ => Invalid
-    };
-
-    string? Validate(string? textualRepresentation) => IsValidTextual(textualRepresentation) switch {
-        Resolution.Valid => null,
-        Resolution.Empty => MessageForMissing,
-        _ => MessageForInvalid(textualRepresentation)
-    };
+    public static bool IsSupersetOf(this IEnumerable<LimitedRange> first, IEnumerable<LimitedRange> second) => second.All(r => first.Any(Value => Value.Contains(r)));
 }

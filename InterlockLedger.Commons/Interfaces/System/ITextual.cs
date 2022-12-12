@@ -35,11 +35,31 @@ namespace System;
 public interface ITextual
 {
     bool IsEmpty { get; }
-    bool IsInvalid { get; }
     string TextualRepresentation { get; }
+    string? InvalidityCause { get; }
+
+    bool IsInvalid => !InvalidityCause.IsBlank();
+    string FullRepresentation => IsInvalid ? TextualRepresentation + Environment.NewLine + InvalidityCause! : TextualRepresentation;
 }
 
-public interface ITextual<T> : ITextual
+public interface ITextual<TSelf> : ITextual, IEquatable<TSelf> where TSelf : ITextual<TSelf>
 {
-    public static ITextualService<T>? TextualService { get; }
+    public ITextual<TSelf> Textual { get; }
+    public static abstract TSelf Empty { get; }
+    public static abstract Regex Mask { get; }
+    public static abstract TSelf InvalidBy(string cause);
+    public static abstract TSelf Build(string textualRepresentation);
+    public static TSelf Parse(string? textualRepresentation) =>
+        textualRepresentation.IsBlank() || textualRepresentation.SafeEqualsTo(TSelf.Empty.TextualRepresentation)
+            ? TSelf.Empty
+            : TSelf.Mask.IsMatch(textualRepresentation)
+                ? TSelf.Build(textualRepresentation!)
+                : TSelf.InvalidBy($"Input '{textualRepresentation}' does not match {TSelf.Mask}");
+
+    public static string? Validate(string? textualRepresentation) {
+        if (textualRepresentation.IsBlank())
+            return "Missing value";
+        var resolved = Parse(textualRepresentation);
+        return resolved.IsInvalid ? resolved.InvalidityCause : null;
+    }
 }

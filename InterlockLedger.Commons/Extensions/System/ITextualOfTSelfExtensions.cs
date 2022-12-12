@@ -30,31 +30,13 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Collections.Generic.Tests;
+namespace System;
 
-[TestFixture]
-public class SingleEnumerableTests
+public static class ITextualOfTSelfExtensions
 {
-    [Test]
-    public void SingleEnumerableTest() {
-        var single = new SingleEnumerable<int>(42);
-        Assert.NotNull(single);
-        Assert.AreEqual(42, single.First());
-        Assert.AreEqual(42, single.Last());
-        Assert.AreEqual(1, single.Count());
-        var enumerator = single.GetEnumerator();
-        Assert.NotNull(enumerator);
-        Assert.IsInstanceOf<IEnumerator<int>>(enumerator);
-        Assert.AreEqual(0, enumerator.Current);
-        Assert.IsTrue(enumerator.MoveNext());
-        Assert.AreEqual(42, enumerator.Current);
-        Assert.IsFalse(enumerator.MoveNext());
-        Assert.AreEqual(0, enumerator.Current);
-        enumerator.Reset();
-        Assert.AreEqual(0, enumerator.Current);
-        Assert.IsTrue(enumerator.MoveNext());
-        Assert.AreEqual(42, enumerator.Current);
-        Assert.IsFalse(enumerator.MoveNext());
-        Assert.AreEqual(0, enumerator.Current);
-    }
+    public static TSelf ParseAs<TSelf>(this string? textualRepresentation) where TSelf : ITextual<TSelf> =>
+        ITextual<TSelf>.Parse(textualRepresentation);
+
+    public static bool TryParse<TSelf>([NotNullWhen(true)] this string? textualRepresentation, [MaybeNullWhen(false)] out TSelf result) where TSelf : ITextual<TSelf> =>
+        !(result = ParseAs<TSelf>(textualRepresentation)).IsInvalid;
 }

@@ -32,8 +32,6 @@
 
 #nullable enable
 
-using NUnit.Framework;
-
 using static System.ObjectExtensions;
 using static System.ObjectExtensionsTests;
 

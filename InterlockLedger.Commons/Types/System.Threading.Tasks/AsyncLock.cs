@@ -53,7 +53,7 @@ public class AsyncLock
     private readonly Task<IDisposable> _releaser;
     private readonly AsyncSemaphore _semaphore;
 
-    private struct Releaser : IDisposable
+    private readonly struct Releaser : IDisposable
     {
         public void Dispose() => _asyncLocktoRelease?._semaphore.Release();
 
