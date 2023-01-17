@@ -30,22 +30,19 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Collections.Generic;
+namespace System;
 
-public static class DictionaryExtensions
+public static class ConsoleExtras
 {
-    public static readonly StringComparer CaseIgnoringComparer = StringComparer.Create(CultureInfo.InvariantCulture, true);
-
-    public static Dictionary<string, T> AddIf<T>(this Dictionary<string, T> dictionary, bool add, string key, T value) {
-        _ = dictionary.Required();
-        if (add)
-            dictionary.Add(key, value);
-        return dictionary;
-    }
-
-    public static Dictionary<string, T> AddIf<T>(this Dictionary<string, T> dictionary, Func<bool> shouldAdd, string key, T value) =>
-         dictionary.AddIf(shouldAdd.Required()(), key, value);
-
-    public static Dictionary<string, T> CaseIgnoring<T>(this Dictionary<string, T> dictionary) =>
-         new(dictionary.Required(), CaseIgnoringComparer);
+    public static sbyte ReadInt8() => Console.In.ReadInt8();
+    public static short ReadInt16() => Console.In.ReadInt16();
+    public static int ReadInt32() => Console.In.ReadInt32();
+    public static long ReadInt64() => Console.In.ReadInt64();
+    public static byte ReadUInt8() => Console.In.ReadUInt8();
+    public static ushort ReadUInt16() => Console.In.ReadUInt16();
+    public static uint ReadUInt32() => Console.In.ReadUInt32();
+    public static ulong ReadUInt64() => Console.In.ReadUInt64();
+    public static string ReadToken() => Console.In.ReadToken();
+    public static char? SkipWhiteSpace() => Console.In.SkipWhiteSpace();
+    public static char? ReadChar() => Console.In.ReadChar();
 }

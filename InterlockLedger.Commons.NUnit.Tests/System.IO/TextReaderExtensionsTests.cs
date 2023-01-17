@@ -30,22 +30,32 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Collections.Generic;
+#nullable enable
 
-public static class DictionaryExtensions
+namespace System.IO;
+
+[TestFixture]
+public class TextReaderExtensionsTests
 {
-    public static readonly StringComparer CaseIgnoringComparer = StringComparer.Create(CultureInfo.InvariantCulture, true);
+    [TestCase("123", 123)]
+    [TestCase("  123", 123)]
+    [TestCase("  123 ", 123)]
+    [TestCase("  +123", 123)]
+    [TestCase("-123", -123)]
+    [TestCase("  -123", -123)]
+    [TestCase("  -123 ", -123)]
+    [TestCase("2000000000", 2000000000)]
+    [TestCase("-2000000000", -2000000000)]
+    public void TestReadInt32(string input, int expected) => Assert.AreEqual(expected, new StringReader(input).ReadInt32());
 
-    public static Dictionary<string, T> AddIf<T>(this Dictionary<string, T> dictionary, bool add, string key, T value) {
-        _ = dictionary.Required();
-        if (add)
-            dictionary.Add(key, value);
-        return dictionary;
+    [TestCase("")]
+    [TestCase("1B2C3")]
+    [TestCase("123Z")]
+    [TestCase("-+123")]
+    [TestCase("2500000000")]
+    [TestCase("-2500000000")]
+    public void TestReadInt32Failing(string input) {
+        var ex = Assert.Throws<InvalidOperationException>(() => new StringReader(input).ReadInt32());
+        TestContext.WriteLine(ex);
     }
-
-    public static Dictionary<string, T> AddIf<T>(this Dictionary<string, T> dictionary, Func<bool> shouldAdd, string key, T value) =>
-         dictionary.AddIf(shouldAdd.Required()(), key, value);
-
-    public static Dictionary<string, T> CaseIgnoring<T>(this Dictionary<string, T> dictionary) =>
-         new(dictionary.Required(), CaseIgnoringComparer);
 }
