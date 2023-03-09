@@ -51,6 +51,18 @@ public class StreamSpan : Stream
                 : throw new ArgumentException("offset doesn't match current position on non-seeking stream");
         _begin = s.Position;
         _positionAfterSpan = _length + _begin;
+        if (s.CanSeek) {
+            byte[] buffer = new byte[Math.Min(100, _length)];
+            int howMany = Read(buffer, 0, buffer.Length);
+            if (howMany > 0) {
+                var sb = new StringBuilder();
+                foreach(var b in buffer)
+                    sb.Append(b).Append(' ');
+                DEBUG_SomeBytes = sb.ToString();
+            } else
+                DEBUG_SomeBytes = "Empty";
+            Position = 0;
+        } else { DEBUG_SomeBytes = "Non-seekable"; }
     }
 
     public override bool CanRead => true;
@@ -155,6 +167,8 @@ public class StreamSpan : Stream
             _ = s.Read(buffer, 0, unreadBytes);
         }
     }
+
+    public readonly string DEBUG_SomeBytes;
 
     private const string _isReadonly = "This StreamSpan is readonly";
     private readonly long _begin;

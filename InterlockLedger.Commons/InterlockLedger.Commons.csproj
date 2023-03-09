@@ -5,15 +5,15 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>InterlockLedger Network Team</Authors>
     <Company>InterlockLedger Network</Company>
-    <Copyright>Copyright (c) 2018-2022 InterlockLedger Network</Copyright>
+    <Copyright>Copyright (c) 2018-2023 InterlockLedger Network</Copyright>
     <Description>This library implements lots of lifesaving classes and extensions.</Description>
     <PackageProjectUrl>https://interlockledger.network/</PackageProjectUrl>
     <Product>InterlockLedger</Product>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-    <Version>12.1.0</Version>
+    <Version>12.2.0</Version>
     <PackageId>InterlockLedger.Commons</PackageId>
-    <PackageReleaseNotes>Reversing lots of changes since 3.0.x, but building with .NET 7.0</PackageReleaseNotes>
+    <PackageReleaseNotes>Some debugging helpers on StreamSpan</PackageReleaseNotes>
     <PackageIcon>il2.png</PackageIcon>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
