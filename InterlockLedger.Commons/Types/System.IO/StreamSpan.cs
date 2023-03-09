@@ -37,6 +37,8 @@ public class StreamSpan : Stream
     public StreamSpan(Stream s, ulong length) : this(s, -1, length) {
     }
 
+    public const string NonSeekable = "Non-seekable";
+
     public StreamSpan(Stream s, long offset, ulong length, bool closeWrappedStreamOnDispose = false) {
         _s = s.Required();
         _closeWrappedStreamOnDispose = closeWrappedStreamOnDispose;
@@ -51,18 +53,27 @@ public class StreamSpan : Stream
                 : throw new ArgumentException("offset doesn't match current position on non-seeking stream");
         _begin = s.Position;
         _positionAfterSpan = _length + _begin;
-        if (s.CanSeek) {
-            byte[] buffer = new byte[Math.Min(100, _length)];
-            int howMany = Read(buffer, 0, buffer.Length);
-            if (howMany > 0) {
-                var sb = new StringBuilder();
-                foreach(var b in buffer)
-                    sb.Append(b).Append(' ');
-                DEBUG_SomeBytes = sb.ToString();
-            } else
-                DEBUG_SomeBytes = "Empty";
-            Position = 0;
-        } else { DEBUG_SomeBytes = "Non-seekable"; }
+        DEBUG_SomeBytes = "Empty";
+        if (_length > 0) {
+            if (!s.CanSeek)
+                DEBUG_SomeBytes = NonSeekable;
+            else {
+                try {
+                    byte[] buffer = new byte[Math.Min(100, _length)];
+                    int howMany = Read(buffer, 0, buffer.Length);
+                    if (howMany > 0) {
+                        var sb = new StringBuilder();
+                        foreach (var b in buffer)
+                            sb.Append(b).Append(' ');
+                        DEBUG_SomeBytes = sb.ToString();
+                    }
+                } catch (Exception e) {
+                    DEBUG_SomeBytes = e.Message;
+                } finally {
+                    Position = 0;
+                }
+            }
+        }
     }
 
     public override bool CanRead => true;
@@ -97,13 +108,18 @@ public class StreamSpan : Stream
     public override Task FlushAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     public override int Read(byte[] buffer, int offset, int count) {
+        if (buffer.Length == 0 || count == 0)
+            return 0;
+        if (offset < 0)
+            throw new ArgumentOutOfRangeException(nameof(offset), "Value is less than zero");
+        if (offset >= buffer.Length)
+            throw new ArgumentOutOfRangeException(nameof(offset), "Value is more than the size of the buffer");
         if (Position + count > _length) {
             long newCount = _length - Position;
             if (newCount <= 0)
                 return 0;
             count = newCount > int.MaxValue ? int.MaxValue : (int)newCount;
         }
-
         return _s.Read(buffer, offset, count);
     }
 

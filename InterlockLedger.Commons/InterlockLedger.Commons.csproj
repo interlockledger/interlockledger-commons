@@ -11,9 +11,9 @@
     <Product>InterlockLedger</Product>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-    <Version>12.2.0</Version>
+    <Version>12.2.1</Version>
     <PackageId>InterlockLedger.Commons</PackageId>
-    <PackageReleaseNotes>Some debugging helpers on StreamSpan</PackageReleaseNotes>
+    <PackageReleaseNotes>Fix for debugging helper on StreamSpan</PackageReleaseNotes>
     <PackageIcon>il2.png</PackageIcon>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
