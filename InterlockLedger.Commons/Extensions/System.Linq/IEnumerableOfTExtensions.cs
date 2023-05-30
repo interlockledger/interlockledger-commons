@@ -125,9 +125,9 @@ public static class IEnumerableOfTExtensions
             yield return it;
     }
 
-    public static IEnumerable<T> RequireNonNulls<T>(this IEnumerable<T>? items, [CallerArgumentExpression("items")] string? parameterName = null) where T : class =>
+    public static IEnumerable<T> RequireNonNulls<T>(this IEnumerable<T?>? items, [CallerArgumentExpression(nameof(items))] string? parameterName = null) where T : class =>
          items.None(item => item is null)
-            ? items.Safe()
+            ? items.Safe().Cast<T>()
             : throw new ArgumentException("List must not contain null elements", parameterName);
 
     public static IEnumerable<T> Safe<T>(this IEnumerable<T>? values) => values ?? Enumerable.Empty<T>();

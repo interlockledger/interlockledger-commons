@@ -59,13 +59,17 @@ public class StreamSpan : Stream
                 DEBUG_SomeBytes = NonSeekable;
             else {
                 try {
-                    byte[] buffer = new byte[Math.Min(100, _length)];
-                    int howMany = Read(buffer, 0, buffer.Length);
-                    if (howMany > 0) {
-                        var sb = new StringBuilder();
-                        foreach (var b in buffer)
-                            sb.Append(b).Append(' ');
-                        DEBUG_SomeBytes = sb.ToString();
+                    Position = 0;
+                    if (_length > 100) {
+                        byte[] buffer = new byte[50];
+                        string head = DumpBytes(buffer);
+                        Position = Length - 50;
+                        string tail = DumpBytes(buffer);
+                        DEBUG_SomeBytes = $"[{_length}] {head}... {tail}";
+
+                    } else {
+                        byte[] buffer = new byte[_length];
+                        DEBUG_SomeBytes = $"[{_length}] {DumpBytes(buffer)}";
                     }
                 } catch (Exception e) {
                     DEBUG_SomeBytes = e.Message;
@@ -74,6 +78,14 @@ public class StreamSpan : Stream
                 }
             }
         }
+    }
+
+    private string DumpBytes(byte[] buffer) {
+        _ = Read(buffer, 0, buffer.Length);
+        var sb = new StringBuilder();
+        foreach (byte b in buffer)
+            _ = sb.Append(b).Append(' ');
+        return sb.ToString();
     }
 
     public override bool CanRead => true;

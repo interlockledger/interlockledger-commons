@@ -54,7 +54,7 @@ public class StreamSpanTests
         Assert.AreEqual(10L, baseStream.Position);
         using (var sp = new StreamSpan(baseStream, (ulong)baseStream.ReadByte())) {
             if (sp.CanSeek) 
-                Assert.AreEqual("0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ", sp.DEBUG_SomeBytes);
+                Assert.AreEqual("[30] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ", sp.DEBUG_SomeBytes);
             else
                 Assert.AreEqual(StreamSpan.NonSeekable, sp.DEBUG_SomeBytes);
             Assert.AreEqual(30L, sp.Length);
@@ -106,7 +106,7 @@ public class StreamSpanTests
         Assert.AreEqual(41L, baseStream.Position);
         using (var sp2 = new StreamSpan(baseStream, (ulong)(baseStream.Length - baseStream.Position))) {
             if (sp2.CanSeek)
-                Assert.AreEqual("0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ", sp2.DEBUG_SomeBytes);
+                Assert.AreEqual("[59] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ", sp2.DEBUG_SomeBytes);
             else
                 Assert.AreEqual(StreamSpan.NonSeekable, sp2.DEBUG_SomeBytes);
             Assert.AreEqual(0L, sp2.Position);
