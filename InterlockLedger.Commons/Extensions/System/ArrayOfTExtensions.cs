@@ -35,4 +35,26 @@ public static class ArrayOfTExtensions
 {
     public static string JoinedBy<T>(this T[]? values, string joiner) =>
         string.Join(joiner, values.Safe().ToStrings());
+
+    [return: NotNull]
+    public static T[] OrEmpty<T>(this T[]? values) =>
+        values ?? Array.Empty<T>();
+
+    [return: NotNull]
+    public static T[] MinLength<T>([NotNull] this T[] array, int length, [CallerArgumentExpression(nameof(array))] string? parameterName = null) =>
+         array is not null && array.Length >= length
+             ? array
+             : throw new ArgumentException($"Array parameter {parameterName} must have length >= {length}");
+
+    [return: NotNull]
+    public static T[] MaxLength<T>([NotNull] this T[] array, int length, [CallerArgumentExpression(nameof(array))] string? parameterName = null) =>
+         array is not null && array.Length <= length
+             ? array
+             : throw new ArgumentException($"Array parameter {parameterName} must have length <= {length}");
+
+    [return: NotNull]
+    public static T[] ExactLength<T>([NotNull] this T[] array, int length, [CallerArgumentExpression(nameof(array))] string? parameterName = null) =>
+         array is not null && array.Length == length
+             ? array
+             : throw new ArgumentException($"Array parameter {parameterName} must have length == {length}");
 }

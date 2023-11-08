@@ -30,12 +30,25 @@
 //
 // ******************************************************************************************************************************
 
+using System.Text.Json;
+
 using static System.ObjectExtensions;
 
 namespace System;
 
 public static partial class StringExtensions
 {
+    public static JsonSerializerOptions DefaultJsonOptions { get; } = new JsonSerializerOptions {
+        AllowTrailingCommas = true,
+        PropertyNameCaseInsensitive = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
+        WriteIndented = true,
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+        IgnoreReadOnlyProperties = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+    };
+
     public static string Safe(this string? value) =>
         string.IsNullOrWhiteSpace(value)
             ? string.Empty
@@ -107,10 +120,10 @@ public static partial class StringExtensions
     public static string? RegexReplace(this string? value, string pattern, MatchEvaluator me) =>
         value.SafeTransform(s => Regex.Replace(s, pattern, me));
 
-    public static string Required([NotNull] this string? value, [CallerArgumentExpression("value")] string? name = null) =>
+    public static string Required([NotNull] this string? value, [CallerArgumentExpression(nameof(value))] string? name = null) =>
         value.IsBlank() ? throw ArgRequired(name) : value;
 
-    public static string RequiredUsing([NotNull] this string? value, Func<string?, Exception> exceptor, [CallerArgumentExpression("value")] string? name = null) =>
+    public static string RequiredUsing([NotNull] this string? value, Func<string?, Exception> exceptor, [CallerArgumentExpression(nameof(value))] string? name = null) =>
         value.IsBlank() ? throw exceptor.Required()(name) : value;
 
     public static string Reversed(this string s) =>
@@ -216,4 +229,9 @@ public static partial class StringExtensions
 
     [GeneratedRegex("""[\r\n\s]+""")]
     private static partial Regex WhiteSpaceRegex();
+
+    public static T? FromJson<T>(this string json) =>
+        string.IsNullOrWhiteSpace(json) ? default : JsonSerializer.Deserialize<T>(json, DefaultJsonOptions);
+
+
 }

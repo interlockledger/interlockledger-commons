@@ -34,6 +34,6 @@ namespace System;
 
 public static class NullableOfStructExtensions
 {
-    public static T Required<T>(this T? value, [CallerArgumentExpression("value")] string? name = null) where T : struct
+    public static T Required<T>(this T? value, [CallerArgumentExpression(nameof(value))] string? name = null) where T : struct
         => value ?? throw new ArgumentException("Required", name);
 }

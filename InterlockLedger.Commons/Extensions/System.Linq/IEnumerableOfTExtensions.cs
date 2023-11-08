@@ -43,11 +43,11 @@ public static class IEnumerableOfTExtensions
 
     public static bool AnyWithNoNulls<T>([NotNullWhen(true)] this IEnumerable<T> items) => items.SafeAny() && items.NoNulls();
 
-    public static IEnumerable<T> Append<T>(this IEnumerable<T>? first, params T[] extras) =>
-         first.Safe().Concat(extras);
+    public static IEnumerable<T> Append<T>(this IEnumerable<T>? list, params T[] extras) =>
+         list.Safe().Concat(extras);
 
-    public static IEnumerable<T> Append<T>(this IEnumerable<T>? first, IEnumerable<T> second) =>
-         first.Safe().Concat(second);
+    public static IEnumerable<T> Append<T>(this IEnumerable<T>? list, IEnumerable<T> extras) =>
+         list.Safe().Concat(extras);
 
     public static IEnumerable<T> AppendedOf<T>(this T item, IEnumerable<T> remainingItems) =>
          InnerAppend(item, remainingItems);
@@ -63,8 +63,8 @@ public static class IEnumerableOfTExtensions
     public static bool EquivalentTo<T>(this IEnumerable<T>? first, IEnumerable<T> second) =>
          first.Safe().SequenceEqual(second.Safe());
 
-    public static IEnumerable<T> ExceptFor<T>(this IEnumerable<T>? first, params T[] exceptions) =>
-         first.Safe().Except(exceptions);
+    public static IEnumerable<T> ExceptFor<T>(this IEnumerable<T>? list, params T[] exceptions) =>
+         list.Safe().Except(exceptions);
 
     public static IEnumerable<T> FilledTo<T>(this IEnumerable<T>? list, int length, T filler) {
         if (list.SafeAny())
@@ -97,7 +97,7 @@ public static class IEnumerableOfTExtensions
 
     public static bool None<T>([NotNullWhen(false)] this IEnumerable<T>? items, Func<T, bool> predicate) => !items.SafeAny(predicate);
 
-    public static IEnumerable<T> NonEmpty<T>([NotNull] this IEnumerable<T> items, [CallerArgumentExpression("items")] string? parameterName = null) =>
+    public static IEnumerable<T> NonEmpty<T>([NotNull] this IEnumerable<T> items, [CallerArgumentExpression(nameof(items))] string? parameterName = null) =>
          items.SafeAny() ? items : throw new ArgumentException("Should not be empty", parameterName);
 
     public static bool NoNulls<T>(this IEnumerable<T>? items) => items.None(item => item is null);
@@ -141,8 +141,10 @@ public static class IEnumerableOfTExtensions
 
     public static int SafeCount<T>(this IEnumerable<T>? values) => values?.Count() ?? -1;
 
-    public static IEnumerable<TResult> SelectSkippingNulls<TSource, TResult>(this IEnumerable<TSource>? values, Func<TSource, TResult> selector) where TResult : class =>
-         Safe(values?.Select(selector).SkipNulls());
+    public static IEnumerable<TResult> SelectSkippingNulls<TSource, TResult>(this IEnumerable<TSource?>? values, Func<TSource, TResult?> selector)
+        where TSource : class
+        where TResult : class =>
+         values.SkipNulls().Select(selector).SkipNulls()!;
 
     public static IEnumerable<T> Skip<T>(this IEnumerable<T>? values, Func<T, bool> predicate) =>
          values.Safe().Where(item => !predicate(item));
@@ -154,8 +156,8 @@ public static class IEnumerableOfTExtensions
     public static IEnumerable<T> SkipNonNulls<T>(this IEnumerable<T>? values) where T : class =>
          values.Skip(item => item is not null);
 
-    public static IEnumerable<T> SkipNulls<T>(this IEnumerable<T>? values) where T : class =>
-         values.Skip(item => item is null);
+    public static IEnumerable<T> SkipNulls<T>(this IEnumerable<T?>? values) where T : class =>
+         values.Skip(item => item is null)!;
 
     public static IEnumerable<T> TakeULong<T>(this IEnumerable<T>? items, ulong howMany) =>
          (howMany <= int.MaxValue) ? items.Safe().Take((int)howMany) : items.Safe();

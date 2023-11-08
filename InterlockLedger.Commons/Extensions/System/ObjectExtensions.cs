@@ -30,12 +30,16 @@
 //
 // ******************************************************************************************************************************
 
+using System.Text.Json;
+
 namespace System;
 
 
 
 public static class ObjectExtensions
 {
+    public static string AsJson<T>(this T json) => JsonSerializer.Serialize<T>(json, StringExtensions.DefaultJsonOptions);
+
     public static IEnumerable<T> AsSingle<T>(this T s) =>
         new SingleEnumerable<T>(s);
 
@@ -60,11 +64,11 @@ public static class ObjectExtensions
     public static string? PadRight(this object? value, int totalWidth) =>
         value?.ToString()?.PadRight(totalWidth);
 
-    public static T Required<T>([NotNull] this T? value, [CallerArgumentExpression("value")] string? name = null)
+    public static T Required<T>([NotNull] this T? value, [CallerArgumentExpression(nameof(value))] string? name = null)
         where T : class =>
         value ?? throw ArgRequired(name);
 
-    public static T RequiredUsing<T>([NotNull] this T? value, Func<string?, Exception> exceptor, [CallerArgumentExpression("value")] string? name = null)
+    public static T RequiredUsing<T>([NotNull] this T? value, Func<string?, Exception> exceptor, [CallerArgumentExpression(nameof(value))] string? name = null)
         where T : class =>
         value ?? throw exceptor.Required()(name);
 

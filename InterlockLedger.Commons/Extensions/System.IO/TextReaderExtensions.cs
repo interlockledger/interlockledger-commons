@@ -102,9 +102,8 @@ public static class TextReaderExtensions
         if (value > maxValue)
             throw new InvalidOperationException("Number is too big");
         else {
-            T castValue = cast(value);
+            var castValue = cast(value);
             return isNegative ? -castValue : castValue;
         }
     }
-
 }

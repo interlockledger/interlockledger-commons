@@ -37,6 +37,7 @@ public static class IEnumerableOfClassExtensions
     public static IEnumerable<T> NonNulls<T>(this IEnumerable<T?>? values) where T : class
         => values.Safe().Skip(item => item is null)!;
 
-    public static T[] NonEmpty<T>([NotNull] this T[] items, [CallerArgumentExpression("items")] string? parameterName = null) =>
+    public static T[] NonEmpty<T>([NotNull] this T[] items, [CallerArgumentExpression(nameof(items))] string? parameterName = null) =>
         items is null || items.Length == 0 ? throw new ArgumentException("Should not be empty", parameterName) : items;
+
 }

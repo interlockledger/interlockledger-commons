@@ -34,8 +34,7 @@ namespace System;
 
 public abstract class AbstractDisposable : IDisposable
 {
-    public const string DisposedJustification = "Disposed by overriding AbstractDisposable.DisposeManagedResources";
-
+    [JsonIgnore]
     public bool Disposed => _disposed != 0;
 
     public void Dispose() {
@@ -47,24 +46,29 @@ public abstract class AbstractDisposable : IDisposable
 
     protected virtual void DisposeUnmanagedResources() { }
 
-    protected T Do<T>(Func<T> function, T @default = default) where T : struct =>
-        !Disposed ? function.Required()() : @default;
-    protected T? UnsafeDo<T>(Func<T?> function, T? @default = default) where T : class =>
-        !Disposed ? function.Required()() : @default;
-
     protected void Do(Action action) {
         if (!Disposed) action.Required()();
     }
+    protected T Do<T>(Func<T> function, T @default = default) where T : struct =>
+        Disposed ? @default : function.Required()();
+    protected T? UnsafeDo<T>(Func<T?> function, T? @default = default) where T : class =>
+        Disposed ? @default : function.Required()();
+    protected T? UnsafeDo<T>(Func<T?> function) =>
+        Disposed ? default : function.Required()();
 
-    protected async Task<T> DoAsync<T>(Func<Task<T>> function, T @default = default) where T : struct =>
-        !Disposed ? await function.Required()().ConfigureAwait(false) : @default;
-    protected async Task<T?> UnsafeDoAsync<T>(Func<Task<T?>> function, T? @default = default) where T : class =>
-        !Disposed ? await function.Required()().ConfigureAwait(false) : @default;
 
     protected async Task DoAsync(Func<Task> function) {
         if (!Disposed)
             await function.Required()().ConfigureAwait(false);
     }
+
+    protected async Task<T> DoAsync<T>(Func<Task<T>> function, T @default = default) where T : struct =>
+        Disposed ? @default : await function.Required()().ConfigureAwait(false);
+    protected async Task<T?> UnsafeDoAsync<T>(Func<Task<T?>> function, T? @default = default) where T : class =>
+        Disposed ? @default : await function.Required()().ConfigureAwait(false);
+    protected async Task<T?> UnsafeDoAsync<T>(Func<Task<T?>> function) =>
+        Disposed ? default : await function.Required()().ConfigureAwait(continueOnCapturedContext: false);
+
 
     private volatile int _disposed;
 

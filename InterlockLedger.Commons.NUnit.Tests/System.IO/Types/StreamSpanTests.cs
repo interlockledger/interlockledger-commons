@@ -53,7 +53,7 @@ public class StreamSpanTests
         _ = baseStream.Seek(10, SeekOrigin.Begin);
         Assert.AreEqual(10L, baseStream.Position);
         using (var sp = new StreamSpan(baseStream, (ulong)baseStream.ReadByte())) {
-            if (sp.CanSeek) 
+            if (sp.CanSeek)
                 Assert.AreEqual("[30] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ", sp.DEBUG_SomeBytes);
             else
                 Assert.AreEqual(StreamSpan.NonSeekable, sp.DEBUG_SomeBytes);
@@ -121,11 +121,8 @@ public class StreamSpanTests
         Assert.AreEqual(baseStream.Length, baseStream.Position);
     }
 
-    private class NonSeekMemoryStream : MemoryStream
+    private class NonSeekMemoryStream(byte[] buffer) : MemoryStream(buffer, writable: true)
     {
-        public NonSeekMemoryStream(byte[] buffer) : base(buffer, writable: true) {
-        }
-
         public override bool CanSeek => false;
     }
 }
