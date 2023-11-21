@@ -37,10 +37,8 @@ namespace System.IO;
 public static partial class StreamExtensions
 {
     public static async Task CopyToAsync(this Stream source, Stream destination, long fileSizeLimit, int bufferSize, CancellationToken cancellationToken) {
-        if (source is null)
-            throw new ArgumentNullException(nameof(source));
-        if (destination is null)
-            throw new ArgumentNullException(nameof(destination));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(destination);
         if (source.CanSeek)
             CheckSizeLimit(source.Length);
         byte[] buffer = ArrayPool<byte>.Shared.Rent(bufferSize);
@@ -66,8 +64,7 @@ public static partial class StreamExtensions
     public static bool HasBytes(this Stream s) => s is not null && s.CanSeek && s.Position < s.Length;
 
     public static async Task<byte[]> ReadAllBytesAsync(this Stream s) {
-        if (s == null)
-            throw new ArgumentNullException(nameof(s));
+        ArgumentNullException.ThrowIfNull(s);
         using var buffer = new MemoryStream();
         await s.CopyToAsync(buffer).ConfigureAwait(false);
         return buffer.ToArray();
@@ -75,7 +72,7 @@ public static partial class StreamExtensions
 
     public static byte[] ReadBytes(this Stream s, int length) {
         if (s is null || length <= 0)
-            return Array.Empty<byte>();
+            return [];
         byte[] bytes = new byte[length];
         int offset = 0;
         int retries = 3;
@@ -97,8 +94,7 @@ public static partial class StreamExtensions
     }
 
     public static byte[] ReadExactly(this Stream s, int length) {
-        if (s is null)
-            throw new ArgumentNullException(nameof(s));
+        ArgumentNullException.ThrowIfNull(s);
         int offset = 0;
         byte[] buffer = new byte[length];
         while (offset < length) {
@@ -109,8 +105,7 @@ public static partial class StreamExtensions
     }
 
     public static byte ReadSingleByte(this Stream s) {
-        if (s is null)
-            throw new ArgumentNullException(nameof(s));
+        ArgumentNullException.ThrowIfNull(s);
         byte[] bytes = new byte[1];
         int retries = 3;
         while (retries-- > 0) {
@@ -123,8 +118,7 @@ public static partial class StreamExtensions
     }
 
     public static Stream WriteBytes(this Stream s, byte[] bytes) {
-        if (s is null)
-            throw new ArgumentNullException(nameof(s));
+        ArgumentNullException.ThrowIfNull(s);
         if (bytes?.Length > 0)
             s.Write(bytes, 0, bytes.Length);
         s.Flush();
@@ -132,8 +126,7 @@ public static partial class StreamExtensions
     }
 
     public static Stream WriteSingleByte(this Stream s, byte value) {
-        if (s is null)
-            throw new ArgumentNullException(nameof(s));
+        ArgumentNullException.ThrowIfNull(s);
         s.WriteByte(value);
         return s;
     }

@@ -48,23 +48,18 @@ public static class FileInfoExtensions
             using var reader = file.OpenText();
             return await reader.ReadToEndAsync().ConfigureAwait(false);
         }
-        return string.Format(missingFileMessageMask.Required(), file.Name);
+        return string.Format(CultureInfo.InvariantCulture, missingFileMessageMask.Required(), file.Name);
     }
 
-    private class FbbaInputStream : FileStream
+    private sealed class FbbaInputStream(FileInfo fileInfo, Action<FileInfo> onDispose) : FileStream(fileInfo.Required().FullName, FileMode.CreateNew, FileAccess.Write)
     {
-        public FbbaInputStream(FileInfo fileInfo, Action<FileInfo> onDispose) : base(fileInfo.Required().FullName, FileMode.CreateNew, FileAccess.Write) {
-            _fileInfo = fileInfo.Required();
-            _onDispose = onDispose.Required();
-        }
-
         protected override void Dispose(bool disposing) {
             base.Dispose(disposing);
             if (disposing)
                 _onDispose(_fileInfo);
         }
 
-        private readonly FileInfo _fileInfo;
-        private readonly Action<FileInfo> _onDispose;
+        private readonly FileInfo _fileInfo = fileInfo.Required();
+        private readonly Action<FileInfo> _onDispose = onDispose.Required();
     }
 }

@@ -48,13 +48,15 @@ public static class ReadOnlyMemoryExtensions
              _ => LinkedSegment.Link(segments!)
          };
 
+#pragma warning disable CA1055 // URI-like return values should not be strings
     public static string ToUrlSafeBase64(this byte[] bytes) =>
          Convert.ToBase64String(bytes ?? throw new ArgumentNullException(nameof(bytes)))
            .Trim('=')
            .Replace('+', '-')
            .Replace('/', '_');
+#pragma warning restore CA1055 // URI-like return values should not be strings
 
-    private class LinkedSegment : ReadOnlySequenceSegment<byte>
+    private sealed class LinkedSegment : ReadOnlySequenceSegment<byte>
     {
         public int Length => Memory.Length;
 

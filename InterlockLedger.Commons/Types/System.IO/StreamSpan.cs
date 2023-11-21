@@ -32,176 +32,24 @@
 
 namespace System.IO;
 
-public class StreamSpan : Stream
+public sealed class StreamSpan : WrappedReadonlyStream
 {
-    public StreamSpan(Stream s, ulong length) : this(s, -1, length) {
+    public StreamSpan(Stream s, ulong length) : this(s, s.Required().Position, length) {
     }
 
-    public const string NonSeekable = "Non-seekable";
+    public StreamSpan(Stream s, long offset, ulong length, bool closeWrappedStreamOnDispose = false) : base(s, offset, ValidateLength(length), closeWrappedStreamOnDispose)
+        => _positionAfterSpan = Length + _begin;
 
-    public StreamSpan(Stream s, long offset, ulong length, bool closeWrappedStreamOnDispose = false) {
-        _s = s.Required();
-        _closeWrappedStreamOnDispose = closeWrappedStreamOnDispose;
-        if (!s.CanRead)
-            throw new ArgumentException("original stream needs to be readable");
-        _length = (long)length;
-        if (_length < 0)
-            throw new ArgumentException("length is too large and wrapped around!!!");
-        if (offset >= 0 && offset != s.Position)
-            s.Position = s.CanSeek
-                ? offset
-                : throw new ArgumentException("offset doesn't match current position on non-seeking stream");
-        _begin = s.Position;
-        _positionAfterSpan = _length + _begin;
-        DEBUG_SomeBytes = "Empty";
-        if (_length > 0) {
-            if (!s.CanSeek)
-                DEBUG_SomeBytes = NonSeekable;
-            else {
-                try {
-                    Position = 0;
-                    if (_length > 100) {
-                        byte[] buffer = new byte[50];
-                        string head = DumpBytes(buffer);
-                        Position = Length - 50;
-                        string tail = DumpBytes(buffer);
-                        DEBUG_SomeBytes = $"[{_length}] {head}... {tail}";
+    private static long ValidateLength(ulong length) {
+        long signedLength = (long)length;
+        return signedLength < 0 ? throw new ArgumentException("length is too large and wrapped around!!!") : signedLength;
+    }
 
-                    } else {
-                        byte[] buffer = new byte[_length];
-                        DEBUG_SomeBytes = $"[{_length}] {DumpBytes(buffer)}";
-                    }
-                } catch (Exception e) {
-                    DEBUG_SomeBytes = e.Message;
-                } finally {
-                    Position = 0;
-                }
-            }
+    protected sealed override void DisposingButNotClosingWrappedStream() {
+        if ((_positionAfterSpan - _s.Position) > 0) {
+            _s.Position = _positionAfterSpan;
         }
     }
 
-    private string DumpBytes(byte[] buffer) {
-        _ = Read(buffer, 0, buffer.Length);
-        var sb = new StringBuilder();
-        foreach (byte b in buffer)
-            _ = sb.Append(b).Append(' ');
-        return sb.ToString();
-    }
-
-    public override bool CanRead => true;
-
-    public override bool CanSeek => _s.CanSeek;
-
-    public override bool CanWrite => false;
-
-    public override long Length => _length;
-
-    public long OriginalPosition => _s is StreamSpan ss ? ss.OriginalPosition : _s.Position;
-    public override long Position {
-        get => _s.Position - _begin;
-        set {
-            if (!CanSeek)
-                throw new NotSupportedException("Can't position non-seekable stream");
-            if (value < 0)
-                throw new ArgumentOutOfRangeException(nameof(value), "Can't position before start");
-            if (value > _length)
-                throw new ArgumentOutOfRangeException(nameof(value), "Can't position after end");
-            _s.Position = value + _begin;
-        }
-    }
-
-    public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state) => throw new NotSupportedException(_isReadonly);
-
-    public override void EndWrite(IAsyncResult asyncResult) => throw new NotSupportedException(_isReadonly);
-
-    public override void Flush() {
-    }
-
-    public override Task FlushAsync(CancellationToken cancellationToken) => Task.CompletedTask;
-
-    public override int Read(byte[] buffer, int offset, int count) {
-        if (buffer.Length == 0 || count == 0)
-            return 0;
-        if (offset < 0)
-            throw new ArgumentOutOfRangeException(nameof(offset), "Value is less than zero");
-        if (offset >= buffer.Length)
-            throw new ArgumentOutOfRangeException(nameof(offset), "Value is more than the size of the buffer");
-        if (Position + count > _length) {
-            long newCount = _length - Position;
-            if (newCount <= 0)
-                return 0;
-            count = newCount > int.MaxValue ? int.MaxValue : (int)newCount;
-        }
-        return _s.Read(buffer, offset, count);
-    }
-
-    public override long Seek(long offset, SeekOrigin origin) {
-        return CanSeek
-            ? _s.Seek(AdjustOffset(offset, origin), SeekOrigin.Begin) - _begin
-            : throw new NotSupportedException("Can't position non-seekable stream");
-
-        long AdjustOffset(long offset, SeekOrigin origin) =>
-             origin switch {
-                 SeekOrigin.Begin => ValidateWithinBounds(offset),
-                 SeekOrigin.Current => ValidateWithinBounds(offset + Position),
-                 SeekOrigin.End => ValidateWithinBounds(_length + offset),
-                 _ => throw new ArgumentException($"Unknown origin {origin}")
-             };
-        long ValidateWithinBounds(long offset) =>
-             offset < 0
-                ? throw new ArgumentOutOfRangeException(nameof(offset), "Can't position before start")
-                : offset > _length
-                    ? throw new ArgumentOutOfRangeException(nameof(offset), "Can't position after end")
-                    : offset + _begin;
-    }
-
-    public override void SetLength(long value) => throw new NotSupportedException("This StreamSpan can't have its length changed");
-
-    public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException(_isReadonly);
-
-    public override void Write(ReadOnlySpan<byte> buffer) => throw new NotSupportedException(_isReadonly);
-
-    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) => throw new NotSupportedException(_isReadonly);
-
-    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default) => throw new NotSupportedException(_isReadonly);
-
-    public override void WriteByte(byte value) => throw new NotSupportedException(_isReadonly);
-
-    protected override void Dispose(bool disposing) {
-        base.Dispose(disposing);
-        if (_closeWrappedStreamOnDispose) {
-            _s.Dispose();
-        } else {
-            int unreadBytes = (int)(_positionAfterSpan - _s.Position);
-            if (unreadBytes > 0) {
-                if (CanSeek) {
-                    _s.Position = _positionAfterSpan;
-                } else {
-                    AdvanceByReading(_s, unreadBytes);
-                }
-            }
-        }
-
-        static void AdvanceByReading(Stream s, int unreadBytes) {
-            int bufferSize = Math.Min(unreadBytes, 16 * 1024);
-            byte[] buffer = new byte[unreadBytes];
-            while (unreadBytes > bufferSize) {
-                int read = s.Read(buffer, 0, bufferSize);
-                if (read == 0)
-                    return;
-                unreadBytes -= read;
-            }
-
-            _ = s.Read(buffer, 0, unreadBytes);
-        }
-    }
-
-    public readonly string DEBUG_SomeBytes;
-
-    private const string _isReadonly = "This StreamSpan is readonly";
-    private readonly long _begin;
-    private readonly bool _closeWrappedStreamOnDispose;
-    private readonly long _length;
     private readonly long _positionAfterSpan;
-    private readonly Stream _s;
 }

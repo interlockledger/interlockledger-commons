@@ -36,7 +36,7 @@ public static class IEnumerableOfReadOnlyMemoryExtensions
 {
     public static T[] ToArray<T>(this IEnumerable<ReadOnlyMemory<T>> buffers) {
         if (buffers.None())
-            return Array.Empty<T>();
+            return [];
         int length = buffers.Sum(rom => rom.Length);
         var result = new T[length];
         int offset = 0;

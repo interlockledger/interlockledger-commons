@@ -62,7 +62,7 @@ public class AsyncLock
         private readonly AsyncLock _asyncLocktoRelease;
     }
 
-    private class AsyncSemaphore
+    private sealed class AsyncSemaphore
     {
         public AsyncSemaphore() => _currentCount = 1;
 

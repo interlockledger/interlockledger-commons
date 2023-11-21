@@ -49,8 +49,7 @@ public static class ReadOnlySequenceExtensions
     public static ReadOnlySequenceStream AsStream(this ReadOnlySequence<byte> memory) => new(memory);
 
     public static T AsStreamDo<T>(this ReadOnlySequence<byte> memory, Func<Stream, T> func) {
-        if (func is null)
-            throw new ArgumentNullException(nameof(func));
+        ArgumentNullException.ThrowIfNull(func);
         using Stream s = memory.AsStream();
         return func(s);
     }
@@ -73,10 +72,12 @@ public static class ReadOnlySequenceExtensions
         return new ReadOnlySequence<byte>(newBuffer);
     }
 
+#pragma warning disable CA1055 // URI-like return values should not be strings
     public static string ToUrlSafeBase64(this ReadOnlySequence<byte> readOnlyBytes) =>
          readOnlyBytes.Length > 256
             ? ReadOnlyMemoryExtensions.ToUrlSafeBase64(readOnlyBytes.Slice(0, 256).ToArray()) + "..."
             : ReadOnlyMemoryExtensions.ToUrlSafeBase64(readOnlyBytes.ToArray());
+#pragma warning restore CA1055 // URI-like return values should not be strings
 
     private static IEnumerable<ReadOnlyMemory<byte>> Append(this ReadOnlySequence<byte> sequence, ReadOnlyMemory<byte> memory) {
         var current = sequence.Start;

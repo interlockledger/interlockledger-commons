@@ -44,7 +44,7 @@ public class Result : IResult
     public static Result Ok { get; } = new(IResult._noError);
 
     public static implicit operator Result(Exception error) => new Error(error);
-    public static implicit operator bool(Result result) => result.Success;
+    public static implicit operator bool(Result result) => result.Required().Success;
 
     public bool Success => _errorType == IResult._noError;
     protected Result(int errorType) => _errorType = errorType;
@@ -77,7 +77,7 @@ public sealed class Error : Result, IError
 
 public class Result<T> : Result
 {
-    public static implicit operator T?(Result<T> r) => r.Value;
+    public static implicit operator T?(Result<T> r) => r.Required().Value;
 
     public static implicit operator Result<T>(T? value) => new(value);
 

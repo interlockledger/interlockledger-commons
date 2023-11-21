@@ -39,7 +39,7 @@ public static class Helpers
 
     public static void Try(Action action, Action<Exception>? errorHandler = null) {
         try {
-            action();
+            action.Required()();
         } catch (Exception ex) {
             if (errorHandler is not null)
                 errorHandler(ex);
@@ -48,7 +48,7 @@ public static class Helpers
 
     public static Result<T> Try<T>(Func<T> action, Action<Exception>? errorHandler = null) where T : class {
         try {
-            return action();
+            return action.Required()();
         } catch (Exception ex) {
             if (errorHandler is not null)
                 errorHandler(ex);

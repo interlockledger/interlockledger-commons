@@ -35,28 +35,15 @@ namespace System.IO;
 public class StreamSpanTests
 {
     [Test]
-    public void TestSkippingToEndOfSpanOnDisposeWithoutSeek() {
-        using var baseStream = new NonSeekMemoryStream(new byte[100]);
-        TestSkippingOn(baseStream);
-    }
-
-    [Test]
     public void TestSkippingToEndOfSpanOnDisposeWithSeek() {
         using var baseStream = new MemoryStream(new byte[100]);
-        TestSkippingOn(baseStream);
-    }
-
-    private static void TestSkippingOn(Stream baseStream) {
         _ = baseStream.Seek(10, SeekOrigin.Begin);
         Assert.AreEqual(10L, baseStream.Position);
         baseStream.WriteByte(30);
         _ = baseStream.Seek(10, SeekOrigin.Begin);
         Assert.AreEqual(10L, baseStream.Position);
         using (var sp = new StreamSpan(baseStream, (ulong)baseStream.ReadByte())) {
-            if (sp.CanSeek)
-                Assert.AreEqual("[30] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ", sp.DEBUG_SomeBytes);
-            else
-                Assert.AreEqual(StreamSpan.NonSeekable, sp.DEBUG_SomeBytes);
+            Assert.AreEqual("StreamSpan [30] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ", sp.GetDebuggerDisplay());
             Assert.AreEqual(30L, sp.Length);
             Assert.AreEqual(0L, sp.Position);
             Assert.AreEqual(11L, baseStream.Position);
@@ -105,10 +92,7 @@ public class StreamSpanTests
 
         Assert.AreEqual(41L, baseStream.Position);
         using (var sp2 = new StreamSpan(baseStream, (ulong)(baseStream.Length - baseStream.Position))) {
-            if (sp2.CanSeek)
-                Assert.AreEqual("[59] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ", sp2.DEBUG_SomeBytes);
-            else
-                Assert.AreEqual(StreamSpan.NonSeekable, sp2.DEBUG_SomeBytes);
+            Assert.AreEqual("StreamSpan [59] 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 ", sp2.GetDebuggerDisplay());
             Assert.AreEqual(0L, sp2.Position);
             Assert.AreEqual(41L, baseStream.Position);
             Assert.AreEqual(baseStream.Position, sp2.OriginalPosition);
@@ -121,8 +105,21 @@ public class StreamSpanTests
         Assert.AreEqual(baseStream.Length, baseStream.Position);
     }
 
-    private class NonSeekMemoryStream(byte[] buffer) : MemoryStream(buffer, writable: true)
-    {
-        public override bool CanSeek => false;
+    [Test]
+    public void RejectNonSeekableOriginalStream() {
+        var e = Assert.Throws<ArgumentException>(() => new StreamSpan(new NonSeekMemoryStream([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]), 10));
+        Assert.AreEqual("original stream needs to be seekable", e?.Message);
+    }
+
+    [Test]
+    public void RejectNegativeOriginOnOriginalStream() {
+        var e = Assert.Throws<ArgumentOutOfRangeException>(() => new StreamSpan(new MemoryStream([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]), -1, 10));
+        StringAssert.Contains("offset ('-1') must be a non-negative value. (Parameter 'offset')", e?.Message);
+    }
+
+    [Test]
+    public void RejectNullOriginalStream() {
+        var e = Assert.Throws<ArgumentException>(() => new StreamSpan(null!, 10));
+        Assert.AreEqual("Required (Parameter 's')", e?.Message);
     }
 }

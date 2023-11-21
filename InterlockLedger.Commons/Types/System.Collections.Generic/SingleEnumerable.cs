@@ -32,17 +32,13 @@
 
 namespace System.Collections.Generic;
 
-public sealed class SingleEnumerable<T> : IEnumerable<T>
+public sealed class SingleEnumerable<T>(T singleElement) : IEnumerable<T>
 {
-    public SingleEnumerable(T singleElement) => _singleElement = singleElement;
+    public IEnumerator<T> GetEnumerator() => new Enumerator(singleElement);
 
-    public IEnumerator<T> GetEnumerator() => new Enumerator(_singleElement);
+    IEnumerator IEnumerable.GetEnumerator() => new Enumerator(singleElement);
 
-    IEnumerator IEnumerable.GetEnumerator() => new Enumerator(_singleElement);
-
-    private readonly T _singleElement;
-
-    private class Enumerator : IEnumerator<T>
+    private sealed class Enumerator : IEnumerator<T>
     {
         public Enumerator(T singleElement) {
             _value = singleElement;

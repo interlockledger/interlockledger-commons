@@ -67,8 +67,7 @@ public class ReadOnlySequenceStream : Stream
     }
 
     public override int Read(byte[] buffer, int offset, int count) {
-        if (buffer is null)
-            throw new ArgumentNullException(nameof(buffer));
+        ArgumentNullException.ThrowIfNull(buffer);
         if (offset < 0 || offset >= buffer.Length)
             throw new ArgumentOutOfRangeException(nameof(offset));
         if (count < 0 || offset + count > buffer.Length)

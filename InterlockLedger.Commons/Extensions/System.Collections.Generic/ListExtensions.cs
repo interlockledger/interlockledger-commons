@@ -34,8 +34,10 @@ namespace System.Collections.Generic;
 
 public static class ListExtensions
 {
+#pragma warning disable CA1002 // Do not expose generic lists
     public static List<T>? SafeAdd<T>(this List<T>? list, params T[] itens) {
         list?.AddRange(itens);
         return list;
     }
+#pragma warning restore CA1002 // Do not expose generic lists
 }

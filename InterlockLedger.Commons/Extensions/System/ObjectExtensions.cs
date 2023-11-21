@@ -43,8 +43,10 @@ public static class ObjectExtensions
     public static IEnumerable<T> AsSingle<T>(this T s) =>
         new SingleEnumerable<T>(s);
 
+#pragma warning disable CA1002 // Do not expose generic lists
     public static List<T> AsSingleList<T>(this T s) =>
         s.AsSingle().ToList();
+#pragma warning restore CA1002 // Do not expose generic lists
 
     public static async Task<TO?> IfNotNullAsync<T, TO>(this T? value, Func<T, Task<TO?>> transformAsync)
         where T : class

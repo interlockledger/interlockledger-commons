@@ -30,6 +30,7 @@
 //
 // ******************************************************************************************************************************
 
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 namespace System;
@@ -70,9 +71,7 @@ public static class ArrayOfByteExtensions
     public static string AsUTF8String(this byte[] bytes) => Encoding.UTF8.GetString(bytes);
 
     public static string Chunked(this byte[] bytes, int length) {
-        if (bytes == null) {
-            throw new ArgumentNullException(nameof(bytes));
-        }
+        ArgumentNullException.ThrowIfNull(bytes);
 
         length = (int)(Math.Floor((decimal)(Math.Abs(length) / 4)) + 1) * 4;
         string value = Convert.ToBase64String(bytes).Replace('+', '-').Replace('/', '_');
@@ -104,8 +103,7 @@ public static class ArrayOfByteExtensions
     }
 
     public static void DumpToFile(this byte[] bytes, string filename) {
-        if (bytes is null)
-            throw new ArgumentNullException(nameof(bytes));
+        ArgumentNullException.ThrowIfNull(bytes);
         if (string.IsNullOrEmpty(filename))
             throw new ArgumentException("message", nameof(filename));
         using var file = File.CreateText(filename);
@@ -133,7 +131,7 @@ public static class ArrayOfByteExtensions
             }
         }
 
-        return Array.Empty<byte>();
+        return [];
     }
 
     public static bool HasSameBytesAs(this byte[] bytes1, params byte[] bytes2) {
@@ -157,11 +155,7 @@ public static class ArrayOfByteExtensions
         Array.Copy(bytes, offset, part, 0, length);
         return part;
     }
-    public static byte[] RandomBytes(this int size) {
-        byte[] buffer = new byte[size];
-        _rnd.NextBytes(buffer);
-        return buffer;
-    }
+    public static byte[] RandomBytes(this int size) => RandomNumberGenerator.GetBytes(size);
 
     public static int SafeGetHashCode(this byte[] bytes) => bytes?.ToSafeBase64().GetHashCode(StringComparison.InvariantCulture) ?? 0;
 
@@ -184,7 +178,4 @@ public static class ArrayOfByteExtensions
             base64 += "=";
         return base64;
     }
-
-    private static readonly Random _rnd = new();
-
 }

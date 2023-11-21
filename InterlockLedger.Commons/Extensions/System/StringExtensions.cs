@@ -82,7 +82,7 @@ public static partial class StringExtensions
             return false;
         s = s.Trim();
         int count = 0;
-        if (!s.StartsWith("(", StringComparison.Ordinal)) return false;
+        if (!s.StartsWith('(')) return false;
         for (int i = 0; i < s.Length; i++) {
             char c = s[i];
             if (c == '(') {

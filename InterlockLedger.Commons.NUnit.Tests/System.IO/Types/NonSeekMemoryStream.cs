@@ -1,4 +1,4 @@
-// ******************************************************************************************************************************
+﻿// ******************************************************************************************************************************
 //  
 // Copyright (c) 2018-2023 InterlockLedger Network
 // All rights reserved.
@@ -30,31 +30,9 @@
 //
 // ******************************************************************************************************************************
 
-namespace System;
-public static class ArrayOfTExtensions
+namespace System.IO;
+
+internal class NonSeekMemoryStream(byte[] buffer) : MemoryStream(buffer, writable: true)
 {
-    public static string JoinedBy<T>(this T[]? values, string joiner) =>
-        string.Join(joiner, values.Safe().ToStrings());
-
-    [return: NotNull]
-    public static T[] OrEmpty<T>(this T[]? values) =>
-        values ?? [];
-
-    [return: NotNull]
-    public static T[] MinLength<T>([NotNull] this T[] array, int length, [CallerArgumentExpression(nameof(array))] string? parameterName = null) =>
-         array is not null && array.Length >= length
-             ? array
-             : throw new ArgumentException($"Array parameter {parameterName} must have length >= {length}");
-
-    [return: NotNull]
-    public static T[] MaxLength<T>([NotNull] this T[] array, int length, [CallerArgumentExpression(nameof(array))] string? parameterName = null) =>
-         array is not null && array.Length <= length
-             ? array
-             : throw new ArgumentException($"Array parameter {parameterName} must have length <= {length}");
-
-    [return: NotNull]
-    public static T[] ExactLength<T>([NotNull] this T[] array, int length, [CallerArgumentExpression(nameof(array))] string? parameterName = null) =>
-         array is not null && array.Length == length
-             ? array
-             : throw new ArgumentException($"Array parameter {parameterName} must have length == {length}");
+    public override bool CanSeek => false;
 }

@@ -34,12 +34,9 @@ using System.Text.Json;
 
 namespace System;
 
-public class DateOnlyConverter : JsonConverter<DateOnly>
+public class DateOnlyConverter(string? format = null) : JsonConverter<DateOnly>
 {
-    private readonly string _format;
-
-    public DateOnlyConverter(string? format = null) =>
-        _format = format ?? "yyyy'-'MM'-'dd";
+    private readonly string _format = format ?? "yyyy'-'MM'-'dd";
 
     public override bool CanConvert(Type typeToConvert) =>
         typeToConvert == typeof(DateOnly);
@@ -54,5 +51,5 @@ public class DateOnlyConverter : JsonConverter<DateOnly>
         throw new InvalidDataException("Not a valid date");
     }
     public override void Write(Utf8JsonWriter writer, DateOnly value, JsonSerializerOptions options) =>
-        writer.WriteStringValue(value.ToString(_format, CultureInfo.InvariantCulture));
+        writer.Required().WriteStringValue(value.ToString(_format, CultureInfo.InvariantCulture));
 }
