@@ -63,15 +63,17 @@ public static class ReadOnlyMemoryExtensions
         public long NextRunningIndex => RunningIndex + Length;
 
         public static ReadOnlySequence<byte> Link(IEnumerable<ReadOnlyMemory<byte>> segments) {
-            var first = new LinkedSegment(segments.First(), 0);
-            var current = first;
-            foreach (var segment in segments.Skip(1)) {
-                var next = new LinkedSegment(segment, current.NextRunningIndex);
-                current.Next = next;
+            LinkedSegment? first = null;
+            LinkedSegment? current = null;
+            foreach (var segment in segments) {
+                var next = new LinkedSegment(segment, current?.NextRunningIndex ?? 0);
+                first ??= next;
+                if (current is not null)
+                    current.Next = next;
                 current = next;
             }
 
-            return new ReadOnlySequence<byte>(first, 0, current, current.Length);
+            return new ReadOnlySequence<byte>(first.Required(), 0, current.Required(), current.Length);
         }
 
         private LinkedSegment(ReadOnlyMemory<byte> memory, long runningIndex) {

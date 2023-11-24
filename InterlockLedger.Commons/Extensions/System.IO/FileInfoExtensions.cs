@@ -34,24 +34,16 @@ namespace System.IO;
 
 public static class FileInfoExtensions
 {
-    public static FileStream GetWritingStream(this FileInfo fileInfo, Action<FileInfo> onDispose) => new FbbaInputStream(fileInfo, onDispose);
+    public static FileStream GetWritingStream(this FileInfo fileInfo, Action<FileInfo> onDispose) => new DisposableWritingStream(fileInfo, onDispose);
 
-    public static string? ReadAllText(this FileInfo file) {
-        if (!file.Exists)
+    public static async Task<string?> ReadToEndAsync(this FileInfo file) {
+        if (!file.Required().Exists)
             return null;
-        using var s = file.OpenText();
-        return s.ReadToEnd();
+        using var reader = file.OpenText();
+        return await reader.ReadToEndAsync().ConfigureAwait(false);
     }
 
-    public static async Task<string> ReadToEndAsync(this FileInfo file, string missingFileMessageMask) {
-        if (file.Required().Exists) {
-            using var reader = file.OpenText();
-            return await reader.ReadToEndAsync().ConfigureAwait(false);
-        }
-        return string.Format(CultureInfo.InvariantCulture, missingFileMessageMask.Required(), file.Name);
-    }
-
-    private sealed class FbbaInputStream(FileInfo fileInfo, Action<FileInfo> onDispose) : FileStream(fileInfo.Required().FullName, FileMode.CreateNew, FileAccess.Write)
+    private sealed class DisposableWritingStream(FileInfo fileInfo, Action<FileInfo> onDispose) : FileStream(fileInfo.Required().FullName, FileMode.CreateNew, FileAccess.Write)
     {
         protected override void Dispose(bool disposing) {
             base.Dispose(disposing);
