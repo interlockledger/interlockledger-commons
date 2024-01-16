@@ -1,4 +1,2 @@
-[![.NET Core](https://github.com/interlockledger/interlockledger-commons/actions/workflows/dotnetcore.yml/badge.svg)](https://github.com/interlockledger/interlockledger-commons/actions/workflows/dotnetcore.yml)
-
-# il2 commons
-InterlockLedger.Commons library for common InterlockLedger abstractions, helpers and class extensions
+# il2 tags
+InterlockLedger.Tags library for common InterlockLedger Tags types and their encoding/decoding, helpers and class extensions
