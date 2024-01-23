@@ -69,8 +69,8 @@
     <PropertyGroup>
       <NugetPackage>$(PackageOutputAbsolutePath)$(PackageId).$(Version).nupkg</NugetPackage>
     </PropertyGroup>
-    <Message Importance="high" Text="Pushing $(NugetPackage)" Condition="Exists('$(NugetPackage)')" />
-    <Exec Command="dotnet nuget push --skip-duplicate -s nuget.org $(NugetPackage)" ContinueOnError="true" StandardErrorImportance="high" StandardOutputImportance="high" IgnoreExitCode="true" Condition="Exists('$(NugetPackage)')" />
+    <Message Importance="high" Text="Pushing $(NugetPackage)" Condition="Exists('$(NugetPackage)') and '$(NUGET_API_KEY)'!=''" />
+    <Exec Command="dotnet nuget push --skip-duplicate -s nuget.org -k $(NUGET_API_KEY) $(NugetPackage)" ContinueOnError="true" StandardErrorImportance="high" StandardOutputImportance="high" IgnoreExitCode="true" Condition="Exists('$(NugetPackage)') and '$(NUGET_API_KEY)'!=''" />
   </Target>
 
   <ItemGroup>
