@@ -75,6 +75,7 @@ public sealed class Error : Result, IError
         ErrorMessage = errorMessage;
 }
 
+#pragma warning disable CA1000 // Do not declare static members on generic types
 public class Result<T> : Result
 {
     public static implicit operator T?(Result<T> r) => r.Required().Value;
@@ -101,6 +102,7 @@ public sealed class Error<T> : Result<T>, IError
         Exception = error;
         ErrorMessage = Exception?.Message ?? string.Empty;
     }
+
     public Error(string? errorMessage, int errorType = IError.DefaultErrorType) : base(errorType) =>
         ErrorMessage = errorMessage ?? string.Empty;
 

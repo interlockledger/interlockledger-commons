@@ -42,6 +42,7 @@ public interface ITextual
     string FullRepresentation => IsInvalid ? TextualRepresentation + Environment.NewLine + InvalidityCause! : TextualRepresentation;
 }
 
+#pragma warning disable CA1000 // Do not declare static members on generic types
 public interface ITextual<TSelf> : ITextual, IEquatable<TSelf> where TSelf : ITextual<TSelf>
 {
     public ITextual<TSelf> Textual { get; }

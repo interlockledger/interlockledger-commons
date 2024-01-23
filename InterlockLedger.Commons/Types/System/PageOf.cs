@@ -32,6 +32,7 @@
 
 namespace System;
 
+#pragma warning disable CA1000 // Do not declare static members on generic types
 public record PageOf<T>(IEnumerable<T> Items, ushort Page, byte PageSize, ushort TotalNumberOfPages, bool LastToFirst)
 {
     public PageOf(IEnumerable<T> items, bool lastToFirst) : this(items.Required(), 0, 0, (ushort)(items.SafeAny() ? 1 : 0), lastToFirst) {
