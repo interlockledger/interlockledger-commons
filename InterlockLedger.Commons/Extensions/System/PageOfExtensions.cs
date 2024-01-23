@@ -69,7 +69,7 @@ public static class PageOfExtensions
         var list = resultList.Safe();
         if (pageSize == 0)
             return new PageOf<T>(list.ToArray(), lastToFirst);
-        ushort totalPages = (ushort)Math.Min((list.Count() + pageSize - 1) / pageSize, ushort.MaxValue);
+        ushort totalPages = CalculateTotalPages(list, pageSize);
         if (page >= totalPages)
             page = (ushort)(totalPages > 0 ? totalPages - 1 : 0);
         return new PageOf<T>(list.Skip(page * pageSize).Take(pageSize).ToArray(), page, pageSize, totalPages, lastToFirst);
@@ -79,11 +79,16 @@ public static class PageOfExtensions
         var list = resultList.Safe().SkipDefaults();
         if (pageSize == 0)
             return new PageOf<T>(list.Select(converter).ToArray(), lastToFirst);
-        ushort totalPages = (ushort)Math.Min((list.Count() + pageSize - 1) / pageSize, ushort.MaxValue);
+        ushort totalPages = CalculateTotalPages(list, pageSize);
         if (page >= totalPages)
             page = (ushort)(totalPages > 0 ? totalPages - 1 : 0);
         return new PageOf<T>(list.Skip(page * pageSize).Take(pageSize).Select(converter).ToArray(), page, pageSize, totalPages, lastToFirst);
     }
+    private static ushort CalculateTotalPages<T>(IEnumerable<T> list, byte pageSize) {
+        int count = (list is ICollection<T> collection) ? collection.Count : list.Count();
+        return (ushort)Math.Min((count + pageSize - 1) / pageSize, ushort.MaxValue);
+    }
+
 
     public static PageOf<T> Safe<T>(this PageOf<T>? page) =>
         page ?? PageOf<T>.Empty;
