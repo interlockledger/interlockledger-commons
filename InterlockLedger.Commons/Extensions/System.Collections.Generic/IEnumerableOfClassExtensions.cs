@@ -39,5 +39,23 @@ public static class IEnumerableOfClassExtensions
 
     public static T[] NonEmpty<T>([NotNull] this T[] items, [CallerArgumentExpression(nameof(items))] string? parameterName = null) =>
         items is null || items.Length == 0 ? throw new ArgumentException("Should not be empty", parameterName) : items;
+    public static bool AnyDefaults<T>(this IEnumerable<T?>? values) =>
+     values.Safe().Required().Any(s => s.IsDefault());
+    public static T[]? AllNonDefaults<T>(this T?[]? values, [CallerArgumentExpression(nameof(values))] string? name = null) =>
+        AllNonDefaultsCore<T, T?[]?, T[]?>(values, name, list => list?.Select(s => s!).ToArray());
+    public static IEnumerable<T>? AllNonDefaults<T>(this IEnumerable<T?>? values, [CallerArgumentExpression(nameof(values))] string? name = null) =>
+        AllNonDefaultsCore<T, IEnumerable<T?>?, IEnumerable<T>?>(values, name, list => list?.Select(s => s!));
+    public static IEnumerable<TResult> SelectByIndexSkippingNulls<TResult>(this IEnumerable<ulong> values, Func<ulong, TResult?> selector) where TResult : class =>
+        values.Select(selector).SkipNulls();
+
+    private static TTT AllNonDefaultsCore<T, TT, TTT>(TT values, string? name, Func<TT, TTT> assumer)
+        where TT : IEnumerable<T?>?
+        where TTT : IEnumerable<T>?
+        =>
+            AnyDefaults(values)
+                ? throw new ArgumentException("Default value present", name)
+                : assumer(values);
+
+
 
 }

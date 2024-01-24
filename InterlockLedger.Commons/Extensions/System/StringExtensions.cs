@@ -229,6 +229,8 @@ public static partial class StringExtensions
 
     [GeneratedRegex("""[\r\n\s]+""")]
     private static partial Regex WhiteSpaceRegex();
+    public static IEnumerable<string> SafeSkipBlanks(this IEnumerable<string?>? strings) =>
+        strings.Safe().Where(s => !string.IsNullOrWhiteSpace(s))!;
 
     public static T? FromJson<T>(this string json) =>
         string.IsNullOrWhiteSpace(json) ? default : JsonSerializer.Deserialize<T>(json, DefaultJsonOptions);

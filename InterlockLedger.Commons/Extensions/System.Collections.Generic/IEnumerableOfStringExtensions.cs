@@ -35,4 +35,18 @@ public static class IEnumerableOfStringExtensions
 {
     public static string AsLines(this IEnumerable<string>? source) =>
         source.JoinedBy(Environment.NewLine);
+    public static bool AnyBlanks(this IEnumerable<string?>? values) =>
+    values.Safe().Any(s => s.IsBlank());
+    public static string[]? AllNonBlanks(this string?[]? values, [CallerArgumentExpression(nameof(values))] string? name = null) =>
+        AllNonBlanksCore(values, name, list => list?.Select(s => s!).ToArray());
+    public static IEnumerable<string>? AllNonBlanks<T>(this IEnumerable<string?>? values, [CallerArgumentExpression(nameof(values))] string? name = null) =>
+        AllNonBlanksCore(values, name, list => list?.Select(s => s!));
+    private static TTT AllNonBlanksCore<TT, TTT>(TT values, string? name, Func<TT, TTT> assumer)
+        where TT : IEnumerable<string?>?
+        where TTT : IEnumerable<string>?
+        =>
+            AnyBlanks(values)
+                ? throw new ArgumentException("Blank value present", name)
+                : assumer(values);
+
 }

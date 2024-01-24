@@ -43,12 +43,13 @@ public static class ArrayOfByteExtensions
         if (bytes is null)
             return newBytes;
         byte[] result = new byte[bytes.Length + newBytes.Length];
-        Array.Copy(bytes, result, bytes.Length);
-        Array.Copy(newBytes, 0, result, bytes.Length, newBytes.Length);
+        bytes.CopyTo(result, 0);
+        newBytes.CopyTo(result, bytes.Length);
         return result;
     }
 
-    public static string AsLiteral(this byte[] bytes) => $"new byte[] {{ {bytes.JoinedBy(", ")} }}";
+    public static string AsLiteral(this byte[] bytes, int maxBytes = short.MaxValue) =>
+        $"new byte[] {{ {bytes.Safe().Take(maxBytes).JoinedBy(", ")} {(bytes.Length > maxBytes ? "..." : "")}}}";
 
     public static long AsLong(this byte[] bytes, int offset = 0) {
         if ((SafeLength(bytes) - offset) < 8)
