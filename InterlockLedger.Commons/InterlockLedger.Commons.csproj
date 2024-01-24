@@ -11,7 +11,7 @@
     <Product>InterlockLedger</Product>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-    <Version>17.0.0</Version>
+    <Version>17.0.1</Version>
     <PackageId>InterlockLedger.Commons</PackageId>
     <PackageReleaseNotes>Bringing more abstractions from upper projects</PackageReleaseNotes>
     <PackageIcon>il2.png</PackageIcon>
@@ -72,8 +72,4 @@
     <Message Importance="high" Text="Pushing $(NugetPackage)" Condition="Exists('$(NugetPackage)') and '$(NUGET_API_KEY)'!=''" />
     <Exec Command="dotnet nuget push --skip-duplicate -s nuget.org -k $(NUGET_API_KEY) $(NugetPackage)" ContinueOnError="true" StandardErrorImportance="high" StandardOutputImportance="high" IgnoreExitCode="true" Condition="Exists('$(NugetPackage)') and '$(NUGET_API_KEY)'!=''" />
   </Target>
-
-  <ItemGroup>
-    <PackageReference Include="System.Memory" Version="4.5.5" />
-  </ItemGroup>
 </Project>
