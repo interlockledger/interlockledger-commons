@@ -36,38 +36,40 @@ namespace System;
 public class StringSuffixExtensionsTests
 {
     [Test]
-    public void WithSuffix() {
-        Assert.IsNull(((string?)null).WithSuffix(".json"));
-        Assert.AreEqual(".json", "".WithSuffix(".json"));
-        Assert.AreEqual("a.json", "a".WithSuffix(".json"));
-        Assert.AreEqual("b.JSON", "b.JSON".WithSuffix(".json"));
-        Assert.AreEqual("c", "c".WithSuffix(null));
-        Assert.AreEqual("c", "c".WithSuffix(""));
-        Assert.AreEqual("c", "c".WithSuffix("     "));
-        Assert.AreEqual("d!KKK", "d".WithSuffix("KKK", '!'));
-        Assert.AreEqual("d!KKK", "d".WithSuffix("!KKK", '!'));
-        Assert.AreEqual("d!KKK!", "d".WithSuffix("!!KKK!", '!'));
-        Assert.AreEqual("e#001", "e# ".WithSuffix("001", '#'));
-        Assert.AreEqual("file.txt", "file ".WithSuffix("txt"));
-        Assert.AreEqual(".file.txt", ".file ".WithSuffix("txt", '.'));
-        Assert.AreEqual("file.txt", "file. ".WithSuffix("txt"));
-    }
+    public void WithSuffix() =>
+        Assert.Multiple(() => {
+            Assert.That(((string?)null).WithSuffix(".json"), Is.Null);
+            Assert.That("".WithSuffix(".json"), Is.EqualTo(".json"));
+            Assert.That("a".WithSuffix(".json"), Is.EqualTo("a.json"));
+            Assert.That("b.JSON".WithSuffix(".json"), Is.EqualTo("b.JSON"));
+            Assert.That("c".WithSuffix(null), Is.EqualTo("c"));
+            Assert.That("c".WithSuffix(""), Is.EqualTo("c"));
+            Assert.That("c".WithSuffix("     "), Is.EqualTo("c"));
+            Assert.That("d".WithSuffix("KKK", '!'), Is.EqualTo("d!KKK"));
+            Assert.That("d".WithSuffix("!KKK", '!'), Is.EqualTo("d!KKK"));
+            Assert.That("d".WithSuffix("!!KKK!", '!'), Is.EqualTo("d!KKK!"));
+            Assert.That("e# ".WithSuffix("001", '#'), Is.EqualTo("e#001"));
+            Assert.That("file ".WithSuffix("txt"), Is.EqualTo("file.txt"));
+            Assert.That(".file ".WithSuffix("txt", '.'), Is.EqualTo(".file.txt"));
+            Assert.That("file. ".WithSuffix("txt"), Is.EqualTo("file.txt"));
+        });
 
     [Test]
-    public void WithSuffixReplaced() {
-        Assert.IsNull(((string?)null).WithSuffixReplaced(".jsonc"));
-        Assert.AreEqual(".jsonc", "".WithSuffixReplaced(".jsonc"));
-        Assert.AreEqual("a.jsonc", "a.json".WithSuffixReplaced(".jsonc"));
-        Assert.AreEqual("b.jsonc", "b.JSONC".WithSuffixReplaced(".jsonc"));
-        Assert.AreEqual("c.json", "c.json".WithSuffixReplaced(null));
-        Assert.AreEqual("c.json", "c.json".WithSuffixReplaced(""));
-        Assert.AreEqual("c.json", "c.json".WithSuffixReplaced("     "));
-        Assert.AreEqual("d!KKK", "d!a".WithSuffixReplaced("KKK", '!'));
-        Assert.AreEqual("d!KKK", "d!a".WithSuffixReplaced("!KKK", '!'));
-        Assert.AreEqual("d!KKK!", "d!a".WithSuffixReplaced("!!KKK!", '!'));
-        Assert.AreEqual("e#001", "e# ".WithSuffixReplaced("001", '#'));
-        Assert.AreEqual("file.txt", "file.doc ".WithSuffixReplaced("txt"));
-        Assert.AreEqual(".file.txt", ".file.doc ".WithSuffixReplaced("txt", '.'));
-        Assert.AreEqual("file.txt", "file. ".WithSuffixReplaced("txt"));
-    }
+    public void WithSuffixReplaced() =>
+        Assert.Multiple(() => {
+            Assert.That(((string?)null).WithSuffixReplaced(".jsonc"), Is.Null);
+            Assert.That("".WithSuffixReplaced(".jsonc"), Is.EqualTo(".jsonc"));
+            Assert.That("a.json".WithSuffixReplaced(".jsonc"), Is.EqualTo("a.jsonc"));
+            Assert.That("b.JSONC".WithSuffixReplaced(".jsonc"), Is.EqualTo("b.jsonc"));
+            Assert.That("c.json".WithSuffixReplaced(null), Is.EqualTo("c.json"));
+            Assert.That("c.json".WithSuffixReplaced(""), Is.EqualTo("c.json"));
+            Assert.That("c.json".WithSuffixReplaced("     "), Is.EqualTo("c.json"));
+            Assert.That("d!a".WithSuffixReplaced("KKK", '!'), Is.EqualTo("d!KKK"));
+            Assert.That("d!a".WithSuffixReplaced("!KKK", '!'), Is.EqualTo("d!KKK"));
+            Assert.That("d!a".WithSuffixReplaced("!!KKK!", '!'), Is.EqualTo("d!KKK!"));
+            Assert.That("e# ".WithSuffixReplaced("001", '#'), Is.EqualTo("e#001"));
+            Assert.That("file.doc ".WithSuffixReplaced("txt"), Is.EqualTo("file.txt"));
+            Assert.That(".file.doc ".WithSuffixReplaced("txt", '.'), Is.EqualTo(".file.txt"));
+            Assert.That("file. ".WithSuffixReplaced("txt"), Is.EqualTo("file.txt"));
+        });
 }

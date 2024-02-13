@@ -33,7 +33,7 @@
 #nullable enable
 
 using static System.ObjectExtensions;
-using static System.ObjectExtensionsTests;
+using static Test.Helpers;
 
 namespace System;
 

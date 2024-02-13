@@ -33,6 +33,7 @@
 #nullable enable
 
 using static System.ObjectExtensions;
+using static Test.Helpers;
 
 namespace System;
 
@@ -58,14 +59,4 @@ public class ObjectExtensionsTests
         && AssertArgumentException<ArgumentNullException>(nameof(value), () => value.RequiredUsing(n => new ArgumentNullException(n, _expectedExceptionMessageStart)))
         && AssertArgumentException<ArgumentNullException>(nameof(value), () => value.RequiredUsing(ArgNullRequired));
 
-    internal const string _expectedExceptionMessageStart = "Required";
-
-    internal static bool AssertArgumentException<T>(string name, TestDelegate code) where T : ArgumentException {
-        var ex = Assert.Throws<T>(code);
-        Assert.That(ex, Is.Not.Null);
-        Assert.That(ex!.ParamName, Is.EqualTo(name));
-        Assert.That(ex.Message, Does.StartWith(_expectedExceptionMessageStart));
-        Assert.That(ex.InnerException, Is.Null);
-        return true;
-    }
 }

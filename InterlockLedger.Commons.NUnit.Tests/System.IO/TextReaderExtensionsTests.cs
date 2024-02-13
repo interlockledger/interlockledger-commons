@@ -46,7 +46,7 @@ public class TextReaderExtensionsTests
     [TestCase("  -123 ", -123)]
     [TestCase("2000000000", 2000000000)]
     [TestCase("-2000000000", -2000000000)]
-    public void TestReadInt32(string input, int expected) => Assert.AreEqual(expected, new StringReader(input).ReadInt32());
+    public void TestReadInt32(string input, int expected) => Assert.That(new StringReader(input).ReadInt32(), Is.EqualTo(expected));
 
     [TestCase("")]
     [TestCase("1B2C3")]

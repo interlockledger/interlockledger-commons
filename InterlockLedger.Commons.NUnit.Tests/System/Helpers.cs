@@ -30,41 +30,20 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Collections.Generic.Tests;
+namespace Test;
 
-[TestFixture]
-public class SingleEnumerableTests
+internal static class Helpers
 {
-    [Test]
-    public void SingleEnumerableTest() {
-        var single = new SingleEnumerable<int>(42);
-        Assert.That(single, Is.Not.Null);
+    internal const string _expectedExceptionMessageStart = "Required";
+
+    internal static bool AssertArgumentException<T>(string name, TestDelegate code) where T : ArgumentException {
+        var ex = Assert.Throws<T>(code);
+        Assert.That(ex, Is.Not.Null);
         Assert.Multiple(() => {
-            Assert.That(single.First(), Is.EqualTo(42));
-            Assert.That(single.Last(), Is.EqualTo(42));
-            Assert.That(single.Count(), Is.EqualTo(1));
+            Assert.That(ex!.ParamName, Is.EqualTo(name));
+            Assert.That(ex.Message, Does.StartWith(_expectedExceptionMessageStart));
+            Assert.That(ex.InnerException, Is.Null);
         });
-        var enumerator = single.GetEnumerator();
-        Assert.That(enumerator, Is.Not.Null);
-        Assert.That(enumerator, Is.InstanceOf<IEnumerator<int>>());
-        Assert.Multiple(() => {
-            Assert.That(enumerator.Current, Is.EqualTo(0));
-            Assert.That(enumerator.MoveNext());
-        });
-        Assert.Multiple(() => {
-            Assert.That(enumerator.Current, Is.EqualTo(42));
-            Assert.That(enumerator.MoveNext(), Is.False);
-        });
-        Assert.That(enumerator.Current, Is.EqualTo(0));
-        enumerator.Reset();
-        Assert.Multiple(() => {
-            Assert.That(enumerator.Current, Is.EqualTo(0));
-            Assert.That(enumerator.MoveNext());
-        });
-        Assert.Multiple(() => {
-            Assert.That(enumerator.Current, Is.EqualTo(42));
-            Assert.That(enumerator.MoveNext(), Is.False);
-        });
-        Assert.That(enumerator.Current, Is.EqualTo(0));
+        return true;
     }
 }

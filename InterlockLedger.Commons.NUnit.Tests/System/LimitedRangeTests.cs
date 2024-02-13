@@ -38,18 +38,24 @@ public class LimitedRangeTests
 {
 
     [Test]
+#pragma warning disable NUnit2009 // The same value has been provided as both the actual and the expected argument
     public void Equality() {
-        Assert.AreEqual(LimitedRange.Empty, LimitedRange.Empty);
+        Assert.That(LimitedRange.Empty, Is.EqualTo(LimitedRange.Empty));
         var invalidByCause1 = LimitedRange.InvalidBy("Cause1");
         var invalidByCause2 = LimitedRange.InvalidBy("Cause2");
-        Assert.AreEqual(invalidByCause1, invalidByCause2);
-        Assert.AreEqual(invalidByCause2, invalidByCause1);
-        Assert.AreEqual(new LimitedRange(1, 10), new LimitedRange(1, 10));
-        Assert.AreNotEqual(LimitedRange.Empty, invalidByCause1);
-        Assert.AreNotEqual(invalidByCause1, LimitedRange.Empty);
-        Assert.AreNotEqual(new LimitedRange(1, 10), new LimitedRange(1, 11));
-        Assert.AreNotEqual(new LimitedRange(1, 11), new LimitedRange(1, 10));
+        Assert.Multiple(() => {
+            Assert.That(invalidByCause2, Is.EqualTo(invalidByCause1));
+            Assert.That(invalidByCause1, Is.EqualTo(invalidByCause2));
+            Assert.That(new LimitedRange(1, 10), Is.EqualTo(new LimitedRange(1, 10)));
+        });
+        Assert.Multiple(() => {
+            Assert.That(invalidByCause1, Is.Not.EqualTo(LimitedRange.Empty));
+            Assert.That(LimitedRange.Empty, Is.Not.EqualTo(invalidByCause1));
+            Assert.That(new LimitedRange(1, 11), Is.Not.EqualTo(new LimitedRange(1, 10)));
+            Assert.That(new LimitedRange(1, 10), Is.Not.EqualTo(new LimitedRange(1, 11)));
+        });
     }
+#pragma warning restore NUnit2009 // The same value has been provided as both the actual and the expected argument
 
     [TestCase("\"[]\"", false, true, "")]
     [TestCase("\"[1]\"", false, false, "")]
@@ -87,14 +93,16 @@ public class LimitedRangeTests
     }
 
     private static void AssertLimitedRange(LimitedRange lr, string text, bool isInvalid, bool isEmpty, string? cause = null, bool unwrapped = false) {
-        Assert.AreEqual(isInvalid, lr.Textual.IsInvalid, nameof(isInvalid));
-        Assert.AreEqual(isEmpty, lr.IsEmpty, nameof(isEmpty));
+        Assert.Multiple(() => {
+            Assert.That(lr.Textual.IsInvalid, Is.EqualTo(isInvalid), nameof(isInvalid));
+            Assert.That(lr.IsEmpty, Is.EqualTo(isEmpty), nameof(isEmpty));
+        });
         if (!lr.Textual.IsInvalid && !unwrapped) {
             Assert.That(lr.TextualRepresentation, Is.EqualTo(text));
             string lrAsString = lr; // implicit string conversion
             Assert.That(lrAsString, Is.EqualTo(text));
         } else if (!cause.IsBlank())
-            StringAssert.AreEqualIgnoringCase(cause, lr.InvalidityCause);
+            Assert.That(lr.InvalidityCause, Is.EqualTo(cause).IgnoreCase);
         TestContext.WriteLine(lr.ToString());
     }
 
