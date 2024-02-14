@@ -61,7 +61,7 @@ public static class TaskExtensions
 
     public static async Task<IEnumerable<T>> WhenAllSequentialAsync<T>(this IEnumerable<Task<T>> tasks) {
         if (tasks.None())
-            return Enumerable.Empty<T>();
+            return [];
         var results = new List<T>();
         foreach (var task in tasks)
             results.Add(await task.ConfigureAwait(false));
@@ -76,7 +76,7 @@ public static class TaskExtensions
 
     public static async Task<IEnumerable<T>> WhenAllParallelAsync<T>(this IEnumerable<Task<T>> tasks, int degree) {
         if (tasks.None())
-            return Enumerable.Empty<T>();
+            return [];
         var results = new List<T>();
         foreach (var chunk in tasks.Chunk(degree)) {
             var chunkResults = await Task.WhenAll(chunk).ConfigureAwait(false);

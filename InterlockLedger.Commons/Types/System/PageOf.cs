@@ -38,5 +38,5 @@ public record PageOf<T>(IEnumerable<T> Items, ushort Page, byte PageSize, ushort
     public PageOf(IEnumerable<T> items, bool lastToFirst) : this(items.Required(), 0, 0, (ushort)(items.SafeAny() ? 1 : 0), lastToFirst) {
     }
 
-    public static PageOf<T> Empty { get; } = new PageOf<T>(Enumerable.Empty<T>(), 0, 0, 0, false);
+    public static PageOf<T> Empty { get; } = new PageOf<T>([], 0, 0, 0, false);
 }

@@ -130,7 +130,7 @@ public static class IEnumerableOfTExtensions
             ? items.Safe().Cast<T>()
             : throw new ArgumentException("List must not contain null elements", parameterName);
 
-    public static IEnumerable<T> Safe<T>(this IEnumerable<T>? values) => values ?? Enumerable.Empty<T>();
+    public static IEnumerable<T> Safe<T>(this IEnumerable<T>? values) => values ?? [];
 
     public static bool SafeAny<T>([NotNullWhen(true)] this IEnumerable<T>? values) => values?.Any() ?? false;
 
@@ -187,7 +187,7 @@ public static class IEnumerableOfTExtensions
         Func<Task<IEnumerable<T>>> getAlternativeValuesAsync) where T : class =>
          await WithDefaultAsync(getValuesAsync is not null
                                         ? (await getValuesAsync.ConfigureAwait(false))
-                                        : Enumerable.Empty<T>(),
+                                        : [],
                                   getAlternativeValuesAsync).ConfigureAwait(false);
 
     public static async Task<IEnumerable<T>> WithDefaultAsync<T>(
