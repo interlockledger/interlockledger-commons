@@ -11,7 +11,7 @@
     <Product>InterlockLedger</Product>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-    <Version>17.0.1</Version>
+    <Version>17.0.2</Version>
     <PackageId>InterlockLedger.Commons</PackageId>
     <PackageReleaseNotes>Bringing more abstractions from upper projects</PackageReleaseNotes>
     <PackageIcon>il2.png</PackageIcon>

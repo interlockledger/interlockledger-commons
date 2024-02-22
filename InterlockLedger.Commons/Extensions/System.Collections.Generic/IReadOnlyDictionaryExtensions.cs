@@ -1,4 +1,4 @@
-// ******************************************************************************************************************************
+﻿// ******************************************************************************************************************************
 //  
 // Copyright (c) 2018-2023 InterlockLedger Network
 // All rights reserved.
@@ -32,17 +32,9 @@
 
 namespace System.Collections.Generic;
 
-public static class DictionaryExtensions
+public static class IReadOnlyDictionaryExtensions
 {
-
-    public static Dictionary<string, T> AddIf<T>(this Dictionary<string, T> dictionary, bool add, string key, T value) {
-        _ = dictionary.Required();
-        if (add)
-            dictionary.Add(key, value);
-        return dictionary;
-    }
-
-    public static Dictionary<string, T> AddIf<T>(this Dictionary<string, T> dictionary, Func<bool> shouldAdd, string key, T value) =>
-         dictionary.AddIf(shouldAdd.Required()(), key, value);
-
+    public static readonly StringComparer CaseIgnoringComparer = StringComparer.Create(CultureInfo.InvariantCulture, true);
+    public static Dictionary<string, T> CaseIgnoring<T>(this IReadOnlyDictionary<string, T> dictionary) =>
+         new(dictionary.Required(), CaseIgnoringComparer);
 }
