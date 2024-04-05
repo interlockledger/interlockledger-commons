@@ -32,11 +32,6 @@
 
 namespace System;
 
-public static class ITextualOfTSelfExtensions
+public interface ITextualLight<T> : ITextualCore, IEquatable<T>, IParsable<T> where T : notnull, IParsable<T>
 {
-    public static TSelf ParseAs<TSelf>(this string? textualRepresentation) where TSelf : ITextual<TSelf> =>
-        ITextual<TSelf>.Parse(textualRepresentation);
-
-    public static bool TryParse<TSelf>([NotNullWhen(true)] this string? textualRepresentation, [MaybeNullWhen(false)] out TSelf result) where TSelf : ITextual<TSelf> =>
-        !(result = ParseAs<TSelf>(textualRepresentation)).IsInvalid;
 }

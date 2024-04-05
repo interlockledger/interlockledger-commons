@@ -32,35 +32,31 @@
 
 namespace System;
 
-public interface ITextual
+#pragma warning disable CA1000 // Do not declare static members on generic types
+public interface IEmptyable<TSelf>
 {
     bool IsEmpty { get; }
-    string TextualRepresentation { get; }
-    string? InvalidityCause { get; }
+    public static abstract TSelf Empty { get; }
 
-    bool IsInvalid => !InvalidityCause.IsBlank();
-    string FullRepresentation => IsInvalid ? TextualRepresentation + Environment.NewLine + InvalidityCause! : TextualRepresentation;
 }
 
 #pragma warning disable CA1000 // Do not declare static members on generic types
-public interface ITextual<TSelf> : ITextual, IEquatable<TSelf> where TSelf : ITextual<TSelf>
+public interface ITextual<TSelf> : IInvalidable, IEquatable<TSelf>, IParsable<TSelf>, IEmptyable<TSelf> where TSelf : ITextual<TSelf>
 {
     public ITextual<TSelf> Textual { get; }
-    public static abstract TSelf Empty { get; }
     public static abstract Regex Mask { get; }
     public static abstract TSelf InvalidBy(string cause);
-    public static abstract TSelf Build(string textualRepresentation);
     public static TSelf Parse(string? textualRepresentation) =>
         textualRepresentation.IsBlank() || textualRepresentation.SafeEqualsTo(TSelf.Empty.TextualRepresentation)
             ? TSelf.Empty
             : TSelf.Mask.IsMatch(textualRepresentation)
-                ? TSelf.Build(textualRepresentation!)
+                ? TSelf.Parse(textualRepresentation!, CultureInfo.InvariantCulture)
                 : TSelf.InvalidBy($"Input '{textualRepresentation}' does not match {TSelf.Mask}");
 
     public static string? Validate(string? textualRepresentation) {
         if (textualRepresentation.IsBlank())
             return "Missing value";
         var resolved = Parse(textualRepresentation);
-        return resolved.IsInvalid ? resolved.InvalidityCause : null;
+        return resolved.IsInvalid() ? resolved.InvalidityCause : null;
     }
 }

@@ -44,7 +44,7 @@ public class TypeCustomConverter<T> : TypeConverter where T : ITextual<T>
          destinationType == typeof(InstanceDescriptor) || destinationType == typeof(string);
 
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) =>
-         value is string text ? text.ParseAs<T>() : base.ConvertFrom(context, culture, value);
+         value is string text ? T.Parse(text, culture) : base.ConvertFrom(context, culture, value);
 
     public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type? destinationType) =>
         destinationType.Required() == typeof(string) && value is T typedValue

@@ -73,6 +73,8 @@ public static partial class StringExtensions
 
     public static bool IsBlank([NotNullWhen(returnValue: false)] this string? value) =>
         string.IsNullOrWhiteSpace(value);
+    public static bool IsNonBlank([NotNullWhen(returnValue: true)] this string? value) =>
+        !string.IsNullOrWhiteSpace(value);
 
     public static bool IsEmptyOrMatches(this string? s, params string[] matches) =>
         s.IsBlank() || matches.SkipBlanks().Any(m => s.Trim().Equals(m, StringComparison.OrdinalIgnoreCase));
@@ -108,6 +110,9 @@ public static partial class StringExtensions
     public static string ParenthesizeIf(this string s, bool condition = false) =>
         condition ? $"({s})" : s;
 
+    public static T Parse<T>(this string? s) where T : IParsable<T> =>
+        T.Parse(s.Safe(), provider: null);
+
     public static string? PascalToCamelCase(this string? value) =>
         value.RegexReplace(@"(^\w)", ToLowerInvariant);
 
@@ -127,7 +132,14 @@ public static partial class StringExtensions
         value.IsBlank() ? throw exceptor.Required()(name) : value;
 
     public static string Reversed(this string s) =>
-        s.IsBlank() ? string.Empty : new string(s.ToCharArray().Reverse().ToArray());
+        s.IsBlank() ? string.Empty : OnlyBmp(s) ? new string(s.ToCharArray().Reverse().ToArray()) : throw new InvalidOperationException("String is not reversible (non-BMP chars)");
+
+    private static bool OnlyBmp(string s) {
+        foreach (var rune in ((ReadOnlySpan<char>)s).EnumerateRunes())
+            if (!rune.IsBmp)
+                return false;
+        return true;
+    }
 
     public static bool SafeEqualsTo(this string? s, string? other) =>
         s is null ? other is null : s.Equals(other, StringComparison.Ordinal);
@@ -150,8 +162,7 @@ public static partial class StringExtensions
         value.RegexReplace("__+", "_").RegexReplace("^_", "");
 
     public static IEnumerable<uint> SplitAsUints(this string? value, char splitChar) =>
-        value.Safe().Trim().Split(splitChar).Select(s =>
-        s.AsUint());
+        value.Safe().Trim().Split(splitChar).Select(s => s.AsUint());
 
     public static TEnum ToEnum<TEnum>(this string? value, TEnum @default = default) where TEnum : struct =>
         value.IsBlank() || !Enum.TryParse<TEnum>(value, ignoreCase: true, out var c) ? @default : c;
@@ -235,5 +246,12 @@ public static partial class StringExtensions
     public static T? FromJson<T>(this string json) =>
         string.IsNullOrWhiteSpace(json) ? default : JsonSerializer.Deserialize<T>(json, DefaultJsonOptions);
 
+
+}
+
+public static class IInvalidableExtensions {
+
+    public static bool IsInvalid(this IInvalidable value) => value.InvalidityCause.IsNonBlank();
+    public static string FullRepresentation(this IInvalidable value) => value.IsInvalid() ? value.TextualRepresentation + Environment.NewLine + value.InvalidityCause! : value.TextualRepresentation;
 
 }

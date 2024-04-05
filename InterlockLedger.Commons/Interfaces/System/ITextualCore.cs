@@ -1,4 +1,4 @@
-// ******************************************************************************************************************************
+﻿// ******************************************************************************************************************************
 //  
 // Copyright (c) 2018-2023 InterlockLedger Network
 // All rights reserved.
@@ -30,24 +30,10 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Text.Json.Serialization;
+namespace System;
 
-public class JsonCustomConverter<T> : JsonConverter<T> where T : ITextual<T>
+public interface ITextualCore
 {
-    public JsonCustomConverter() { }
+    string TextualRepresentation { get; }
 
-    public override bool CanConvert(Type typeToConvert) =>
-         typeToConvert.Required() == typeof(T) || typeToConvert.IsSubclassOf(typeof(T));
-
-#pragma warning disable IDE0072 // Add missing cases
-    public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-        reader.TokenType switch {
-            JsonTokenType.Null => T.Empty,
-            JsonTokenType.String => reader.GetString().Parse<T>(),
-            _ => throw new NotSupportedException(),
-        };
-#pragma warning restore IDE0072 // Add missing cases
-
-    public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) =>
-         writer.Required().WriteStringValue(value.TextualRepresentation);
 }

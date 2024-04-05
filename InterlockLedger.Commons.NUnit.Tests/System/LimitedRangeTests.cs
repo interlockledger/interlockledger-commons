@@ -41,16 +41,10 @@ public class LimitedRangeTests
 #pragma warning disable NUnit2009 // The same value has been provided as both the actual and the expected argument
     public void Equality() {
         Assert.That(LimitedRange.Empty, Is.EqualTo(LimitedRange.Empty));
-        var invalidByCause1 = LimitedRange.InvalidBy("Cause1");
-        var invalidByCause2 = LimitedRange.InvalidBy("Cause2");
         Assert.Multiple(() => {
-            Assert.That(invalidByCause2, Is.EqualTo(invalidByCause1));
-            Assert.That(invalidByCause1, Is.EqualTo(invalidByCause2));
             Assert.That(new LimitedRange(1, 10), Is.EqualTo(new LimitedRange(1, 10)));
-        });
-        Assert.Multiple(() => {
-            Assert.That(invalidByCause1, Is.Not.EqualTo(LimitedRange.Empty));
-            Assert.That(LimitedRange.Empty, Is.Not.EqualTo(invalidByCause1));
+            Assert.That(new LimitedRange(1, 10), Is.Not.EqualTo(LimitedRange.Empty));
+            Assert.That(LimitedRange.Empty, Is.Not.EqualTo(new LimitedRange(1, 10)));
             Assert.That(new LimitedRange(1, 11), Is.Not.EqualTo(new LimitedRange(1, 10)));
             Assert.That(new LimitedRange(1, 10), Is.Not.EqualTo(new LimitedRange(1, 11)));
         });
@@ -68,17 +62,17 @@ public class LimitedRangeTests
         AssertLimitedRange(lr, json.Replace("\"", ""), isInvalid, isEmpty, cause);
     }
 
-    [TestCase("[]", false, true, "")]
-    [TestCase("[1]", false, false, "")]
-    [TestCase("[1-10]", false, false, "")]
-    [TestCase("[10-9]", true, false, "End of range (9) must be greater than the start (10)")]
-    [TestCase("[*]", true, false, """Input '[*]' does not match ^\[\d+(-\d+)?\]$""")]
-    [TestCase("1-10", true, false, """Input '1-10' does not match ^\[\d+(-\d+)?\]$""")]
-    [TestCase("[1-70000]", true, false, "Range is too wide (Count 70000 > 65535)")]
-    public void Parse(string text, bool isInvalid, bool isEmpty, string? cause) {
-        var lr = ITextual<LimitedRange>.Parse(text);
-        AssertLimitedRange(lr, text, isInvalid, isEmpty, cause);
-    }
+    //[TestCase("[]", false, true, "")]
+    //[TestCase("[1]", false, false, "")]
+    //[TestCase("[1-10]", false, false, "")]
+    //[TestCase("[10-9]", true, false, "End of range (9) must be greater than the start (10)")]
+    //[TestCase("[*]", true, false, """Input '[*]' does not match ^\[\d+(-\d+)?\]$""")]
+    //[TestCase("1-10", true, false, """Input '1-10' does not match ^\[\d+(-\d+)?\]$""")]
+    //[TestCase("[1-70000]", true, false, "Range is too wide (Count 70000 > 65535)")]
+    //public void Parse(string text, bool isInvalid, bool isEmpty, string? cause) {
+    //    var lr = LimitedRange.Parse(text);
+    //    AssertLimitedRange(lr, text, isInvalid, isEmpty, cause);
+    //}
 
     [TestCase("[]", false, true, "")]
     [TestCase("[1]", false, false, "")]
@@ -87,34 +81,13 @@ public class LimitedRangeTests
     [TestCase("[*]", true, false, """Input '[*]' does not match ^\[\d+(-\d+)?\]$""")]
     [TestCase("1-10", false, false, "")]
     [TestCase("[1-70000]", true, false, "Range is too wide (Count 70000 > 65535)")]
-    public void Build(string text, bool isInvalid, bool isEmpty, string? cause) {
-        var lr = LimitedRange.Build(text);
+    public void ParseWithProvider(string text, bool isInvalid, bool isEmpty, string? cause) {
+        var lr = LimitedRange.Parse(text, provider: null);
         AssertLimitedRange(lr, text, isInvalid, isEmpty, cause, text[0] != '[');
-    }
-
-    private static void AssertLimitedRange(LimitedRange lr, string text, bool isInvalid, bool isEmpty, string? cause = null, bool unwrapped = false) {
-        Assert.Multiple(() => {
-            Assert.That(lr.Textual.IsInvalid, Is.EqualTo(isInvalid), nameof(isInvalid));
-            Assert.That(lr.IsEmpty, Is.EqualTo(isEmpty), nameof(isEmpty));
-        });
-        if (!lr.Textual.IsInvalid && !unwrapped) {
-            Assert.That(lr.TextualRepresentation, Is.EqualTo(text));
-            string lrAsString = lr; // implicit string conversion
-            Assert.That(lrAsString, Is.EqualTo(text));
-        } else if (!cause.IsBlank())
-            Assert.That(lr.InvalidityCause, Is.EqualTo(cause).IgnoreCase);
-        TestContext.WriteLine(lr.ToString());
     }
 
     [Test]
     public void MemberEmpty() => AssertLimitedRange(LimitedRange.Empty, LimitedRange.Empty.TextualRepresentation, false, true);
-
-    [Test]
-    public void MemberInvalidBy() {
-        var invalid = LimitedRange.InvalidBy("Test");
-        AssertLimitedRange(invalid, invalid.TextualRepresentation, isInvalid: true, isEmpty: false);
-    }
-
 
     [Test]
     public void OneToTen() => AssertLimitedRange(new LimitedRange(1, 10), "[1-10]", isInvalid: false, isEmpty: false);
@@ -128,6 +101,21 @@ public class LimitedRangeTests
                                                    isInvalid: true,
                                                    isEmpty: false,
                                                    cause: "Arithmetic operation resulted in an overflow");
+
+
+    private static void AssertLimitedRange(LimitedRange lr, string text, bool isInvalid, bool isEmpty, string? cause = null, bool unwrapped = false) {
+        Assert.Multiple(() => {
+            Assert.That(lr.IsInvalid(), Is.EqualTo(isInvalid), nameof(isInvalid));
+            Assert.That(lr.IsEmpty, Is.EqualTo(isEmpty), nameof(isEmpty));
+        });
+        if (!lr.IsInvalid() && !unwrapped) {
+            Assert.That(lr.TextualRepresentation, Is.EqualTo(text));
+            string lrAsString = lr; // implicit string conversion
+            Assert.That(lrAsString, Is.EqualTo(text));
+        } else if (!cause.IsBlank())
+            Assert.That(lr.InvalidityCause, Is.EqualTo(cause).IgnoreCase);
+        TestContext.WriteLine(lr.ToString());
+    }
 
 
 }

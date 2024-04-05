@@ -1,4 +1,4 @@
-// ******************************************************************************************************************************
+﻿// ******************************************************************************************************************************
 //  
 // Copyright (c) 2018-2023 InterlockLedger Network
 // All rights reserved.
@@ -30,24 +30,24 @@
 //
 // ******************************************************************************************************************************
 
-namespace System.Text.Json.Serialization;
+using System.ComponentModel.Design.Serialization;
 
-public class JsonCustomConverter<T> : JsonConverter<T> where T : ITextual<T>
+namespace System.ComponentModel;
+
+public class TypeNotNullConverter<T> : TypeConverter where T : notnull, ITextualLight<T>
 {
-    public JsonCustomConverter() { }
+    public TypeNotNullConverter() { }
 
-    public override bool CanConvert(Type typeToConvert) =>
-         typeToConvert.Required() == typeof(T) || typeToConvert.IsSubclassOf(typeof(T));
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType) => sourceType == typeof(string);
 
-#pragma warning disable IDE0072 // Add missing cases
-    public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
-        reader.TokenType switch {
-            JsonTokenType.Null => T.Empty,
-            JsonTokenType.String => reader.GetString().Parse<T>(),
-            _ => throw new NotSupportedException(),
-        };
-#pragma warning restore IDE0072 // Add missing cases
+    public override bool CanConvertTo(ITypeDescriptorContext? context, Type? destinationType) =>
+         destinationType == typeof(InstanceDescriptor) || destinationType == typeof(string);
 
-    public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options) =>
-         writer.Required().WriteStringValue(value.TextualRepresentation);
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value) =>
+         value is string text ? T.Parse(text, culture) : base.ConvertFrom(context, culture, value);
+
+    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type? destinationType) =>
+        destinationType.Required() == typeof(string) && value is T typedValue
+            ? typedValue.TextualRepresentation
+            : throw new InvalidOperationException($"Can only convert {typeof(T).Name} to string!!!");
 }
