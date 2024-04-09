@@ -108,10 +108,12 @@ public readonly partial struct LimitedRange : ITextualLight<LimitedRange>, IInva
     private LimitedRange(ulong start, ulong end, string textualRepresentation) {
         Start = start;
         End = end;
+        Count = (ushort)(end - start + 1);
         TextualRepresentation = textualRepresentation;
     }
     private LimitedRange(string invalidityCause) {
         Start = End = ulong.MaxValue;
+        Count = 0;
         TextualRepresentation = "[?]";
         InvalidityCause = invalidityCause;
     }
