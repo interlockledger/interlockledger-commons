@@ -68,7 +68,7 @@ public readonly partial struct LimitedRange : ITextualLight<LimitedRange>, IInva
 
     public override int GetHashCode() => HashCode.Combine(End, Start, InvalidityCause);
     public override bool Equals(object? obj) => obj is LimitedRange limitedRange && Equals(limitedRange);
-    public bool Equals(LimitedRange other) => End == other.End && Start == other.Start;
+    public bool Equals(LimitedRange other) => End == other.End && Start == other.Start && string.Equals(InvalidityCause, other.InvalidityCause, StringComparison.Ordinal);
     public static bool operator ==(LimitedRange left, LimitedRange right) => left.Equals(right);
     public static bool operator !=(LimitedRange left, LimitedRange right) => !(left == right);
 

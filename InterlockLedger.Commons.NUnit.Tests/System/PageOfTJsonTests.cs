@@ -30,34 +30,25 @@
 //
 // ******************************************************************************************************************************
 
+#nullable enable
+
+using System.Diagnostics;
+
+using static System.ObjectExtensions;
+using static Test.Helpers;
 
 namespace System;
 
-#pragma warning disable CA1000 // Do not declare static members on generic types
-public class PageOf<T>(IEnumerable<T> items, ushort page, byte pageSize, ushort totalNumberOfPages, bool lastToFirst) : IEquatable<PageOf<T>>
+[TestFixture]
+public class PageOfTJsonTests
 {
-    public IEnumerable<T> Items { get; set; } = items;
-    public ushort Page { get; set; } = page;
-    public byte PageSize { get; set; } = pageSize;
-    public ushort TotalNumberOfPages { get; set; } = totalNumberOfPages;
-    public bool LastToFirst { get; set; } = lastToFirst;
-
-    public PageOf() : this([], 0, 0, 0, false) { }
-    public PageOf(IEnumerable<T> items, bool lastToFirst) : this(items.Required(), 0, 0, (ushort)(items.SafeAny() ? 1 : 0), lastToFirst) {
+    [Test]
+    public void BidirectionalJsonOfPageOfT() {
+        var page = new PageOf<LimitedRange>([new LimitedRange(1, 10), new LimitedRange(100, 3)], 1, 5, 2, lastToFirst: true);
+        string json = JsonSerializer.Serialize(page, JsonSerializerOptions.Default);
+        TestContext.WriteLine(json);
+        var resultPage = JsonSerializer.Deserialize<PageOf<LimitedRange>>(json);
+        Assert.That(resultPage, Is.EqualTo(page));
     }
 
-    public static PageOf<T> Empty { get; } = new PageOf<T>();
-
-    public override bool Equals(object? obj) => Equals(obj as PageOf<T>);
-    public bool Equals(PageOf<T>? other) =>
-        other is not null &&
-        other.Page == Page &&
-        other.PageSize == PageSize &&
-        other.LastToFirst == LastToFirst &&
-        other.TotalNumberOfPages == TotalNumberOfPages &&
-        other.Items.SequenceEqual(Items);
-    public override int GetHashCode() => HashCode.Combine(Items, Page, PageSize, TotalNumberOfPages, LastToFirst);
-
-    public static bool operator ==(PageOf<T>? left, PageOf<T>? right) => EqualityComparer<PageOf<T>>.Default.Equals(left, right);
-    public static bool operator !=(PageOf<T>? left, PageOf<T>? right) => !(left == right);
 }
