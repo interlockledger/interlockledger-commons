@@ -32,11 +32,6 @@
 
 #nullable enable
 
-using System.Diagnostics;
-
-using static System.ObjectExtensions;
-using static Test.Helpers;
-
 namespace System;
 
 [TestFixture]

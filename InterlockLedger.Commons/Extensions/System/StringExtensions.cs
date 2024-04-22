@@ -249,7 +249,8 @@ public static partial class StringExtensions
 
 }
 
-public static class IInvalidableExtensions {
+public static class IInvalidableExtensions
+{
 
     public static bool IsInvalid(this IInvalidable value) => value.InvalidityCause.IsNonBlank();
     public static string FullRepresentation(this IInvalidable value) => value.IsInvalid() ? value.TextualRepresentation + Environment.NewLine + value.InvalidityCause! : value.TextualRepresentation;
