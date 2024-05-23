@@ -45,5 +45,4 @@ public class PageOfTJsonTests
         var resultPage = JsonSerializer.Deserialize<PageOf<LimitedRange>>(json);
         Assert.That(resultPage, Is.EqualTo(page));
     }
-
 }

@@ -120,6 +120,4 @@ public class LimitedRangeTests
             Assert.That(lr.InvalidityCause, Is.EqualTo(cause).IgnoreCase);
         TestContext.WriteLine(lr.ToString());
     }
-
-
 }

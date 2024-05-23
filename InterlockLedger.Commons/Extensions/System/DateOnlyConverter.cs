@@ -45,11 +45,11 @@ public class DateOnlyConverter(string? format = null) : JsonConverter<DateOnly>
         if (typeToConvert == typeof(DateOnly)) {
             string? s = reader.GetString();
             if (s is not null)
-                return DateOnly.ParseExact(s, new string[] { _format, "yyyyMMdd", "dd'-'MMM'-'yy" }, CultureInfo.InvariantCulture);
+                return DateOnly.ParseExact(s, [_format, "yyyyMMdd", "dd'-'MMM'-'yy"], CultureInfo.InvariantCulture);
         }
-
         throw new InvalidDataException("Not a valid date");
     }
+
     public override void Write(Utf8JsonWriter writer, DateOnly value, JsonSerializerOptions options) =>
         writer.Required().WriteStringValue(value.ToString(_format, CultureInfo.InvariantCulture));
 }
