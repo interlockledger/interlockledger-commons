@@ -114,3 +114,17 @@ public sealed class Error<T> : Result<T>, IError
         ErrorMessage = Exception?.Message ?? errorMessage ?? string.Empty;
     }
 }
+public static class ResultExtensions
+{
+    public static Error<TOut> ToConvertedError<TOut>(this IError err) =>
+        err.Exception is not null
+            ? new Error<TOut>(err.Exception, err.ErrorType)
+            : new Error<TOut>(err.ErrorMessage, err.ErrorType);
+
+    public static Result<TOut> ToConvertedResult<TOut, TIn>(this Result<TIn> result, Func<TIn?, TOut?> convert) =>
+        result.Required() switch {
+            IError error => error.ToConvertedError<TOut>(),
+            _ => new Result<TOut>(convert.Required()(result.Value)!)
+        };
+}
+

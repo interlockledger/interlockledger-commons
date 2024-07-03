@@ -11,9 +11,9 @@
     <Product>InterlockLedger</Product>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-    <Version>18.2.1</Version>
+    <Version>18.3.0</Version>
     <PackageId>InterlockLedger.Commons</PackageId>
-    <PackageReleaseNotes>Json deserialization fails for PageOf&lt;T&gt; as a record</PackageReleaseNotes>
+    <PackageReleaseNotes>Json converter for System.Version</PackageReleaseNotes>
     <PackageIcon>il2.png</PackageIcon>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
