@@ -48,7 +48,7 @@ public static class PageOfExtensions
     public static PageOf<TN> Convert<T, TN>(this PageOf<T>? page, Func<T?, TN?> converter) =>
         page is null
         ? PageOf<TN>.Empty
-        : new(page.Items.Select(converter).SkipDefaults().Cast<TN>().ToArray(), page.Page, page.PageSize, page.TotalNumberOfPages, page.LastToFirst);
+        : new([.. page.Items.Select(converter).SkipDefaults().Cast<TN>()], page.Page, page.PageSize, page.TotalNumberOfPages, page.LastToFirst);
 
     public static int Count<T>(this PageOf<T>? page) =>
         page?.Items.Count() ?? 0;
@@ -68,27 +68,26 @@ public static class PageOfExtensions
     public static PageOf<T> Paginate<T>(this IEnumerable<T>? resultList, ushort page, byte pageSize, bool lastToFirst) {
         var list = resultList.Safe();
         if (pageSize == 0)
-            return new PageOf<T>(list.ToArray(), lastToFirst);
+            return new PageOf<T>([.. list], lastToFirst);
         ushort totalPages = CalculateTotalPages(list, pageSize);
         if (page >= totalPages)
             page = (ushort)(totalPages > 0 ? totalPages - 1 : 0);
-        return new PageOf<T>(list.Skip(page * pageSize).Take(pageSize).ToArray(), page, pageSize, totalPages, lastToFirst);
+        return new PageOf<T>([.. list.Skip(page * pageSize).Take(pageSize)], page, pageSize, totalPages, lastToFirst);
     }
 
     public static PageOf<T> Paginate<T, TT>(this IEnumerable<TT>? resultList, ushort page, byte pageSize, bool lastToFirst, Func<TT, T> converter) {
         var list = resultList.Safe().SkipDefaults();
         if (pageSize == 0)
-            return new PageOf<T>(list.Select(converter).ToArray(), lastToFirst);
+            return new PageOf<T>([.. list.Select(converter)], lastToFirst);
         ushort totalPages = CalculateTotalPages(list, pageSize);
         if (page >= totalPages)
             page = (ushort)(totalPages > 0 ? totalPages - 1 : 0);
-        return new PageOf<T>(list.Skip(page * pageSize).Take(pageSize).Select(converter).ToArray(), page, pageSize, totalPages, lastToFirst);
+        return new PageOf<T>([.. list.Skip(page * pageSize).Take(pageSize).Select(converter)], page, pageSize, totalPages, lastToFirst);
     }
     private static ushort CalculateTotalPages<T>(IEnumerable<T> list, byte pageSize) {
         int count = (list is ICollection<T> collection) ? collection.Count : list.Count();
         return (ushort)Math.Min((count + pageSize - 1) / pageSize, ushort.MaxValue);
     }
-
 
     public static PageOf<T> Safe<T>(this PageOf<T>? page) =>
         page ?? PageOf<T>.Empty;

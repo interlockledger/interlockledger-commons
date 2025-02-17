@@ -11,9 +11,9 @@
     <Product>InterlockLedger</Product>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/interlockledger/interlockledger-commons.git</RepositoryUrl>
-    <Version>18.3.0</Version>
+    <Version>19.0.0</Version>
     <PackageId>InterlockLedger.Commons</PackageId>
-    <PackageReleaseNotes>Json converter for System.Version</PackageReleaseNotes>
+    <PackageReleaseNotes>Drops rarely used string.Reversed() extension method that allocates at least twice the number of chars in the string</PackageReleaseNotes>
     <PackageIcon>il2.png</PackageIcon>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>

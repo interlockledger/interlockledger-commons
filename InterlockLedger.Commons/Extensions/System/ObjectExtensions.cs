@@ -34,18 +34,16 @@ using System.Text.Json;
 
 namespace System;
 
-
-
 public static class ObjectExtensions
 {
-    public static string AsJson<T>(this T json) => JsonSerializer.Serialize<T>(json, StringExtensions.DefaultJsonOptions);
+    public static string AsJson<T>(this T json) => JsonSerializer.Serialize(json, StringExtensions.DefaultJsonOptions);
 
     public static IEnumerable<T> AsSingle<T>(this T s) =>
         new SingleEnumerable<T>(s);
 
 #pragma warning disable CA1002 // Do not expose generic lists
     public static List<T> AsSingleList<T>(this T s) =>
-        s.AsSingle().ToList();
+        [.. s.AsSingle()];
 #pragma warning restore CA1002 // Do not expose generic lists
 
     public static async Task<TO?> IfNotNullAsync<T, TO>(this T? value, Func<T, Task<TO?>> transformAsync)

@@ -193,6 +193,7 @@ dotnet_diagnostic.IDE0170.severity = suggestion
 dotnet_diagnostic.IDE0190.severity = suggestion
 dotnet_diagnostic.IDE0200.severity = suggestion
 dotnet_diagnostic.IDE2002.severity = suggestion
+dotnet_diagnostic.IDE2003.severity = none
 dotnet_naming_rule.private_fields_should_be_underscored.severity = suggestion
 dotnet_naming_rule.private_fields_should_be_underscored.style = underscored_style
 dotnet_naming_rule.private_fields_should_be_underscored.symbols = private_fields

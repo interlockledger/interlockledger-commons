@@ -30,6 +30,7 @@
 //
 // ******************************************************************************************************************************
 
+using System.Buffers;
 using System.Text.Json;
 
 using static System.ObjectExtensions;
@@ -130,16 +131,6 @@ public static partial class StringExtensions
 
     public static string RequiredUsing([NotNull] this string? value, Func<string?, Exception> exceptor, [CallerArgumentExpression(nameof(value))] string? name = null) =>
         value.IsBlank() ? throw exceptor.Required()(name) : value;
-
-    public static string Reversed(this string s) =>
-        s.IsBlank() ? string.Empty : OnlyBmp(s) ? new string(s.ToCharArray().Reverse().ToArray()) : throw new InvalidOperationException("String is not reversible (non-BMP chars)");
-
-    private static bool OnlyBmp(string s) {
-        foreach (var rune in ((ReadOnlySpan<char>)s).EnumerateRunes())
-            if (!rune.IsBmp)
-                return false;
-        return true;
-    }
 
     public static bool SafeEqualsTo(this string? s, string? other) =>
         s is null ? other is null : s.Equals(other, StringComparison.Ordinal);
@@ -245,7 +236,6 @@ public static partial class StringExtensions
 
     public static T? FromJson<T>(this string json) =>
         string.IsNullOrWhiteSpace(json) ? default : JsonSerializer.Deserialize<T>(json, DefaultJsonOptions);
-
 
 }
 

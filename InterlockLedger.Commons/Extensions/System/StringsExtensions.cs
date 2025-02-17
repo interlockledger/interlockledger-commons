@@ -40,7 +40,7 @@ public static class StringsExtensions
         string.Join(joiner, strings.Safe());
     public static string[] WithDefaults(this string[]? values, params string[] defaults) {
         var realValues = values.SkipBlanks();
-        return realValues.None() ? defaults : realValues.ToArray();
+        return realValues.None() ? defaults : [.. realValues];
     }
     public static IEnumerable<string> SkipBlanks(this string[]? values) =>
         values.Safe().Where(x => !string.IsNullOrWhiteSpace(x));
