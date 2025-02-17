@@ -118,6 +118,6 @@ public class LimitedRangeTests
                 Assert.That(lr.Count, Is.EqualTo((ushort)(lr.End - lr.Start + 1)), nameof(lr.Count));
         } else if (!cause.IsBlank())
             Assert.That(lr.InvalidityCause, Is.EqualTo(cause).IgnoreCase);
-        TestContext.WriteLine(lr.ToString());
+        TestContext.Out.WriteLine(lr.ToString());
     }
 }

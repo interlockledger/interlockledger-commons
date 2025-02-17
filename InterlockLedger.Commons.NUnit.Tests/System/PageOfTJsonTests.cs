@@ -41,7 +41,7 @@ public class PageOfTJsonTests
     public void BidirectionalJsonOfPageOfT() {
         var page = new PageOf<LimitedRange>([new LimitedRange(1, 10), new LimitedRange(100, 3)], 1, 5, 2, lastToFirst: true);
         string json = JsonSerializer.Serialize(page, JsonSerializerOptions.Default);
-        TestContext.WriteLine(json);
+        TestContext.Out.WriteLine(json);
         var resultPage = JsonSerializer.Deserialize<PageOf<LimitedRange>>(json);
         Assert.That(resultPage, Is.EqualTo(page));
     }

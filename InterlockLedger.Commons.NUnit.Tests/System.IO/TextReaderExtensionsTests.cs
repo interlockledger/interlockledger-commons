@@ -56,6 +56,6 @@ public class TextReaderExtensionsTests
     [TestCase("-2500000000")]
     public void TestReadInt32Failing(string input) {
         var ex = Assert.Throws<InvalidOperationException>(() => new StringReader(input).ReadInt32());
-        TestContext.WriteLine(ex);
+        TestContext.Out.WriteLine(ex);
     }
 }

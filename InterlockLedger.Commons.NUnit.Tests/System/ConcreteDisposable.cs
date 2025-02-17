@@ -31,54 +31,18 @@
 // ******************************************************************************************************************************
 
 namespace System;
-
-public abstract class AbstractDisposable : IDisposable
+public class ConcreteDisposable : AbstractDisposable
 {
-    [JsonIgnore]
-    public bool Disposed => _disposed != 0;
-
-    public void Dispose() {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected abstract void DisposeManagedResources();
-
-    protected virtual void DisposeUnmanagedResources() { }
-
-    protected void Do(Action action) {
-        if (!Disposed) action.Required()();
-    }
-    protected T Do<T>(Func<T> function, T @default = default) where T : struct =>
-        Disposed ? @default : function.Required()();
-    protected T? UnsafeDo<T>(Func<T?> function, T? @default = default) where T : class =>
-        Disposed ? @default : function.Required()();
-    protected T? UnsafeDo<T>(Func<T?> function) =>
-        Disposed ? default : function.Required()();
-
-    protected async Task DoAsync(Func<Task> function) {
-        if (!Disposed)
-            await function.Required()().ConfigureAwait(false);
-    }
-
-    protected async Task<T> DoAsync<T>(Func<Task<T>> function, T @default = default) where T : struct =>
-        Disposed ? @default : await function.Required()().ConfigureAwait(false);
-    protected async Task<T?> UnsafeDoAsync<T>(Func<Task<T?>> function, T? @default = default) where T : class =>
-        Disposed ? @default : await function.Required()().ConfigureAwait(false);
-    protected async Task<T?> UnsafeDoAsync<T>(Func<Task<T?>> function) =>
-        Disposed ? default : await function.Required()().ConfigureAwait(continueOnCapturedContext: false);
-
-    private volatile int _disposed;
-
-    ~AbstractDisposable() {
-        Dispose(false);
-    }
-
-    private void Dispose(bool disposing) {
-        if (Interlocked.CompareExchange(ref _disposed, 1, 0) == 0) {
-            if (disposing)
-                DisposeManagedResources();
-            DisposeUnmanagedResources();
-        }
-    }
+    public bool ManagedResourcesDisposed { get; private set; }
+    public bool UnmanagedResourcesDisposed { get; private set; }
+    protected override void DisposeManagedResources() => ManagedResourcesDisposed = true;
+    protected override void DisposeUnmanagedResources() => UnmanagedResourcesDisposed = true;
+    public Task ConcreteDoAsync(Func<Task> function) => DoAsync(function);
+    public T ConcreteDo<T>(Func<T> function, T @default = default) where T : struct => Do(function, @default);
+    public T? ConcreteUnsafeDo<T>(Func<T?> function) => UnsafeDo(function);
+    public T? ConcreteUnsafeDo<T>(Func<T?> function, T? @default = default) where T : class => UnsafeDo(function, @default);
+    public Task<T?> ConcreteUnsafeDoAsync<T>(Func<Task<T?>> function) => UnsafeDoAsync(function);
+    public Task<T?> ConcreteUnsafeDoAsync<T>(Func<Task<T?>> function, T? @default = default) where T : class => UnsafeDoAsync(function, @default);
+    public Task<T> ConcreteDoAsync<T>(Func<Task<T>> function, T @default = default) where T : struct => DoAsync(function, @default);
+    public void ConcreteDo(Action action) => Do(action);
 }
