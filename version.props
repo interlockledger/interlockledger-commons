@@ -1,6 +1,0 @@
-<Project>
-    <PropertyGroup>
-        <Version>19.0.1</Version>
-        <PackageReleaseNotes>Justing moving to version.props versioning scheme</PackageReleaseNotes>
-    </PropertyGroup>
-</Project>

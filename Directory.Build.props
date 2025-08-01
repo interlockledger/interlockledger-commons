@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Project>
+    <PropertyGroup>
+        <Version>19.0.2</Version>
+        <PackageReleaseNotes>Renamed version.props to Directory.Build.props</PackageReleaseNotes>
+    </PropertyGroup>
+</Project>
