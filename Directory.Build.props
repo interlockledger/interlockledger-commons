@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Project>
     <PropertyGroup>
-        <Version>19.1.1</Version>
+        <Version>19.1.2</Version>
         <PackageReleaseNotes>
-            - Update years in copyright headers
+            - Some null-reference warnings in compilation of some unit tests solved (test lifecycle guarantee field is not null during tests)
         </PackageReleaseNotes>
     </PropertyGroup>
 </Project>

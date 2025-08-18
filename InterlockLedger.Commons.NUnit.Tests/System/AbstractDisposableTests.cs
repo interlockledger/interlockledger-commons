@@ -33,7 +33,7 @@
 namespace System;
 
 [TestFixture]
-public class AbstractDisposableTests : IDisposable
+public class AbstractDisposableTests
 {
     private ConcreteDisposable? _disposable;
 
@@ -45,24 +45,27 @@ public class AbstractDisposableTests : IDisposable
 
     [Test]
     public void Dispose_DisposesManagedAndUnmanagedResources() {
-        _disposable.Dispose();
+        _disposable!.Dispose();
 
-        Assert.That(_disposable.ManagedResourcesDisposed, Is.True);
-        Assert.That(_disposable.UnmanagedResourcesDisposed, Is.True);
-        Assert.That(_disposable.Disposed, Is.True);
+        using (Assert.EnterMultipleScope()) {
+            Assert.That(_disposable.ManagedResourcesDisposed, Is.True);
+            Assert.That(_disposable.UnmanagedResourcesDisposed, Is.True);
+            Assert.That(_disposable.Disposed, Is.True);
+        }
+
     }
 
     [Test]
     public void Do_ExecutesActionIfNotDisposed() {
         bool actionExecuted = false;
-        _ = _disposable.ConcreteDo(() => actionExecuted = true);
+        _ = _disposable!.ConcreteDo(() => actionExecuted = true);
 
         Assert.That(actionExecuted, Is.True);
     }
 
     [Test]
     public void Do_DoesNotExecuteActionIfDisposed() {
-        _disposable.Dispose();
+        _disposable!.Dispose();
         bool actionExecuted = false;
         _ = _disposable.ConcreteDo(() => actionExecuted = true);
 
@@ -71,7 +74,7 @@ public class AbstractDisposableTests : IDisposable
 
     [Test]
     public void Do_ReturnsDefaultIfDisposed() {
-        _disposable.Dispose();
+        _disposable!.Dispose();
         int result = _disposable.ConcreteDo(() => 42, -1);
 
         Assert.That(result, Is.EqualTo(-1));
@@ -79,7 +82,7 @@ public class AbstractDisposableTests : IDisposable
 
     [Test]
     public void UnsafeDo_ReturnsDefaultIfDisposed() {
-        _disposable.Dispose();
+        _disposable!.Dispose();
         string? result = _disposable.ConcreteUnsafeDo(() => "test", "default");
         Assert.That(result, Is.Not.Null);
         Assert.That(result, Is.EqualTo("default"));
@@ -88,7 +91,7 @@ public class AbstractDisposableTests : IDisposable
     [Test]
     public async Task DoAsync_ExecutesFunctionIfNotDisposed() {
         bool functionExecuted = false;
-        await _disposable.ConcreteDoAsync(() => {
+        await _disposable!.ConcreteDoAsync(() => {
             functionExecuted = true;
             return Task.CompletedTask;
         }).ConfigureAwait(false);
@@ -98,7 +101,7 @@ public class AbstractDisposableTests : IDisposable
 
     [Test]
     public async Task DoAsync_DoesNotExecuteFunctionIfDisposed() {
-        _disposable.Dispose();
+        _disposable!.Dispose();
         bool functionExecuted = false;
         await _disposable.ConcreteDoAsync(() => {
             functionExecuted = true;
@@ -110,7 +113,7 @@ public class AbstractDisposableTests : IDisposable
 
     [Test]
     public async Task DoAsync_ReturnsDefaultIfDisposed() {
-        _disposable.Dispose();
+        _disposable!.Dispose();
         int result = await _disposable.ConcreteDoAsync(() => Task.FromResult(42), -1).ConfigureAwait(false);
 
         Assert.That(result, Is.EqualTo(-1));
@@ -118,13 +121,9 @@ public class AbstractDisposableTests : IDisposable
 
     [Test]
     public async Task UnsafeDoAsync_ReturnsDefaultIfDisposed() {
-        _disposable.Dispose();
+        _disposable!.Dispose();
         string? result = await _disposable.ConcreteUnsafeDoAsync(() => Task.FromResult<string?>("test"), "default").ConfigureAwait(false);
         Assert.That(result, Is.Not.Null);
         Assert.That(result, Is.EqualTo("default"));
-    }
-
-    public void Dispose() {
-        throw new NotImplementedException();
     }
 }
