@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
 //  
-// Copyright (c) 2018-2023 InterlockLedger Network
+// Copyright (c) 2018-2025 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,9 @@
 namespace System;
 
 [TestFixture]
-public class AbstractDisposableTests
+public class AbstractDisposableTests : IDisposable
 {
-    private ConcreteDisposable _disposable;
+    private ConcreteDisposable? _disposable;
 
     [SetUp]
     public void SetUp() => _disposable = new ConcreteDisposable();
@@ -74,7 +74,7 @@ public class AbstractDisposableTests
         _disposable.Dispose();
         int result = _disposable.ConcreteDo(() => 42, -1);
 
-        Assert.That( result, Is.EqualTo(-1));
+        Assert.That(result, Is.EqualTo(-1));
     }
 
     [Test]
@@ -82,13 +82,13 @@ public class AbstractDisposableTests
         _disposable.Dispose();
         string? result = _disposable.ConcreteUnsafeDo(() => "test", "default");
         Assert.That(result, Is.Not.Null);
-        Assert.That( result, Is.EqualTo("default"));
+        Assert.That(result, Is.EqualTo("default"));
     }
 
     [Test]
     public async Task DoAsync_ExecutesFunctionIfNotDisposed() {
         bool functionExecuted = false;
-        await _disposable.ConcreteDoAsync( () => {
+        await _disposable.ConcreteDoAsync(() => {
             functionExecuted = true;
             return Task.CompletedTask;
         }).ConfigureAwait(false);
@@ -100,7 +100,7 @@ public class AbstractDisposableTests
     public async Task DoAsync_DoesNotExecuteFunctionIfDisposed() {
         _disposable.Dispose();
         bool functionExecuted = false;
-        await _disposable.ConcreteDoAsync( () => {
+        await _disposable.ConcreteDoAsync(() => {
             functionExecuted = true;
             return Task.CompletedTask;
         }).ConfigureAwait(false);
@@ -111,9 +111,9 @@ public class AbstractDisposableTests
     [Test]
     public async Task DoAsync_ReturnsDefaultIfDisposed() {
         _disposable.Dispose();
-        int result = await _disposable.ConcreteDoAsync( () => Task.FromResult(42), -1).ConfigureAwait(false);
+        int result = await _disposable.ConcreteDoAsync(() => Task.FromResult(42), -1).ConfigureAwait(false);
 
-        Assert.That( result, Is.EqualTo(-1));
+        Assert.That(result, Is.EqualTo(-1));
     }
 
     [Test]
@@ -122,5 +122,9 @@ public class AbstractDisposableTests
         string? result = await _disposable.ConcreteUnsafeDoAsync(() => Task.FromResult<string?>("test"), "default").ConfigureAwait(false);
         Assert.That(result, Is.Not.Null);
         Assert.That(result, Is.EqualTo("default"));
+    }
+
+    public void Dispose() {
+        throw new NotImplementedException();
     }
 }

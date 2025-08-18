@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
-//
-// Copyright (c) 2018-2023 InterlockLedger Network
+//  
+// Copyright (c) 2018-2025 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -36,15 +36,13 @@ namespace System;
 public class ResultTests
 {
     [Test]
-    public void ResultOk()
-    {
+    public void ResultOk() {
         var result = Result.Ok;
         Assert.That(result.Success, Is.True);
     }
 
     [Test]
-    public void ResultFromException()
-    {
+    public void ResultFromException() {
         var exception = new Exception("Test Exception");
         Result result = exception;
         Assert.That(result.Success, Is.False);
@@ -55,8 +53,7 @@ public class ResultTests
     }
 
     [Test]
-    public void ResultBoolConversion()
-    {
+    public void ResultBoolConversion() {
         bool success = Result.Ok;
         Assert.That(success, Is.True);
         Result error = new Exception();
@@ -65,8 +62,7 @@ public class ResultTests
     }
 
     [Test]
-    public void ErrorFromException()
-    {
+    public void ErrorFromException() {
         var exception = new Exception("Test Exception");
         var error = new Error(exception);
         Assert.That(error.Success, Is.False);
@@ -76,8 +72,7 @@ public class ResultTests
     }
 
     [Test]
-    public void ErrorFromString()
-    {
+    public void ErrorFromString() {
         var error = new Error("Test Error");
         Assert.That(error.Success, Is.False);
         Assert.That(error.ErrorMessage, Is.EqualTo("Test Error"));
@@ -86,16 +81,14 @@ public class ResultTests
     }
 
     [Test]
-    public void ResultOfTFromValue()
-    {
+    public void ResultOfTFromValue() {
         Result<int> result = 123;
         Assert.That(result.Success, Is.True);
         Assert.That(result.Value, Is.EqualTo(123));
     }
 
     [Test]
-    public void ResultOfTFromException()
-    {
+    public void ResultOfTFromException() {
         var exception = new Exception("Test Exception");
         Result<int> result = exception;
         Assert.That(result.Success, Is.False);
@@ -103,16 +96,14 @@ public class ResultTests
     }
 
     [Test]
-    public void ResultOfTToT()
-    {
+    public void ResultOfTToT() {
         Result<int> result = 123;
         int value = result;
         Assert.That(value, Is.EqualTo(123));
     }
 
     [Test]
-    public void ErrorOfTFromException()
-    {
+    public void ErrorOfTFromException() {
         var exception = new Exception("Test Exception");
         var error = new Error<int>(exception);
         Assert.That(error.Success, Is.False);
@@ -121,8 +112,7 @@ public class ResultTests
     }
 
     [Test]
-    public void ResultExtensionsToConvertedResult()
-    {
+    public void ResultExtensionsToConvertedResult() {
         Result<int> result = 123;
         Result<string> convertedResult = result.ToConvertedResult(v => v.ToString());
         Assert.That(convertedResult.Success, Is.True);

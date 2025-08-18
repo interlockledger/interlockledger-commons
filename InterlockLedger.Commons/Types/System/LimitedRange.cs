@@ -1,6 +1,6 @@
 // ******************************************************************************************************************************
 //  
-// Copyright (c) 2018-2023 InterlockLedger Network
+// Copyright (c) 2018-2025 InterlockLedger Network
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -103,7 +103,7 @@ public readonly partial struct LimitedRange : ITextualLight<LimitedRange>, IInva
 
     [GeneratedRegex("""^\[\d+(-\d+)?\]$""")]
     private static partial Regex MaskRegex();
-    private readonly static Regex _mask = MaskRegex();
+    private static readonly Regex _mask = MaskRegex();
 
     private LimitedRange(ulong start, ulong end, string textualRepresentation) {
         Start = start;
