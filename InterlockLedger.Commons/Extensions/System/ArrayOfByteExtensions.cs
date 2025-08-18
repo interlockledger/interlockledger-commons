@@ -37,7 +37,7 @@ namespace System;
 
 public static class ArrayOfByteExtensions
 {
-    public static byte[] Append(this byte[] bytes, byte[] newBytes) {
+    public static byte[]? Append(this byte[]? bytes, byte[]? newBytes) {
         if (newBytes is null)
             return bytes;
         if (bytes is null)
@@ -72,8 +72,7 @@ public static class ArrayOfByteExtensions
     public static string AsUTF8String(this byte[] bytes) => Encoding.UTF8.GetString(bytes);
 
     public static string Chunked(this byte[] bytes, int length) {
-        ArgumentNullException.ThrowIfNull(bytes);
-
+        _ = bytes.Required();
         length = (int)(Math.Floor((decimal)(Math.Abs(length) / 4)) + 1) * 4;
         string value = Convert.ToBase64String(bytes).Replace('+', '-').Replace('/', '_');
         var sb = new StringBuilder();
@@ -83,11 +82,10 @@ public static class ArrayOfByteExtensions
             _ = sb.Append(value, start, howMany).Append(Environment.NewLine);
             start += length;
         }
-
         return sb.ToString();
     }
 
-    public static int CompareTo(this byte[] bytes1, byte[] bytes2) {
+    public static int CompareTo(this byte[]? bytes1, byte[]? bytes2) {
         int length1 = bytes1?.Length ?? 0;
         int length2 = bytes2?.Length ?? 0;
         int lengthToCompare = Math.Min(length1, length2);
@@ -135,7 +133,7 @@ public static class ArrayOfByteExtensions
         return [];
     }
 
-    public static bool HasSameBytesAs(this byte[] bytes1, params byte[] bytes2) {
+    public static bool HasSameBytesAs(this byte[]? bytes1, params byte[]? bytes2) {
         if (bytes1 == null || bytes2 == null)
             return false;
         if (bytes1.Length != bytes2.Length)
@@ -149,7 +147,7 @@ public static class ArrayOfByteExtensions
     }
 
     public static X509Certificate2 OpenCertificate(this byte[] certificateBytes, string password) =>
-         new(certificateBytes, password, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
+         new(certificateBytes.Required(), password.Required(), X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
 
     public static byte[] PartOf(this byte[] bytes, int length, int offset = 0) {
         byte[] part = new byte[length];
@@ -158,9 +156,9 @@ public static class ArrayOfByteExtensions
     }
     public static byte[] RandomBytes(this int size) => RandomNumberGenerator.GetBytes(size);
 
-    public static int SafeGetHashCode(this byte[] bytes) => bytes?.ToSafeBase64().GetHashCode(StringComparison.InvariantCulture) ?? 0;
+    public static int SafeGetHashCode(this byte[]? bytes) => bytes?.ToSafeBase64().GetHashCode(StringComparison.InvariantCulture) ?? 0;
 
-    public static int SafeLength(this byte[] bytes) => bytes?.Length ?? 0;
+    public static int SafeLength(this byte[]? bytes) => bytes?.Length ?? 0;
 
     public static string ToSafeBase64(this IEnumerable<byte> bytes) =>
          ToSafeBase64(bytes.ToArray());
