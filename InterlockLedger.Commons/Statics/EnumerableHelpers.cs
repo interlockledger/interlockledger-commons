@@ -31,6 +31,7 @@
 // ******************************************************************************************************************************
 
 namespace System;
+
 public static class Helpers
 {
     public static IEnumerable<T> Enumerate<T>(params T[] elements) => elements;

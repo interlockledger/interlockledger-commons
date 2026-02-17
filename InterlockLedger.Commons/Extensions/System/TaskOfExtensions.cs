@@ -34,6 +34,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 
 namespace System;
+
 public static class TaskOfExtensions
 {
     public static T WaitResult<T>(this Task<T> task) => task.GetAwaiter().GetResult();

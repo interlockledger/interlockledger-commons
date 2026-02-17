@@ -34,5 +34,5 @@ namespace System;
 
 public interface IInvalidable : ITextualCore
 {
-    string? InvalidityCause { get; }
+    public string? InvalidityCause { get; }
 }

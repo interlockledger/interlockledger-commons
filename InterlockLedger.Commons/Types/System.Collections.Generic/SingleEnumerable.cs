@@ -41,11 +41,11 @@ public sealed class SingleEnumerable<T>(T singleElement) : IEnumerable<T>
     private sealed class Enumerator : IEnumerator<T>
     {
         public Enumerator(T singleElement) {
-            _value = singleElement;
+            Current = singleElement;
             Reset();
         }
 
-        public T Current => _count == 0 ? _value : default!;
+        public T Current => _count == 0 ? field : default!;
         object? IEnumerator.Current => Current;
 
         public void Dispose() { }
@@ -55,6 +55,5 @@ public sealed class SingleEnumerable<T>(T singleElement) : IEnumerable<T>
         public void Reset() => _count = 1;
 
         private byte _count;
-        private readonly T _value;
     }
 }

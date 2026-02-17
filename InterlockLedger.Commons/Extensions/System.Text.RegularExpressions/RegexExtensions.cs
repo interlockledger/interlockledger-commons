@@ -31,6 +31,7 @@
 // ******************************************************************************************************************************
 
 namespace System.Text.RegularExpressions;
+
 public static class RegexExtensions
 {
     public static string InvalidityByNotMatching(this Regex mask, string? textualRepresentation) =>

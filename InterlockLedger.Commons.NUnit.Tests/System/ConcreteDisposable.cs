@@ -31,6 +31,7 @@
 // ******************************************************************************************************************************
 
 namespace System;
+
 public class ConcreteDisposable : AbstractDisposable
 {
     public bool ManagedResourcesDisposed { get; private set; }

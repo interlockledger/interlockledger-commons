@@ -31,6 +31,7 @@
 // ******************************************************************************************************************************
 
 namespace System.Collections.Generic;
+
 public static class IEnumerableOfStringExtensions
 {
     public static string AsLines(this IEnumerable<string>? source) =>

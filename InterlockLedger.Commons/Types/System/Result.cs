@@ -34,9 +34,9 @@ namespace System;
 
 public interface IResult
 {
-    const int _noError = 0;
+    public const int _noError = 0;
 
-    bool Success { get; }
+    public bool Success { get; }
 }
 
 public class Result : IResult
@@ -54,11 +54,11 @@ public class Result : IResult
 
 public interface IError
 {
-    const int DefaultErrorType = 500;
+    public const int DefaultErrorType = 500;
 
-    string ErrorMessage { get; }
-    int ErrorType { get; }
-    Exception? Exception { get; }
+    public string ErrorMessage { get; }
+    public int ErrorType { get; }
+    public Exception? Exception { get; }
 }
 
 public sealed class Error : Result, IError

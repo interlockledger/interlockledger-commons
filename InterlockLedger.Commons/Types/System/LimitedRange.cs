@@ -30,7 +30,6 @@
 //
 // ******************************************************************************************************************************
 
-
 namespace System;
 
 [TypeConverter(typeof(TypeNotNullConverter<LimitedRange>))]
@@ -71,7 +70,6 @@ public readonly partial struct LimitedRange : ITextualLight<LimitedRange>, IInva
     public bool Equals(LimitedRange other) => End == other.End && Start == other.Start && string.Equals(InvalidityCause, other.InvalidityCause, StringComparison.Ordinal);
     public static bool operator ==(LimitedRange left, LimitedRange right) => left.Equals(right);
     public static bool operator !=(LimitedRange left, LimitedRange right) => !(left == right);
-
 
     public bool IsEmpty { get; }
     public static LimitedRange Empty { get; } = new LimitedRange(0, 0);

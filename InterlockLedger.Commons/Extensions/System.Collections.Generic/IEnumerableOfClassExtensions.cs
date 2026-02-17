@@ -56,6 +56,4 @@ public static class IEnumerableOfClassExtensions
                 ? throw new ArgumentException("Default value present", name)
                 : assumer(values);
 
-
-
 }

@@ -39,32 +39,32 @@ public class SingleEnumerableTests
     public void SingleEnumerableTest() {
         var single = new SingleEnumerable<int>(42);
         Assert.That(single, Is.Not.Null);
-        Assert.Multiple(() => {
+        using (Assert.EnterMultipleScope()) {
             Assert.That(single.First(), Is.EqualTo(42));
             Assert.That(single.Last(), Is.EqualTo(42));
             Assert.That(single.Count(), Is.EqualTo(1));
-        });
+        }
         var enumerator = single.GetEnumerator();
         Assert.That(enumerator, Is.Not.Null);
         Assert.That(enumerator, Is.InstanceOf<IEnumerator<int>>());
-        Assert.Multiple(() => {
-            Assert.That(enumerator.Current, Is.EqualTo(0));
+        using (Assert.EnterMultipleScope()) {
+            Assert.That(enumerator.Current, Is.Zero);
             Assert.That(enumerator.MoveNext());
-        });
-        Assert.Multiple(() => {
+        }
+        using (Assert.EnterMultipleScope()) {
             Assert.That(enumerator.Current, Is.EqualTo(42));
             Assert.That(enumerator.MoveNext(), Is.False);
-        });
-        Assert.That(enumerator.Current, Is.EqualTo(0));
+        }
+        Assert.That(enumerator.Current, Is.Zero);
         enumerator.Reset();
-        Assert.Multiple(() => {
-            Assert.That(enumerator.Current, Is.EqualTo(0));
+        using (Assert.EnterMultipleScope()) {
+            Assert.That(enumerator.Current, Is.Zero);
             Assert.That(enumerator.MoveNext());
-        });
-        Assert.Multiple(() => {
+        }
+        using (Assert.EnterMultipleScope()) {
             Assert.That(enumerator.Current, Is.EqualTo(42));
             Assert.That(enumerator.MoveNext(), Is.False);
-        });
-        Assert.That(enumerator.Current, Is.EqualTo(0));
+        }
+        Assert.That(enumerator.Current, Is.Zero);
     }
 }

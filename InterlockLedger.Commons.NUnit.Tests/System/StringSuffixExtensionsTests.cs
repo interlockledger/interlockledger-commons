@@ -36,8 +36,8 @@ namespace System;
 public class StringSuffixExtensionsTests
 {
     [Test]
-    public void WithSuffix() =>
-        Assert.Multiple(() => {
+    public void WithSuffix() {
+        using (Assert.EnterMultipleScope()) {
             Assert.That(((string?)null).WithSuffix(".json"), Is.Null);
             Assert.That("".WithSuffix(".json"), Is.EqualTo(".json"));
             Assert.That("a".WithSuffix(".json"), Is.EqualTo("a.json"));
@@ -52,11 +52,13 @@ public class StringSuffixExtensionsTests
             Assert.That("file ".WithSuffix("txt"), Is.EqualTo("file.txt"));
             Assert.That(".file ".WithSuffix("txt", '.'), Is.EqualTo(".file.txt"));
             Assert.That("file. ".WithSuffix("txt"), Is.EqualTo("file.txt"));
-        });
+        }
+        ;
+    }
 
     [Test]
-    public void WithSuffixReplaced() =>
-        Assert.Multiple(() => {
+    public void WithSuffixReplaced() {
+        using (Assert.EnterMultipleScope()) {
             Assert.That(((string?)null).WithSuffixReplaced(".jsonc"), Is.Null);
             Assert.That("".WithSuffixReplaced(".jsonc"), Is.EqualTo(".jsonc"));
             Assert.That("a.json".WithSuffixReplaced(".jsonc"), Is.EqualTo("a.jsonc"));
@@ -71,5 +73,6 @@ public class StringSuffixExtensionsTests
             Assert.That("file.doc ".WithSuffixReplaced("txt"), Is.EqualTo("file.txt"));
             Assert.That(".file.doc ".WithSuffixReplaced("txt", '.'), Is.EqualTo(".file.txt"));
             Assert.That("file. ".WithSuffixReplaced("txt"), Is.EqualTo("file.txt"));
-        });
+        }
+    }
 }

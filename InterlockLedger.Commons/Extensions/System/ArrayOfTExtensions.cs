@@ -31,6 +31,7 @@
 // ******************************************************************************************************************************
 
 namespace System;
+
 public static class ArrayOfTExtensions
 {
     public static string JoinedBy<T>(this T[]? values, string joiner) =>

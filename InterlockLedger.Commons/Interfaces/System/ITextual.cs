@@ -35,9 +35,8 @@ namespace System;
 #pragma warning disable CA1000 // Do not declare static members on generic types
 public interface IEmptyable<TSelf>
 {
-    bool IsEmpty { get; }
+    public bool IsEmpty { get; }
     public static abstract TSelf Empty { get; }
-
 }
 
 #pragma warning disable CA1000 // Do not declare static members on generic types

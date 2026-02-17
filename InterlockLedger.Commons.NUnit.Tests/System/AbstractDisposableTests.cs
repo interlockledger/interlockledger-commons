@@ -52,7 +52,6 @@ public class AbstractDisposableTests
             Assert.That(_disposable.UnmanagedResourcesDisposed, Is.True);
             Assert.That(_disposable.Disposed, Is.True);
         }
-
     }
 
     [Test]

@@ -68,8 +68,7 @@ public static class ReadOnlyMemoryExtensions
             foreach (var segment in segments) {
                 var next = new LinkedSegment(segment, current?.NextRunningIndex ?? 0);
                 first ??= next;
-                if (current is not null)
-                    current.Next = next;
+                _ = (current?.Next = next);
                 current = next;
             }
 

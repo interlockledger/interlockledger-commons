@@ -34,6 +34,5 @@ namespace System;
 
 public interface ITextualCore
 {
-    string TextualRepresentation { get; }
-
+    public string TextualRepresentation { get; }
 }

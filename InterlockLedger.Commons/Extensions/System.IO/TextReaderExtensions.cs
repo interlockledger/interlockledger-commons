@@ -31,6 +31,7 @@
 // ******************************************************************************************************************************
 
 namespace System.IO;
+
 public static class TextReaderExtensions
 {
     public static sbyte ReadInt8(this TextReader reader) => ReadNumber(reader, (ulong)sbyte.MaxValue, v => (sbyte)v, true);
@@ -55,7 +56,6 @@ public static class TextReaderExtensions
         return sb.ToString();
     }
 
-
     public static char? SkipWhiteSpace(this TextReader reader) {
         char? ch;
         do ch = reader.ReadChar();
@@ -67,7 +67,6 @@ public static class TextReaderExtensions
         int ch = reader.Read();
         return ch >= 0 ? (char?)ch : null;
     }
-
 
     private static char CheckChar(char? ch, string what) =>
         ch ?? throw new InvalidOperationException($"Could not find a {what} to read");
@@ -92,7 +91,7 @@ public static class TextReaderExtensions
                 else
                     throw new InvalidOperationException($"Invalid character '{ch}' in number");
             } else {
-                value = value * 10 + (byte)(ch - '0');
+                value = (value * 10) + (byte)(ch - '0');
                 char? digit = reader.ReadChar();
                 if (digit is null || char.IsWhiteSpace(digit.Value))
                     break;

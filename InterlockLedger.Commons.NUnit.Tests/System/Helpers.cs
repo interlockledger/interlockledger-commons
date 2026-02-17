@@ -39,11 +39,11 @@ internal static class Helpers
     internal static bool AssertArgumentException<T>(string name, TestDelegate code) where T : ArgumentException {
         var ex = Assert.Throws<T>(code);
         Assert.That(ex, Is.Not.Null);
-        Assert.Multiple(() => {
+        using (Assert.EnterMultipleScope()) {
             Assert.That(ex!.ParamName, Is.EqualTo(name));
             Assert.That(ex.Message, Does.StartWith(_expectedExceptionMessageStart));
             Assert.That(ex.InnerException, Is.Null);
-        });
+        }
         return true;
     }
 }

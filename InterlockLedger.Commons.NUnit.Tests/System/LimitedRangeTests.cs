@@ -33,6 +33,7 @@
 #nullable enable
 
 namespace System;
+
 [TestFixture]
 public class LimitedRangeTests
 {
@@ -41,13 +42,13 @@ public class LimitedRangeTests
 #pragma warning disable NUnit2009 // The same value has been provided as both the actual and the expected argument
     public void Equality() {
         Assert.That(LimitedRange.Empty, Is.EqualTo(LimitedRange.Empty));
-        Assert.Multiple(() => {
+        using (Assert.EnterMultipleScope()) {
             Assert.That(new LimitedRange(1, 10), Is.EqualTo(new LimitedRange(1, 10)));
             Assert.That(new LimitedRange(1, 10), Is.Not.EqualTo(LimitedRange.Empty));
             Assert.That(LimitedRange.Empty, Is.Not.EqualTo(new LimitedRange(1, 10)));
             Assert.That(new LimitedRange(1, 11), Is.Not.EqualTo(new LimitedRange(1, 10)));
             Assert.That(new LimitedRange(1, 10), Is.Not.EqualTo(new LimitedRange(1, 11)));
-        });
+        }
     }
 #pragma warning restore NUnit2009 // The same value has been provided as both the actual and the expected argument
 
@@ -102,18 +103,17 @@ public class LimitedRangeTests
                                                    isEmpty: false,
                                                    cause: "Arithmetic operation resulted in an overflow");
 
-
     private static void AssertLimitedRange(LimitedRange lr, string text, bool isInvalid, bool isEmpty, string? cause = null, bool unwrapped = false) {
-        Assert.Multiple(() => {
+        using (Assert.EnterMultipleScope()) {
             Assert.That(lr.IsInvalid(), Is.EqualTo(isInvalid), nameof(isInvalid));
             Assert.That(lr.IsEmpty, Is.EqualTo(isEmpty), nameof(isEmpty));
-        });
+        }
         if (!lr.IsInvalid() && !unwrapped) {
             Assert.That(lr.TextualRepresentation, Is.EqualTo(text));
             string lrAsString = lr; // implicit string conversion
             Assert.That(lrAsString, Is.EqualTo(text));
             if (lr.IsEmpty)
-                Assert.That(lr.Count, Is.EqualTo((ushort)0), nameof(lr.Count));
+                Assert.That(lr.Count, Is.Zero, nameof(lr.Count));
             else
                 Assert.That(lr.Count, Is.EqualTo((ushort)(lr.End - lr.Start + 1)), nameof(lr.Count));
         } else if (!cause.IsBlank())
