@@ -144,7 +144,7 @@ public static class IEnumerableOfTExtensions
     public static IEnumerable<TResult> SelectSkippingNulls<TSource, TResult>(this IEnumerable<TSource?>? values, Func<TSource, TResult?> selector)
         where TSource : class
         where TResult : class =>
-         values.SkipNulls().Select(selector).SkipNulls()!;
+         values.SkipNulls().Select(selector).SkipNulls();
 
     public static IEnumerable<T> Skip<T>(this IEnumerable<T>? values, Func<T, bool> predicate) =>
          values.Safe().Where(item => !predicate(item));

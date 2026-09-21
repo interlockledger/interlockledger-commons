@@ -70,21 +70,21 @@ public class AsyncLock
         public void Release() {
             TaskCompletionSource<bool>? tcs = null;
             lock (_waiters) if (_waiters.Count > 0)
-                    tcs = _waiters.Dequeue();
-                else
-                    _currentCount++;
+                tcs = _waiters.Dequeue();
+            else
+                _currentCount++;
             tcs?.SetResult(true);
         }
 
         public Task WaitAsync() {
             lock (_waiters) if (_currentCount > 0) {
-                    _currentCount--;
-                    return _completed;
-                } else {
-                    var waiter = new TaskCompletionSource<bool>();
-                    _waiters.Enqueue(waiter);
-                    return waiter.Task;
-                }
+                _currentCount--;
+                return _completed;
+            } else {
+                var waiter = new TaskCompletionSource<bool>();
+                _waiters.Enqueue(waiter);
+                return waiter.Task;
+            }
         }
 
         private static readonly Task _completed = Task.FromResult(true);

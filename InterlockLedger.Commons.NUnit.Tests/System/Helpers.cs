@@ -36,7 +36,7 @@ internal static class Helpers
 {
     internal const string _expectedExceptionMessageStart = "Required";
 
-    internal static bool AssertArgumentException<T>(string name, TestDelegate code) where T : ArgumentException {
+    internal static bool AssertArgumentException<T>(string name, Action code) where T : ArgumentException {
         var ex = Assert.Throws<T>(code);
         Assert.That(ex, Is.Not.Null);
         using (Assert.EnterMultipleScope()) {

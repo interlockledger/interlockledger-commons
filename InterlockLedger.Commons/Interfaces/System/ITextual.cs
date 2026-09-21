@@ -49,7 +49,7 @@ public interface ITextual<TSelf> : IInvalidable, IEquatable<TSelf>, IParsable<TS
         textualRepresentation.IsBlank() || textualRepresentation.SafeEqualsTo(TSelf.Empty.TextualRepresentation)
             ? TSelf.Empty
             : TSelf.Mask.IsMatch(textualRepresentation)
-                ? TSelf.Parse(textualRepresentation!, CultureInfo.InvariantCulture)
+                ? TSelf.Parse(textualRepresentation, CultureInfo.InvariantCulture)
                 : TSelf.InvalidBy($"Input '{textualRepresentation}' does not match {TSelf.Mask}");
 
     public static string? Validate(string? textualRepresentation) {

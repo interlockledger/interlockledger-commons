@@ -124,7 +124,7 @@ public static class ResultExtensions
     public static Result<TOut> ToConvertedResult<TOut, TIn>(this Result<TIn> result, Func<TIn?, TOut?> convert) =>
         result.Required() switch {
             IError error => error.ToConvertedError<TOut>(),
-            _ => new Result<TOut>(convert.Required()(result.Value)!)
+            _ => new Result<TOut>(convert.Required()(result.Value))
         };
 }
 
