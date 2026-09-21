@@ -147,7 +147,11 @@ public static class ArrayOfByteExtensions
     }
 
     public static X509Certificate2 OpenCertificate(this byte[] certificateBytes, string password) =>
-         new(certificateBytes.Required(), password.Required(), X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
+#if NET10_0_OR_GREATER
+        X509CertificateLoader.LoadPkcs12(certificateBytes.Required(), password.Required(), X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
+#else
+       new(certificateBytes.Required(), password.Required(), X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.Exportable);
+#endif
 
     public static byte[] PartOf(this byte[] bytes, int length, int offset = 0) {
         byte[] part = new byte[length];
