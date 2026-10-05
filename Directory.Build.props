@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Project>
     <PropertyGroup>
-        <Version>20.0.0</Version>
+        <Version>20.0.1</Version>
         <PackageReleaseNotes>
-          - Adding .NET 10 target framework.
-          - Fixed obsolete warnings on X509Certificate loading for .NET 10.
+          - Update test project dependencies to Nunit 5.0.0
         </PackageReleaseNotes>
     </PropertyGroup>
 </Project>
