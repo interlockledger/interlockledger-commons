@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Project>
     <PropertyGroup>
-        <Version>20.0.1</Version>
+        <Version>20.0.2</Version>
         <PackageReleaseNotes>
-          - Update test project dependencies to Nunit 5.0.0
+          - Update some test dependencies
+            + Microsoft.NET.Test.Sdk 18.10.1 -> 18.11.0
+            + NUnit3TestAdapter 6.3.0 -> 6.3.1
         </PackageReleaseNotes>
     </PropertyGroup>
 </Project>
